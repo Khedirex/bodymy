@@ -51,22 +51,29 @@ precisa também de `SUPABASE_SERVICE_ROLE_KEY`.
 > (rotas de API / server actions / seed). Nunca a exponha no client e nunca a
 > prefixe com `NEXT_PUBLIC_`.
 
-### 4. Banco de dados (migrations)
-As migrations ficam em `supabase/migrations` e devem ser aplicadas em ordem:
+### 4. Banco de dados
 
-- `0001_schema.sql` — tabelas
-- `0002_rls.sql` — Row Level Security + bucket privado de fotos
-- `0003_functions.sql` — função SQL de streak
+**Projeto Supabase NOVO e vazio (recomendado) — uma execução:**
+No SQL Editor do projeto (que deve ser EXCLUSIVO do BodyMy), rode em ordem:
+1. `supabase/schema.sql` — cria as 13 tabelas + RLS + policies + funções +
+   trigger `is_admin` + bucket, recarrega o cache do PostgREST e imprime um
+   quadro de verificação ao final. (Sem DROPs — se algo já existir, ele falha
+   alto de propósito.)
+2. `supabase/storage-setup.sql` — policies do bucket `progress-photos`
+   (isolado porque criar policy em `storage.objects` pode exigir privilégio de
+   owner; se falhar, dá para configurar pelo Dashboard → Storage → Policies).
 
-Aplique de uma das formas:
+**Alternativa por migrations** (`supabase/migrations`, fonte da verdade para
+produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
+`0003_functions.sql` → `0004_admin.sql`, via `supabase db push` ou colando cada
+uma no SQL Editor.
 
-**Via Supabase CLI** (recomendado):
-```bash
-supabase link --project-ref <seu-ref>
-supabase db push
-```
-
-**Via SQL Editor do painel Supabase:** cole e rode cada arquivo, em ordem.
+> **Nunca** rode `supabase/reset-dev.sql` num projeto que não seja exclusivo do
+> BodyMy — ele dá DROP em todas as tabelas.
+>
+> Os scripts de seed têm um **guard**: se o banco conectado não for o do BodyMy
+> (sem `entitlements` / `products` sem `kiwify_product_id`), eles abortam com
+> mensagem clara antes de qualquer operação.
 
 ### 5. Seed
 Popula o programa Caminhada Japonesa completo (4 semanas × 7 dias), produtos

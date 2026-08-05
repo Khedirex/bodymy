@@ -1,63 +1,30 @@
 -- =====================================================================
---  BodyMy — RESET DE DESENVOLVIMENTO (schema consolidado)
+--  BodyMy — SCHEMA DEFINITIVO (rodar UMA vez num projeto Supabase NOVO)
 --
---  ⚠️⚠️⚠️  PERIGO: APAGA TODOS OS DADOS (DROP de TODAS as tabelas)  ⚠️⚠️⚠️
+--  Este arquivo NÃO tem DROPs. Usa `create table` puro (sem if not
+--  exists) de propósito: se alguma coisa já existir, ele FALHA ALTO em
+--  vez de mascarar — é o que queremos num banco que deve estar vazio.
 --
---  >>> SÓ rode isto num projeto Supabase EXCLUSIVO do BodyMy. <<<
---  NUNCA rode em produção com clientes, e NUNCA num projeto que também
---  hospeda outro sistema — este script dropa profiles/products/etc. e
---  destruiria dados de qualquer outro app que compartilhe o schema public.
---  (Foi exatamente esse tipo de confusão — rodar contra o banco de outro
---   projeto — que causou os erros anteriores.)
+--  Ordem: tabelas → RLS/policies → funções → trigger → bucket →
+--  reload do PostgREST → verificação.
 --
---  Para montar um banco NOVO e vazio do zero, use supabase/schema.sql
---  (sem DROPs). Este reset-dev.sql é só para RE-zerar um banco que já é
---  do BodyMy e ficou sujo.
+--  ⚠️ A configuração de POLICIES do Storage (storage.objects) foi
+--  ISOLADA em supabase/storage-setup.sql. Motivo: criar policy em
+--  storage.objects pode exigir privilégio de owner que o SQL Editor
+--  nem sempre tem, e como o Editor roda tudo em UMA transação, um erro
+--  ali faria rollback de TODO o schema. Rode storage-setup.sql depois.
+--  (O app usa URLs assinadas geradas no servidor com a service role,
+--   então funciona mesmo sem essas policies — elas são reforço.)
 --
---  Como usar: cole INTEIRO no SQL Editor e execute. É idempotente.
---  Fonte da verdade para produção: migrations numeradas (0001..0004).
+--  Observação: gen_random_uuid() é função nativa do Postgres 13+
+--  (Supabase é 15+), então não precisamos de extensão.
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
--- 0) Extensão necessária
--- ---------------------------------------------------------------------
-create extension if not exists "pgcrypto";
-
--- ---------------------------------------------------------------------
--- 1) DROP de tudo que é nosso (idempotente)
---    CASCADE remove FKs, índices, policies e triggers das tabelas.
+-- TABELAS (na ordem de dependência)
 -- ---------------------------------------------------------------------
 
--- Triggers e functions próprios (as functions são standalone; tables caem abaixo)
-drop trigger if exists trg_prevent_is_admin_change on public.profiles;
-drop function if exists public.prevent_is_admin_change() cascade;
-drop function if exists public.calcular_streak(uuid) cascade;
-
--- Tabelas do projeto (ordem não importa por causa do CASCADE)
-drop table if exists public.progress_entries   cascade;
-drop table if exists public.lesson_completions cascade;
-drop table if exists public.checkins           cascade;
-drop table if exists public.diet_days          cascade;
-drop table if exists public.diet_plans         cascade;
-drop table if exists public.lessons            cascade;
-drop table if exists public.program_days       cascade;
-drop table if exists public.program_weeks      cascade;
-drop table if exists public.programs           cascade;
-drop table if exists public.entitlements       cascade;
-drop table if exists public.products           cascade;
-drop table if exists public.profiles           cascade;
-drop table if exists public.webhook_events     cascade;
-
--- Policies do bucket de fotos (storage.objects NÃO é dropada — é do sistema)
-drop policy if exists "progress_photos_read_own"   on storage.objects;
-drop policy if exists "progress_photos_insert_own" on storage.objects;
-drop policy if exists "progress_photos_delete_own" on storage.objects;
-
--- =====================================================================
--- 2) RECRIAÇÃO — tabelas (equivale a 0001_schema.sql + is_admin de 0004)
--- =====================================================================
-
--- profiles (espelha auth.users) — já com is_admin (migration 0004)
+-- profiles (espelha auth.users) — já com is_admin
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   nome text,
@@ -199,10 +166,9 @@ create table public.webhook_events (
   unique (provider, event_id)
 );
 
--- =====================================================================
--- 3) RLS + POLICIES (equivale a 0002_rls.sql)
--- =====================================================================
-
+-- ---------------------------------------------------------------------
+-- RLS + POLICIES
+-- ---------------------------------------------------------------------
 alter table public.profiles           enable row level security;
 alter table public.products           enable row level security;
 alter table public.entitlements       enable row level security;
@@ -277,9 +243,9 @@ create policy "progress_delete_own" on public.progress_entries
 
 -- webhook_events: sem policies => somente service role.
 
--- =====================================================================
--- 4) FUNCTIONS (equivale a 0003_functions.sql) + is_admin (0004)
--- =====================================================================
+-- ---------------------------------------------------------------------
+-- FUNÇÕES
+-- ---------------------------------------------------------------------
 
 -- Streak no fuso America/Sao_Paulo
 create or replace function public.calcular_streak(p_user_id uuid)
@@ -361,44 +327,45 @@ begin
 end;
 $$;
 
-drop trigger if exists trg_prevent_is_admin_change on public.profiles;
 create trigger trg_prevent_is_admin_change
   before update on public.profiles
   for each row
   execute function public.prevent_is_admin_change();
 
--- =====================================================================
--- 5) STORAGE — bucket privado de fotos + policies (equivale a 0002)
--- =====================================================================
+-- ---------------------------------------------------------------------
+-- STORAGE — bucket privado (a inserção de bucket é permitida ao SQL
+-- Editor). As POLICIES ficam em storage-setup.sql (ver aviso no topo).
+-- ---------------------------------------------------------------------
 insert into storage.buckets (id, name, public)
 values ('progress-photos', 'progress-photos', false)
 on conflict (id) do nothing;
 
-create policy "progress_photos_read_own" on storage.objects
-  for select to authenticated using (
-    bucket_id = 'progress-photos'
-    and (storage.foldername(name))[1] = auth.uid()::text
-  );
-create policy "progress_photos_insert_own" on storage.objects
-  for insert to authenticated with check (
-    bucket_id = 'progress-photos'
-    and (storage.foldername(name))[1] = auth.uid()::text
-  );
-create policy "progress_photos_delete_own" on storage.objects
-  for delete to authenticated using (
-    bucket_id = 'progress-photos'
-    and (storage.foldername(name))[1] = auth.uid()::text
-  );
-
--- =====================================================================
--- 6) Recarrega o cache de schema do PostgREST (Supabase)
---    Sem isto, a API pode continuar servindo o schema ANTIGO em cache e
---    retornar PGRST204 ("Could not find the '<coluna>' column ... in the
---    schema cache") mesmo com a coluna já existindo no banco.
--- =====================================================================
+-- ---------------------------------------------------------------------
+-- Recarrega o cache de schema do PostgREST
+-- ---------------------------------------------------------------------
 notify pgrst, 'reload schema';
 
--- =====================================================================
--- Pronto. Schema recriado do zero.
--- Próximos passos (no seu terminal): npm run seed && npm run seed:admin
--- =====================================================================
+-- ---------------------------------------------------------------------
+-- VERIFICAÇÃO — deve aparecer como o resultado final no SQL Editor
+-- ---------------------------------------------------------------------
+select * from (
+  values
+    ('tabelas em public (esperado 13)',
+      (select count(*)::text from information_schema.tables
+        where table_schema = 'public' and table_type = 'BASE TABLE')),
+    ('products.kiwify_product_id',
+      (select case when exists (select 1 from information_schema.columns
+        where table_schema='public' and table_name='products'
+          and column_name='kiwify_product_id') then 'OK' else 'FALTANDO' end)),
+    ('products.kiwify_checkout_url',
+      (select case when exists (select 1 from information_schema.columns
+        where table_schema='public' and table_name='products'
+          and column_name='kiwify_checkout_url') then 'OK' else 'FALTANDO' end)),
+    ('tabela entitlements',
+      (select case when to_regclass('public.entitlements') is not null
+        then 'OK' else 'FALTANDO' end)),
+    ('bucket progress-photos',
+      (select case when exists (select 1 from storage.buckets where id='progress-photos')
+        then 'OK' else 'PENDENTE (rode storage-setup.sql)' end))
+) as v(verificacao, resultado)
+order by verificacao;

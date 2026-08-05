@@ -21,6 +21,7 @@
 
 import './load-env'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { assertBodyMyDb } from './guard-db'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -52,6 +53,7 @@ async function findAuthUserByEmail(db: SupabaseClient, email: string) {
 
 async function main() {
   console.log('→ Seed admin iniciado')
+  await assertBodyMyDb(db)
 
   // 0) Produto Caminhada Japonesa precisa existir.
   const { data: product, error: prodErr } = await db
