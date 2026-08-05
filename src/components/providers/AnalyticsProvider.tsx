@@ -2,13 +2,22 @@
 
 import { useEffect } from 'react'
 import Script from 'next/script'
+import * as Sentry from '@sentry/nextjs'
 import { initPostHog } from '@/lib/analytics'
 import { env } from '@/lib/env'
 
-// Inicializa PostHog e injeta o Meta Pixel (se configurados).
+// Inicializa PostHog + Sentry (client) e injeta o Meta Pixel (se configurados).
 export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     initPostHog()
+    if (env.sentryDsnPublic) {
+      Sentry.init({
+        dsn: env.sentryDsnPublic,
+        tracesSampleRate: 0.1,
+        replaysSessionSampleRate: 0,
+        replaysOnErrorSampleRate: 0,
+      })
+    }
   }, [])
 
   return (

@@ -57,6 +57,10 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Roda em tudo, exceto assets estáticos, imagens e o service worker.
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|icons|manifest.json|sw.js|apple-touch-icon.png).*)'],
+  // Roda em tudo, exceto: rotas de API (fazem a própria auth — o webhook
+  // precisa ser público e as demais retornam 401 por conta própria),
+  // assets estáticos, imagens, manifest e o service worker.
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|icons|manifest.json|sw.js|apple-touch-icon.png).*)',
+  ],
 }
