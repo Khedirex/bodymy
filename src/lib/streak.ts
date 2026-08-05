@@ -63,3 +63,42 @@ function shift(iso: string, delta: number): string {
   const date = new Date(Date.UTC(y, m - 1, d + delta))
   return date.toISOString().slice(0, 10)
 }
+
+/** Segunda-feira (ISO) da semana que contém a data. */
+function segundaDaSemana(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number)
+  const date = new Date(Date.UTC(y, m - 1, d))
+  const dow = date.getUTCDay() // 0=domingo
+  const diffParaSegunda = (dow + 6) % 7
+  return shift(iso, -diffParaSegunda)
+}
+
+export interface SemanaConstancia {
+  label: string
+  dias: number
+}
+
+/**
+ * Dias ativos (com check-in) por semana, nas últimas `nSemanas` semanas,
+ * do mais antigo para o mais recente. label = dia/mês da segunda-feira.
+ */
+export function constanciaSemanal(
+  datasCheckin: string[],
+  hoje: string,
+  nSemanas = 6,
+): SemanaConstancia[] {
+  const set = new Set(datasCheckin)
+  const segundaAtual = segundaDaSemana(hoje)
+
+  const semanas: SemanaConstancia[] = []
+  for (let w = nSemanas - 1; w >= 0; w--) {
+    const inicio = shift(segundaAtual, -7 * w)
+    let dias = 0
+    for (let i = 0; i < 7; i++) {
+      if (set.has(shift(inicio, i))) dias += 1
+    }
+    const [, mm, dd] = inicio.split('-')
+    semanas.push({ label: `${dd}/${mm}`, dias })
+  }
+  return semanas
+}

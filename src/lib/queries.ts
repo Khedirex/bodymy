@@ -8,6 +8,9 @@ import type {
   Product,
   ProgramWeek,
   ProgramDay,
+  DietPlan,
+  DietDay,
+  ProgressEntry,
 } from '@/types/db'
 
 // =====================================================================
@@ -325,4 +328,65 @@ export async function getCheckinDates(userId: string): Promise<string[]> {
     .eq('user_id', userId)
     .order('data', { ascending: true })
   return (data ?? []).map((c) => c.data as string)
+}
+
+// --- Dieta -----------------------------------------------------------
+export interface BaseDiet {
+  plan: DietPlan
+  days: DietDay[]
+}
+
+/** Plano de dieta base (incluso) com todos os dias de cardápio. */
+export async function getBaseDiet(): Promise<BaseDiet | null> {
+  const supabase = createClient()
+  const { data: plan } = await supabase
+    .from('diet_plans')
+    .select('*')
+    .is('product_id', null)
+    .eq('ativo', true)
+    .order('slug', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+  if (!plan) return null
+
+  const { data: days } = await supabase
+    .from('diet_days')
+    .select('*')
+    .eq('diet_plan_id', (plan as DietPlan).id)
+    .order('numero', { ascending: true })
+
+  return { plan: plan as DietPlan, days: (days ?? []) as DietDay[] }
+}
+
+// --- Progresso -------------------------------------------------------
+export interface ProgressEntryView extends ProgressEntry {
+  fotoUrl: string | null
+}
+
+/** Entradas de progresso do usuário com URL assinada da foto (privada). */
+export async function getProgressEntries(userId: string): Promise<ProgressEntryView[]> {
+  const supabase = createClient()
+  const { data } = await supabase
+    .from('progress_entries')
+    .select('*')
+    .eq('user_id', userId)
+    .order('data', { ascending: false })
+
+  const entries = (data ?? []) as ProgressEntry[]
+  if (entries.length === 0) return []
+
+  // URLs assinadas são geradas no servidor (bucket privado).
+  const admin = createAdminClient()
+  const views: ProgressEntryView[] = []
+  for (const e of entries) {
+    let fotoUrl: string | null = null
+    if (e.foto_path) {
+      const { data: signed } = await admin.storage
+        .from('progress-photos')
+        .createSignedUrl(e.foto_path, 60 * 60) // 1h
+      fotoUrl = signed?.signedUrl ?? null
+    }
+    views.push({ ...e, fotoUrl })
+  }
+  return views
 }
