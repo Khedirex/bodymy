@@ -16,6 +16,7 @@ export interface Profile {
   email: string | null
   quiz_data: QuizData | null
   onboarding_completo: boolean
+  is_admin: boolean
   created_at: string
 }
 

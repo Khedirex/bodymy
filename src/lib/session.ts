@@ -33,6 +33,7 @@ export async function getProfile(): Promise<Profile | null> {
       email: user.email ?? null,
       quiz_data: null,
       onboarding_completo: false,
+      is_admin: false,
       created_at: user.created_at,
     }
   }

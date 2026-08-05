@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "tsx supabase/seed.ts",
+    "seed:admin": "tsx supabase/seed-admin.ts",
     "setup:env": "node scripts/setup-env-local.mjs",
     "check:env": "node scripts/check-env.mjs",
     "typecheck": "tsc --noEmit"

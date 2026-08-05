@@ -32,6 +32,63 @@ export async function sendWelcomeEmail(params: {
   return { id: data?.id }
 }
 
+// E-mail de login: link mágico para acessar (usuária já é cliente).
+// Retorna { skipped: true } se o Resend não estiver configurado.
+export async function sendMagicLinkEmail(params: {
+  to: string
+  nome: string | null
+  magicLink: string
+}) {
+  const { to, nome, magicLink } = params
+  const apiKey = serverEnv.resendApiKey
+  if (!apiKey) {
+    return { skipped: true as const }
+  }
+
+  const resend = new Resend(apiKey)
+  const primeiroNome = (nome ?? '').split(' ')[0] || 'tudo pronto'
+
+  const { data, error } = await resend.emails.send({
+    from: serverEnv.resendFrom,
+    to,
+    subject: 'Seu link de acesso ao BodyMy 🤍',
+    html: magicLinkHtml({ primeiroNome, magicLink }),
+  })
+  if (error) throw error
+  return { id: data?.id }
+}
+
+function magicLinkHtml({
+  primeiroNome,
+  magicLink,
+}: {
+  primeiroNome: string
+  magicLink: string
+}) {
+  return `<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;background:#FDFBF8;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#39322D;">
+  <div style="max-width:520px;margin:0 auto;padding:32px 20px;">
+    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(74,66,60,.08);">
+      <p style="font-size:16px;line-height:1.5;margin:0 0 12px;">Oi, ${primeiroNome}!</p>
+      <p style="font-size:16px;line-height:1.5;margin:0 0 20px;">
+        Aqui está o seu link de acesso ao BodyMy. É só tocar no botão abaixo — sem senha.
+      </p>
+      <div style="text-align:center;margin:26px 0;">
+        <a href="${magicLink}" style="display:inline-block;background:#E8896B;color:#fff;text-decoration:none;font-weight:bold;font-size:17px;padding:16px 28px;border-radius:16px;">
+          ACESSAR MEU PROGRAMA
+        </a>
+      </div>
+      <p style="font-size:14px;line-height:1.5;color:#6b625b;margin:0;">
+        Se você não pediu este acesso, pode ignorar este e-mail. O link expira em breve.
+      </p>
+    </div>
+  </div>
+</body>
+</html>`
+}
+
 function welcomeHtml({
   primeiroNome,
   programaNome,

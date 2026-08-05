@@ -198,12 +198,35 @@ Configure na Kiwify a URL do webhook apontando para
 
 | Comando           | O quê                                  |
 | ----------------- | -------------------------------------- |
-| `npm run dev`     | ambiente de desenvolvimento            |
+| `npm run dev`     | ambiente de desenvolvimento (roda `setup:env` + `check:env` antes) |
 | `npm run build`   | build de produção                      |
 | `npm run start`   | roda o build                           |
 | `npm run seed`    | popula o banco (usa a service role key)|
+| `npm run seed:admin` | cria o usuário dono/admin de teste (khedirex@gmail.com, "Willian", `is_admin=true`, acesso ao Caminhada Japonesa) |
+| `npm run setup:env` | cria `.env.local` a partir de `.env.example` (se faltar) e sanea |
+| `npm run check:env` | valida se as variáveis do Supabase estão preenchidas |
 | `npm run typecheck` | checagem de tipos                    |
 | `npm run lint`    | ESLint                                 |
+
+> **Nota (NEXT_PUBLIC no build):** variáveis `NEXT_PUBLIC_*` são embutidas em
+> tempo de **build**. Em `npm run dev` o Next lê o `.env.local` na inicialização
+> (funciona direto). Em `build`/`start` e na Vercel, elas precisam existir no
+> ambiente **no momento do build**.
+
+### Login e envio de magic link
+
+O login usa a rota de servidor `POST /api/auth/magic-link`, que:
+- valida se o e-mail existe (não criamos conta no login — só quem comprou);
+- gera o magic link via Supabase Auth (`generateLink`) e envia por **Resend**;
+- distingue os erros: `nao_encontrado` (404, não comprou) vs falha técnica
+  (`geracao_link`/`envio_email`/`consulta_falhou`) — a tela de login mostra
+  mensagens diferentes para cada caso;
+- **fallback de dev:** com `DEV_TOOLS_ENABLED=true`, além de enviar o e-mail, o
+  link é **impresso no console do servidor** — dá para logar sem depender da
+  caixa de entrada.
+
+Obs.: o e-mail de login é enviado pelo **Resend** (não pelo SMTP do Supabase).
+Sem `RESEND_API_KEY`, em dev o link ainda aparece no console.
 
 ---
 

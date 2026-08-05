@@ -2,8 +2,6 @@
 
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { env } from '@/lib/env'
 
 export function LoginForm() {
   const params = useSearchParams()
@@ -14,36 +12,47 @@ export function LoginForm() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'enviando' | 'enviado' | 'erro'>('idle')
   const [erro, setErro] = useState<string | null>(erroInicial)
+  const [canalDev, setCanalDev] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setErro(null)
     setStatus('enviando')
 
-    const supabase = createClient()
     const next = params.get('next') ?? '/'
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
-      options: {
-        // Não criamos conta no login — só quem comprou (webhook) tem acesso.
-        shouldCreateUser: false,
-        emailRedirectTo: `${env.appUrl}/auth/callback?next=${encodeURIComponent(next)}`,
-      },
-    })
+    try {
+      const res = await fetch('/api/auth/magic-link', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), next }),
+      })
+      const data = await res.json().catch(() => ({}))
 
-    if (error) {
-      // Mensagem amigável para e-mail sem compra.
+      if (res.ok) {
+        setCanalDev(data?.canal === 'console_dev')
+        setStatus('enviado')
+        return
+      }
+
       setStatus('erro')
-      if (/signup.*disabled|not.*found|user/i.test(error.message)) {
+      if (res.status === 404 || data?.erro === 'nao_encontrado') {
+        // E-mail não encontrado (não comprou) — distinto de falha técnica.
         setErro(
           'Não encontramos uma compra com este e-mail. Verifique se usou o mesmo e-mail da compra.',
         )
+      } else if (data?.erro === 'email_invalido') {
+        setErro('Confira o e-mail digitado — parece estar incompleto.')
       } else {
-        setErro('Não conseguimos enviar o link agora. Tente novamente em instantes.')
+        // Falha técnica NOSSA (geração do link ou envio do e-mail).
+        setErro(
+          'Tivemos um problema técnico ao enviar seu link — não foi você. ' +
+            'Tente de novo em instantes; se persistir, fale com o suporte.',
+        )
       }
-      return
+    } catch {
+      setStatus('erro')
+      setErro('Sem conexão no momento. Verifique sua internet e tente novamente.')
     }
-    setStatus('enviado')
   }
 
   if (status === 'enviado') {
@@ -57,6 +66,12 @@ export function LoginForm() {
           Enviamos um link de acesso para <strong>{email}</strong>. Abra seu e-mail e toque
           no botão <strong>ACESSAR MEU PROGRAMA</strong>.
         </p>
+        {canalDev ? (
+          <p className="mt-3 rounded-2xl bg-cream-100 px-4 py-3 text-sm text-ink-700">
+            <strong>Modo desenvolvimento:</strong> o link também foi impresso no console do
+            servidor.
+          </p>
+        ) : null}
         <p className="mt-4 text-sm text-ink-700/70">
           Não chegou? Confira a caixa de spam ou{' '}
           <button
