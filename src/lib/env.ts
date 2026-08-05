@@ -27,6 +27,33 @@ export const env = {
   devToolsEnabled: process.env.DEV_TOOLS_ENABLED === 'true',
 }
 
+// ---------------------------------------------------------------------
+// Validação amigável da configuração do Supabase.
+// Em vez de quebrar com o erro genérico do supabase-js
+// ("Your project's URL and Key are required..."), dizemos exatamente
+// qual variável falta e onde preencher.
+// ---------------------------------------------------------------------
+export function assertSupabaseEnv(): { url: string; anonKey: string } {
+  const faltando: string[] = []
+  if (!env.supabaseUrl) faltando.push('NEXT_PUBLIC_SUPABASE_URL')
+  if (!env.supabaseAnonKey) faltando.push('NEXT_PUBLIC_SUPABASE_ANON_KEY')
+
+  if (faltando.length > 0) {
+    const msg =
+      `[BodyMy] Configuração do Supabase ausente: ${faltando.join(', ')}.\n` +
+      `→ Preencha essas variáveis no arquivo .env.local (copie de .env.example) ` +
+      `e reinicie o servidor (npm run dev).\n` +
+      `Onde encontrar no painel do Supabase: Project Settings → API → ` +
+      `"Project URL" (NEXT_PUBLIC_SUPABASE_URL) e "Project API keys → anon public" ` +
+      `(NEXT_PUBLIC_SUPABASE_ANON_KEY).`
+    // eslint-disable-next-line no-console
+    console.error(msg)
+    throw new Error(msg)
+  }
+
+  return { url: env.supabaseUrl, anonKey: env.supabaseAnonKey }
+}
+
 // Somente servidor — nunca importe estes em componentes client.
 export const serverEnv = {
   get serviceRoleKey() {

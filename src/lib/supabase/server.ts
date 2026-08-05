@@ -1,6 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { env } from '@/lib/env'
+import { assertSupabaseEnv } from '@/lib/env'
 
 type CookieToSet = { name: string; value: string; options: CookieOptions }
 
@@ -8,8 +8,9 @@ type CookieToSet = { name: string; value: string; options: CookieOptions }
 // Respeita a sessão do usuário (cookies) e a RLS. Usa a anon key.
 export function createClient() {
   const cookieStore = cookies()
+  const { url, anonKey } = assertSupabaseEnv()
 
-  return createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+  return createServerClient(url, anonKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll()

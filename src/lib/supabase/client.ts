@@ -1,10 +1,11 @@
 'use client'
 
 import { createBrowserClient } from '@supabase/ssr'
-import { env } from '@/lib/env'
+import { assertSupabaseEnv } from '@/lib/env'
 
 // Cliente Supabase para uso no browser (Client Components).
 // Usa apenas a anon key + RLS. Nunca a service role.
 export function createClient() {
-  return createBrowserClient(env.supabaseUrl, env.supabaseAnonKey)
+  const { url, anonKey } = assertSupabaseEnv()
+  return createBrowserClient(url, anonKey)
 }
