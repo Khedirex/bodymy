@@ -1,7 +1,7 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { userHasEntitlement } from '@/lib/entitlements'
+import { userHasEntitlement, getActiveEntitlementProductIds } from '@/lib/entitlements'
 import type {
   Program,
   Lesson,
@@ -202,6 +202,118 @@ export async function getProgramTrack(
     completedCount,
     nextLesson,
   }
+}
+
+// --- Acesso a uma aula específica -----------------------------------
+export interface LessonContext {
+  lesson: Lesson
+  program: Program
+  productId: string
+  weekNumero: number
+  dayNumero: number
+  completed: boolean
+  /** Próxima aula na sequência (para preview na celebração). */
+  proxima: { id: string; titulo: string } | null
+}
+
+/**
+ * Resolve o acesso a uma aula: valida entitlement e devolve a aula com
+ * seu contexto. Retorna { hasAccess:false } se o usuário não pode ver.
+ * Toda leitura de conteúdo de aula passa por aqui (validação no servidor).
+ */
+export async function getLessonForUser(
+  userId: string,
+  lessonId: string,
+): Promise<{ hasAccess: boolean; ctx: LessonContext | null }> {
+  const admin = createAdminClient()
+
+  const { data: lesson } = await admin
+    .from('lessons')
+    .select('*')
+    .eq('id', lessonId)
+    .maybeSingle()
+  if (!lesson) return { hasAccess: false, ctx: null }
+
+  const { data: day } = await admin
+    .from('program_days')
+    .select('id, numero, week_id')
+    .eq('id', (lesson as Lesson).day_id)
+    .maybeSingle()
+  const { data: week } = day
+    ? await admin
+        .from('program_weeks')
+        .select('id, numero, program_id')
+        .eq('id', day.week_id)
+        .maybeSingle()
+    : { data: null }
+  const { data: program } = week
+    ? await admin.from('programs').select('*').eq('id', week.program_id).maybeSingle()
+    : { data: null }
+
+  if (!day || !week || !program) return { hasAccess: false, ctx: null }
+
+  const supabase = createClient()
+  const hasAccess = await userHasEntitlement(
+    supabase,
+    userId,
+    (program as Program).product_id,
+  )
+  if (!hasAccess) return { hasAccess: false, ctx: null }
+
+  const { data: completion } = await admin
+    .from('lesson_completions')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('lesson_id', lessonId)
+    .maybeSingle()
+
+  // Próxima aula: montamos a trilha e pegamos a seguinte por índice global.
+  const track = await getProgramTrack(userId, (program as Program).slug)
+  let proxima: { id: string; titulo: string } | null = null
+  if (track) {
+    const flat = track.weeks
+      .flatMap((w) => w.days.map((d) => d.node))
+      .filter((n): n is LessonNode => n !== null)
+    const idx = flat.findIndex((n) => n.lesson.id === lessonId)
+    const next = idx >= 0 ? flat[idx + 1] : undefined
+    if (next) proxima = { id: next.lesson.id, titulo: next.lesson.titulo }
+  }
+
+  return {
+    hasAccess: true,
+    ctx: {
+      lesson: lesson as Lesson,
+      program: program as Program,
+      productId: (program as Program).product_id,
+      weekNumero: week.numero,
+      dayNumero: day.numero,
+      completed: Boolean(completion),
+      proxima,
+    },
+  }
+}
+
+// --- Vitrine ---------------------------------------------------------
+export interface StorefrontItem {
+  product: Product
+  liberado: boolean
+}
+
+/** Todos os produtos ativos com o estado liberado/bloqueado do usuário. */
+export async function getStorefront(userId: string): Promise<StorefrontItem[]> {
+  const supabase = createClient()
+  const { data: products } = await supabase
+    .from('products')
+    .select('*')
+    .eq('ativo', true)
+    .order('created_at', { ascending: true })
+
+  const owned = await getActiveEntitlementProductIds(supabase, userId)
+
+  return (products ?? []).map((p) => ({
+    product: p as Product,
+    liberado: owned.has((p as Product).id),
+  }))
 }
 
 /** Datas (ISO) de check-in do usuário — base do streak e do calendário. */
