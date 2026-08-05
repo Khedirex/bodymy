@@ -296,6 +296,36 @@ export async function getLessonForUser(
   }
 }
 
+/** Produto por slug + se o usuário já tem acesso. */
+export async function getProductWithAccess(
+  userId: string,
+  slug: string,
+): Promise<{ product: Product; liberado: boolean; programSlug: string | null } | null> {
+  const supabase = createClient()
+  const { data: product } = await supabase
+    .from('products')
+    .select('*')
+    .eq('slug', slug)
+    .eq('ativo', true)
+    .maybeSingle()
+  if (!product) return null
+
+  const liberado = await userHasEntitlement(supabase, userId, (product as Product).id)
+
+  // Se o produto é um programa, descobrimos o slug do programa para o link.
+  const { data: program } = await supabase
+    .from('programs')
+    .select('slug')
+    .eq('product_id', (product as Product).id)
+    .maybeSingle()
+
+  return {
+    product: product as Product,
+    liberado,
+    programSlug: (program?.slug as string) ?? null,
+  }
+}
+
 // --- Vitrine ---------------------------------------------------------
 export interface StorefrontItem {
   product: Product
