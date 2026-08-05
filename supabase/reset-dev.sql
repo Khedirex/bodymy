@@ -387,6 +387,14 @@ create policy "progress_photos_delete_own" on storage.objects
   );
 
 -- =====================================================================
+-- 6) Recarrega o cache de schema do PostgREST (Supabase)
+--    Sem isto, a API pode continuar servindo o schema ANTIGO em cache e
+--    retornar PGRST204 ("Could not find the '<coluna>' column ... in the
+--    schema cache") mesmo com a coluna já existindo no banco.
+-- =====================================================================
+notify pgrst, 'reload schema';
+
+-- =====================================================================
 -- Pronto. Schema recriado do zero.
 -- Próximos passos (no seu terminal): npm run seed && npm run seed:admin
 -- =====================================================================
