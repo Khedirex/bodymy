@@ -1,6 +1,22 @@
 // Acesso centralizado e tipado às variáveis de ambiente.
 // Valores public* podem ir ao client; os demais SÓ em servidor.
 
+// Normaliza a URL do Supabase, tolerando erros comuns de cópia:
+//  - espaços em volta e aspas acidentais
+//  - sufixo /rest/v1(/) colado por engano (a URL deve terminar em .supabase.co)
+//  - barra(s) final(is)
+function normalizeSupabaseUrl(raw: string | undefined): string {
+  let s = (raw ?? '').trim().replace(/^["']|["']$/g, '')
+  if (!s) return ''
+  s = s.replace(/\/rest\/v1\/?$/i, '') // remove /rest/v1 ou /rest/v1/
+  s = s.replace(/\/+$/, '') // remove barra(s) final(is)
+  return s
+}
+
+function clean(raw: string | undefined): string {
+  return (raw ?? '').trim().replace(/^["']|["']$/g, '')
+}
+
 function required(name: string, value: string | undefined): string {
   if (!value) {
     // Em build/prod queremos falhar cedo. Em dev deixamos passar com aviso
@@ -16,8 +32,8 @@ function required(name: string, value: string | undefined): string {
 }
 
 export const env = {
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-  supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
+  supabaseUrl: normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL),
+  supabaseAnonKey: clean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
   appUrl: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
   pandaPlayerHost: process.env.NEXT_PUBLIC_PANDA_PLAYER_HOST ?? '',
   posthogKey: process.env.NEXT_PUBLIC_POSTHOG_KEY ?? '',

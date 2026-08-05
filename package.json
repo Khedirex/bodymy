@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "tsx supabase/seed.ts",
+    "setup:env": "node scripts/setup-env-local.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
