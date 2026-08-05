@@ -10,6 +10,7 @@
 // (Carregue-as via `.env.local` — veja README.)
 // =====================================================================
 
+import './load-env'
 import { createClient } from '@supabase/supabase-js'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
