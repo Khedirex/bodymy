@@ -58,13 +58,18 @@ export function welcomeHtml({
         <li>Seu progresso registrado, para você ver o quanto avançou</li>
       </ul>
       <p style="font-size:16px;line-height:1.5;margin:0 0 4px;">
-        Para entrar é só tocar no botão abaixo — <strong>sem senha</strong>, direto pelo seu celular:
+        Para entrar pela primeira vez é só tocar no botão abaixo — <strong>sem senha</strong>:
       </p>
       ${botao(magicLink)}
       <div style="background:${CREAM};border-radius:14px;padding:14px 16px;margin-top:8px;">
-        <p style="font-size:14px;line-height:1.5;margin:0;color:#6b625b;">
-          💡 <strong>Dica:</strong> depois de entrar, adicione o BodyMy à tela do seu celular para
-          abrir como um aplicativo, com um toque. O app te mostra como fazer no primeiro acesso.
+        <p style="font-size:14px;line-height:1.6;margin:0 0 8px;color:#6b625b;">
+          📲 <strong>Dica:</strong> depois de entrar, adicione o BodyMy à tela do seu celular
+          (o app te mostra como) para abrir com um toque.
+        </p>
+        <p style="font-size:14px;line-height:1.6;margin:0;color:#6b625b;">
+          🔑 <strong>Nas próximas vezes é ainda mais fácil:</strong> abra o app, digite seu e-mail e
+          você recebe um <strong>código de 6 dígitos</strong> para digitar ali mesmo — sem sair do app.
+          Se quiser, dá para criar uma senha também.
         </p>
       </div>
       <p style="font-size:14px;line-height:1.5;color:#6b625b;margin:16px 0 0;">
@@ -74,24 +79,3 @@ export function welcomeHtml({
   `)
 }
 
-// E-mail de LOGIN (link de acesso para quem já é aluna).
-export function magicLinkHtml({
-  primeiroNome,
-  magicLink,
-}: {
-  primeiroNome: string
-  magicLink: string
-}): string {
-  return shell(`
-    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(74,66,60,.08);">
-      <p style="font-size:16px;line-height:1.5;margin:0 0 12px;">Oi, ${primeiroNome}!</p>
-      <p style="font-size:16px;line-height:1.5;margin:0 0 20px;">
-        Aqui está o seu link de acesso ao BodyMy. É só tocar no botão abaixo — sem senha.
-      </p>
-      ${botao(magicLink)}
-      <p style="font-size:14px;line-height:1.5;color:#6b625b;margin:0;">
-        Se você não pediu este acesso, pode ignorar este e-mail. O link expira em breve.
-      </p>
-    </div>
-  `)
-}

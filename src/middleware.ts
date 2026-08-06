@@ -36,6 +36,8 @@ export async function middleware(request: NextRequest) {
     let res = response
 
     const supabase = createServerClient(supabaseUrl, supabaseAnon, {
+      // Cookies de auth com vida longa (1 ano) — sessão persistente.
+      cookieOptions: { maxAge: 60 * 60 * 24 * 365, sameSite: 'lax', path: '/' },
       cookies: {
         getAll() {
           return request.cookies.getAll()

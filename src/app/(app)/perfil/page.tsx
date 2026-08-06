@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
 import { getStorefront } from '@/lib/queries'
 import { SignOutButton } from '@/components/SignOutButton'
+import { SetPassword } from '@/components/SetPassword'
 import { InstallInstructions } from '@/components/pwa/InstallInstructions'
 import { UserIcon } from '@/components/ui/icons'
 
@@ -51,6 +52,12 @@ export default async function PerfilPage() {
             ))}
           </ul>
         )}
+      </section>
+
+      {/* Senha (atalho de login opcional) */}
+      <section>
+        <h2 className="section-title mb-2">Entrar mais rápido</h2>
+        <SetPassword />
       </section>
 
       {/* Instalar o app */}

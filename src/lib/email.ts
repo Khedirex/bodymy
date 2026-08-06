@@ -1,7 +1,7 @@
 import 'server-only'
 import { Resend } from 'resend'
 import { serverEnv } from '@/lib/env'
-import { welcomeHtml, magicLinkHtml } from '@/lib/email-templates'
+import { welcomeHtml } from '@/lib/email-templates'
 
 // Remetente de TESTE do Resend: funciona SEM verificar domínio, mas só
 // entrega para o e-mail dono da conta Resend. Usado como fallback em dev
@@ -124,18 +124,3 @@ export async function sendWelcomeEmail(params: {
   })
 }
 
-// E-mail de login: link mágico para acessar (usuária já é cliente).
-export async function sendMagicLinkEmail(params: {
-  to: string
-  nome: string | null
-  magicLink: string
-}): Promise<EnvioResultado> {
-  const { to, nome, magicLink } = params
-  const primeiroNome = (nome ?? '').split(' ')[0] || 'tudo pronto'
-  return enviar({
-    contexto: 'login',
-    to,
-    subject: 'Seu link de acesso ao BodyMy 🤍',
-    html: magicLinkHtml({ primeiroNome, magicLink }),
-  })
-}

@@ -1,20 +1,18 @@
-// BodyMy — Service Worker (MVP)
+// BodyMy — Service Worker
 // Estratégia:
-//  * Shell/assets estáticos: cache-first com fallback à rede.
-//  * Conteúdo dinâmico (aulas, dados do usuário, APIs): SEMPRE rede,
-//    nunca cacheado no MVP (privacidade + frescor).
-const CACHE = 'bodymy-shell-v1'
-const SHELL = [
-  '/',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-]
+//  * SOMENTE assets estáticos (JS/CSS do Next, ícones, manifest) são
+//    cacheados. Cache-first para eles.
+//  * NAVEGAÇÕES (documentos HTML) e conteúdo dinâmico/autenticado: SEMPRE
+//    rede, NUNCA cache. Isso evita servir uma tela autenticada em cache de
+//    uma sessão para outra e não interfere em cookies/sessão (importante
+//    no PWA standalone, inclusive iOS).
+const CACHE = 'bodymy-static-v2'
+
+// Só assets realmente estáticos no precache (nunca uma página autenticada).
+const PRECACHE = ['/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png']
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(SHELL)).catch(() => {}),
-  )
+  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)).catch(() => {}))
   self.skipWaiting()
 })
 
@@ -32,22 +30,10 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return
 
   const url = new URL(request.url)
+  // Só tratamos same-origin.
+  if (url.origin !== self.location.origin) return
 
-  // Nunca cachear conteúdo dinâmico/privado.
-  const isDynamic =
-    url.pathname.startsWith('/api/') ||
-    url.pathname.startsWith('/auth/') ||
-    url.pathname.startsWith('/programa/') ||
-    url.pathname.startsWith('/progresso') ||
-    url.pathname.startsWith('/dieta') ||
-    url.searchParams.has('token')
-
-  if (isDynamic) {
-    event.respondWith(fetch(request))
-    return
-  }
-
-  // Assets estáticos do Next e ícones: cache-first.
+  // Assets estáticos versionados do Next + ícones + manifest → cache-first.
   const isStatic =
     url.pathname.startsWith('/_next/static/') ||
     url.pathname.startsWith('/icons/') ||
@@ -68,8 +54,7 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Navegações (documentos): rede primeiro, fallback ao shell offline.
-  event.respondWith(
-    fetch(request).catch(() => caches.match('/') ),
-  )
+  // TUDO MAIS (navegações HTML, /api, /auth, dados de usuário): rede pura.
+  // Não cacheamos nada disso — sessão/cookies e conteúdo privado sempre
+  // frescos. Deixamos o navegador tratar (sem event.respondWith).
 })

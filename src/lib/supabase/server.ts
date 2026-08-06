@@ -11,6 +11,8 @@ export function createClient() {
   const { url, anonKey } = assertSupabaseEnv()
 
   return createServerClient(url, anonKey, {
+    // Cookies de auth com vida longa (1 ano) — sessão persistente.
+    cookieOptions: { maxAge: 60 * 60 * 24 * 365, sameSite: 'lax', path: '/' },
     cookies: {
       getAll() {
         return cookieStore.getAll()

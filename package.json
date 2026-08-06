@@ -13,6 +13,7 @@
     "grant:access": "tsx supabase/grant-access.ts",
     "send:welcome": "tsx supabase/send-welcome.ts",
     "whoami": "tsx supabase/whoami.ts",
+    "inspect:user": "tsx supabase/inspect-user.ts",
     "test:email": "tsx supabase/test-email.ts",
     "setup:env": "node scripts/setup-env-local.mjs",
     "check:env": "node scripts/check-env.mjs",
