@@ -11,6 +11,18 @@ const nextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
     ],
   },
+  webpack(config) {
+    // Silencia os avisos "Critical dependency" do @sentry/nextjs
+    // (OpenTelemetry / require-in-the-middle usam require dinâmico). São
+    // benignos e não afetam o runtime — só poluem o build.
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings ?? []),
+      { module: /@opentelemetry\/instrumentation/ },
+      { module: /require-in-the-middle/ },
+      { module: /@prisma\/instrumentation/ },
+    ]
+    return config
+  },
   async headers() {
     return [
       {
