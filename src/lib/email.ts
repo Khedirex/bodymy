@@ -56,6 +56,11 @@ async function enviar(params: {
       message: e.message,
       raw: error,
     })
+    const dica = dicaResend(e.statusCode, e.message)
+    if (dica) {
+      // eslint-disable-next-line no-console
+      console.error(`[email:${contexto}] 💡 ${dica}`)
+    }
     return {
       ok: false,
       skipped: false,
@@ -68,6 +73,37 @@ async function enviar(params: {
   // eslint-disable-next-line no-console
   console.log(`[email:${contexto}] enviado ✓ id=${data?.id}`)
   return { ok: true, id: data?.id, from }
+}
+
+// Traduz os erros mais comuns do Resend numa instrução clara em pt-BR.
+export function dicaResend(status: number | undefined, message: string | undefined): string | null {
+  const m = (message ?? '').toLowerCase()
+  // 403: modo de teste — só entrega ao e-mail dono da conta Resend.
+  if (
+    status === 403 ||
+    m.includes('testing emails') ||
+    m.includes('your own email') ||
+    m.includes('only send')
+  ) {
+    return (
+      'Modo de teste do Resend: o remetente onboarding@resend.dev só entrega para o ' +
+      'E-MAIL DONO da conta Resend. Opções: (1) faça o teste enviando para o e-mail com ' +
+      'que você criou a conta no Resend; ou (2) verifique um domínio (Resend → Domains), ' +
+      'configure o DNS na Hostinger (SPF/DKIM/DMARC) e defina RESEND_FROM="Nome <email@seudominio>".'
+    )
+  }
+  // 422: domínio inválido / não verificado no RESEND_FROM.
+  if (status === 422 || m.includes('domain is invalid') || m.includes('not verified')) {
+    return (
+      'O domínio do RESEND_FROM não está verificado no Resend. Deixe RESEND_FROM vazio ' +
+      '(usa onboarding@resend.dev) ou verifique um domínio (Resend → Domains) e use um ' +
+      'e-mail desse domínio em RESEND_FROM.'
+    )
+  }
+  if (status === 401 || m.includes('api key')) {
+    return 'RESEND_API_KEY inválida. Copie a chave correta em Resend → API Keys.'
+  }
+  return null
 }
 
 // E-mail transacional de boas-vindas com o link mágico de acesso.

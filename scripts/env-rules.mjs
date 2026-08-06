@@ -16,6 +16,14 @@ export function sanitizeAppUrl(raw) {
   let s = clean(raw)
   if (!s) return ''
   s = s.replace(/[?#].*$/, '').replace(/\/\*\*$/, '').replace(/\/\*$/, '').replace(/\/+$/, '')
+  // remove ":porta" indevida em Codespaces (*.app.github.dev) ou https
+  const m = s.match(/^(https?):\/\/([^/:]+)(:\d+)?(.*)$/i)
+  if (m) {
+    const [, scheme, host, , rest] = m
+    if (/\.app\.github\.dev$/i.test(host) || scheme.toLowerCase() === 'https') {
+      s = `${scheme}://${host}${rest ?? ''}`
+    }
+  }
   return s
 }
 

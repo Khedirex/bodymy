@@ -56,13 +56,21 @@ async function main() {
     console.error(`   name:    ${e.name ?? '(sem name)'}`)
     console.error(`   message: ${e.message ?? '(sem message)'}`)
     console.error('\n   raw:', JSON.stringify(error))
-    // Dicas para os erros mais comuns
-    if (/domain is invalid|not verified|verify a domain/i.test(e.message ?? '')) {
+    // Instruções de correção para os erros mais comuns
+    const msg = (e.message ?? '').toLowerCase()
+    if (e.statusCode === 403 || /testing emails|your own email|only send/.test(msg)) {
       console.error(
-        '\n   💡 O domínio do RESEND_FROM não está verificado no Resend.\n' +
-          '      Deixe RESEND_FROM vazio (usa onboarding@resend.dev) ou verifique\n' +
-          '      o domínio (Resend → Domains) e configure o DNS na Hostinger.',
+        '\n   💡 MODO DE TESTE (403): o onboarding@resend.dev só entrega para o E-MAIL DONO\n' +
+          '      da conta Resend. Faça o teste enviando para esse endereço, OU verifique um\n' +
+          '      domínio (Resend → Domains) + DNS na Hostinger e use RESEND_FROM do domínio.',
       )
+    } else if (e.statusCode === 422 || /domain is invalid|not verified/.test(msg)) {
+      console.error(
+        '\n   💡 DOMÍNIO INVÁLIDO (422): o domínio do RESEND_FROM não está verificado.\n' +
+          '      Deixe RESEND_FROM vazio (usa onboarding@resend.dev) ou verifique o domínio.',
+      )
+    } else if (e.statusCode === 401 || /api key/.test(msg)) {
+      console.error('\n   💡 RESEND_API_KEY inválida — copie a chave correta em Resend → API Keys.')
     }
     process.exit(1)
   }

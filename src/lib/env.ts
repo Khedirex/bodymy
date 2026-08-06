@@ -21,14 +21,30 @@ export function sanitizeSupabaseUrl(raw: string | undefined): string {
 }
 
 // URL base do app: remove wildcards do painel do Supabase (/**, /*),
-// query/hash acidental e barra(s) final(is).
+// query/hash acidental, barra(s) final(is) e a PORTA indevida em hosts de
+// Codespaces / https (a porta já está embutida no subdomínio -3000).
 export function sanitizeAppUrl(raw: string | undefined): string {
   let s = clean(raw)
   if (!s) return ''
   s = s.replace(/[?#].*$/, '') // remove query/fragment acidental
   s = s.replace(/\/\*\*$/, '').replace(/\/\*$/, '') // remove /** ou /*
   s = s.replace(/\/+$/, '') // remove barra(s) final(is)
+  s = stripIndevidoPort(s)
   return s
+}
+
+// Remove ":porta" quando o host é de Codespaces (*.app.github.dev) ou
+// quando o esquema é https (onde uma porta anexada quase sempre é engano,
+// como o :3000 que vaza do proxy do Codespaces).
+function stripIndevidoPort(url: string): string {
+  const m = url.match(/^(https?):\/\/([^/:]+)(:\d+)?(.*)$/i)
+  if (!m) return url
+  const [, scheme, host, , rest] = m
+  const ehCodespace = /\.app\.github\.dev$/i.test(host)
+  if (ehCodespace || scheme.toLowerCase() === 'https') {
+    return `${scheme}://${host}${rest ?? ''}`
+  }
+  return url
 }
 
 // Valida uma origem http(s) sem path/wildcard. Retorna msg de erro ou null.
