@@ -1,0 +1,115 @@
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { getAlunaFicha, listProductsSimple } from '@/lib/admin-queries'
+import { AlunaActions } from '@/components/admin/AlunaActions'
+
+export const dynamic = 'force-dynamic'
+
+function fmt(dt: string | null) {
+  if (!dt) return '—'
+  return new Date(dt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+}
+
+export default async function AlunaFichaPage({ params }: { params: { id: string } }) {
+  const [ficha, produtos] = await Promise.all([getAlunaFicha(params.id), listProductsSimple()])
+  if (!ficha) notFound()
+
+  const { profile, auth, entitlements, streak, aulasConcluidas, totalCheckins, progresso, webhooks } = ficha
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-2 text-sm text-slate-500">
+        <Link href="/admin/alunas" className="hover:underline">← Alunas</Link>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Coluna esquerda: dados + progresso */}
+        <div className="space-y-6 lg:col-span-2">
+          <section className="rounded-lg border border-slate-200 bg-white p-4">
+            <h1 className="text-lg font-bold text-slate-900">{profile.nome ?? '(sem nome)'}</h1>
+            <p className="text-sm text-slate-600">{profile.email}</p>
+            <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+              <dt className="text-slate-500">Cadastro</dt><dd className="text-slate-800">{fmt(auth.created_at ?? profile.created_at)}</dd>
+              <dt className="text-slate-500">Último login</dt><dd className="text-slate-800">{fmt(auth.last_sign_in_at)}</dd>
+              <dt className="text-slate-500">E-mail confirmado</dt><dd className="text-slate-800">{auth.confirmado ? 'sim' : 'não'}</dd>
+              <dt className="text-slate-500">Onboarding</dt><dd className="text-slate-800">{profile.onboarding_completo ? 'completo' : 'pendente'}</dd>
+            </dl>
+          </section>
+
+          <section className="rounded-lg border border-slate-200 bg-white p-4">
+            <h2 className="mb-3 text-sm font-semibold text-slate-700">Progresso</h2>
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div><p className="text-2xl font-bold text-slate-900">{streak.atual}</p><p className="text-xs text-slate-500">streak atual</p></div>
+              <div><p className="text-2xl font-bold text-slate-900">{aulasConcluidas}</p><p className="text-xs text-slate-500">aulas concluídas</p></div>
+              <div><p className="text-2xl font-bold text-slate-900">{totalCheckins}</p><p className="text-xs text-slate-500">check-ins</p></div>
+            </div>
+            {progresso.length > 0 && (
+              <ul className="mt-4 space-y-1 text-sm">
+                {progresso.map((p, i) => (
+                  <li key={i} className="flex justify-between border-t border-slate-100 py-1">
+                    <span className="text-slate-600">{p.data}</span>
+                    <span className="text-slate-500">
+                      {p.foto_path ? '📷 ' : ''}
+                      {p.medidas ? Object.entries(p.medidas).map(([k, v]) => `${k}:${v}`).join(' ') : ''}
+                      {p.peso ? ` ${p.peso}kg` : ''}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section className="rounded-lg border border-slate-200 bg-white p-4">
+            <h2 className="mb-2 text-sm font-semibold text-slate-700">Acessos</h2>
+            {entitlements.length === 0 ? (
+              <p className="text-sm text-slate-400">Nenhum acesso.</p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="text-left text-slate-500">
+                  <tr><th className="py-1 font-medium">Produto</th><th className="py-1 font-medium">Status</th><th className="py-1 font-medium">Origem</th><th className="py-1 font-medium">Data</th></tr>
+                </thead>
+                <tbody>
+                  {entitlements.map((e) => (
+                    <tr key={e.id} className="border-t border-slate-100">
+                      <td className="py-1.5 text-slate-800">{e.produtoNome}</td>
+                      <td className="py-1.5">{e.status === 'ativo' ? <span className="text-emerald-700">ativo</span> : <span className="text-slate-400">{e.status}</span>}</td>
+                      <td className="py-1.5 text-slate-600">{e.origem}</td>
+                      <td className="py-1.5 text-slate-600">{fmt(e.created_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+
+          <section className="rounded-lg border border-slate-200 bg-white p-4">
+            <h2 className="mb-2 text-sm font-semibold text-slate-700">Histórico de webhooks</h2>
+            {webhooks.length === 0 ? (
+              <p className="text-sm text-slate-400">Nenhum webhook para este e-mail.</p>
+            ) : (
+              <ul className="space-y-1 text-sm">
+                {webhooks.map((w) => (
+                  <li key={w.event_id} className="flex justify-between border-t border-slate-100 py-1">
+                    <span className="font-mono text-xs text-slate-500">{w.event_id}</span>
+                    <span className="text-slate-600">{fmt(w.created_at)} · {w.processed ? 'ok' : 'pendente'}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+
+        {/* Coluna direita: ações */}
+        <div>
+          <h2 className="mb-2 text-sm font-semibold text-slate-700">Ações</h2>
+          <AlunaActions
+            alunaId={profile.id}
+            alunaEmail={profile.email ?? ''}
+            entitlements={entitlements.map((e) => ({ product_id: e.product_id, produtoNome: e.produtoNome, status: e.status }))}
+            produtos={produtos.map((p) => ({ id: p.id, nome: p.nome, slug: p.slug }))}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
