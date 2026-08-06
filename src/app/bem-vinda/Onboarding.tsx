@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { completarOnboarding } from './actions'
 import { InstallInstructions } from '@/components/pwa/InstallInstructions'
 import { analytics } from '@/lib/analytics'
 
@@ -26,13 +25,28 @@ export function Onboarding({
   const [pending, startTransition] = useTransition()
   const primeiroNome = (nome ?? '').split(' ')[0] || 'Bem-vinda'
 
+  const [erro, setErro] = useState<string | null>(null)
+
   function finalizar() {
     if (!horario) return
+    setErro(null)
     startTransition(async () => {
-      await completarOnboarding(horario)
-      analytics.onboardingCompleted()
-      router.replace('/')
-      router.refresh()
+      try {
+        const res = await fetch('/api/onboarding', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ horario }),
+        })
+        if (!res.ok) {
+          setErro('Não conseguimos salvar agora. Tente novamente.')
+          return
+        }
+        analytics.onboardingCompleted()
+        router.replace('/')
+        router.refresh()
+      } catch {
+        setErro('Sem conexão. Tente novamente.')
+      }
     })
   }
 
@@ -124,6 +138,11 @@ export function Onboarding({
             <InstallInstructions />
           </div>
           <div className="mt-auto pt-8">
+            {erro ? (
+              <p className="mb-3 rounded-2xl bg-coral-50 px-4 py-3 text-sm font-medium text-coral-700">
+                {erro}
+              </p>
+            ) : null}
             <button
               className="btn-primary w-full"
               onClick={finalizar}

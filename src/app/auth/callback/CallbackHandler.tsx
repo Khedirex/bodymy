@@ -30,15 +30,19 @@ export function CallbackHandler() {
     const refresh_token = hashParams.get('refresh_token')
     const errNoFragmento = hashParams.get('error_description') || hashParams.get('error')
 
-    // Log de diagnóstico (aparece no console do NAVEGADOR).
-    // eslint-disable-next-line no-console
-    console.log('[auth/callback] recebido:', {
-      temCode: Boolean(code),
-      temAccessToken: Boolean(access_token),
-      temRefreshToken: Boolean(refresh_token),
-      erroNoFragmento: errNoFragmento || null,
-      next,
-    })
+    // Log de diagnóstico (console do NAVEGADOR). Só em dev, para não poluir
+    // o console em produção. Nunca loga o valor dos tokens — só a presença.
+    const debug = process.env.NODE_ENV !== 'production'
+    if (debug) {
+      // eslint-disable-next-line no-console
+      console.log('[auth/callback] recebido:', {
+        temCode: Boolean(code),
+        temAccessToken: Boolean(access_token),
+        temRefreshToken: Boolean(refresh_token),
+        erroNoFragmento: errNoFragmento || null,
+        next,
+      })
+    }
 
     const supabase = createClient()
 
@@ -46,8 +50,10 @@ export function CallbackHandler() {
       // Confirma que a sessão realmente existe antes de navegar.
       const { data } = await supabase.auth.getSession()
       if (data.session) {
-        // eslint-disable-next-line no-console
-        console.log(`[auth/callback] sessão criada via ${caminho} → indo para ${next}`)
+        if (debug) {
+          // eslint-disable-next-line no-console
+          console.log(`[auth/callback] sessão criada via ${caminho} → indo para ${next}`)
+        }
         // Limpa o fragmento da URL e navega relativo (sem host:porta).
         window.history.replaceState(null, '', window.location.pathname)
         router.replace(next)
