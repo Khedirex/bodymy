@@ -79,7 +79,10 @@ export const serverEnv = {
     return required('RESEND_API_KEY', process.env.RESEND_API_KEY)
   },
   get resendFrom() {
-    return process.env.RESEND_FROM ?? 'BodyMy <ola@bodymy.app>'
+    // Vazio quando não configurado — a camada de e-mail decide o fallback
+    // (remetente de teste do Resend em dev). Não usamos um domínio próprio
+    // como default porque, sem verificação, o Resend rejeita o envio.
+    return (process.env.RESEND_FROM ?? '').trim()
   },
   get kiwifyWebhookSecret() {
     return required('KIWIFY_WEBHOOK_SECRET', process.env.KIWIFY_WEBHOOK_SECRET)

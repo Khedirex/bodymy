@@ -96,25 +96,27 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // 3) Envia o e-mail (camada Resend).
-  try {
-    const result = await sendMagicLinkEmail({ to: email, nome, magicLink })
-    if ('skipped' in result && result.skipped) {
-      // Sem Resend configurado. Em dev, o link já está no console → ok.
-      if (env.devToolsEnabled) {
-        return NextResponse.json({ ok: true, canal: 'console_dev' })
-      }
-      return NextResponse.json({ erro: 'envio_email', motivo: 'resend_nao_configurado' }, { status: 502 })
-    }
-    return NextResponse.json({ ok: true, canal: 'email' })
-  } catch (err) {
-    captureException(err, { etapa: 'sendMagicLinkEmail', email })
-    // Em dev, ainda dá pra logar pelo console → não bloqueia.
-    if (env.devToolsEnabled) {
-      return NextResponse.json({ ok: true, canal: 'console_dev', emailFalhou: true })
-    }
-    return NextResponse.json({ erro: 'envio_email' }, { status: 502 })
+  // 3) Envia o e-mail (camada Resend). Os logs detalhados saem em email.ts.
+  const envio = await sendMagicLinkEmail({ to: email, nome, magicLink })
+
+  if (envio.ok) {
+    return NextResponse.json({ ok: true, canal: 'email', from: envio.from })
   }
+
+  // Falhou o envio. Registramos o motivo no Sentry/console.
+  const motivo = envio.skipped
+    ? 'resend_nao_configurado'
+    : `resend_erro:${envio.status ?? '?'}:${envio.message}`
+  captureException(new Error(`Envio de magic link falhou: ${motivo}`), {
+    etapa: 'sendMagicLinkEmail',
+    email,
+  })
+
+  // Em dev o link já está no console → não bloqueia o teste.
+  if (env.devToolsEnabled) {
+    return NextResponse.json({ ok: true, canal: 'console_dev', emailFalhou: true, motivo })
+  }
+  return NextResponse.json({ erro: 'envio_email', motivo }, { status: 502 })
 }
 
 async function authUserExists(

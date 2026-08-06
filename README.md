@@ -115,6 +115,46 @@ Para simular reembolso/chargeback (revoga o acesso), envie
 
 ---
 
+## E-mail (Resend)
+
+Tanto o **magic link de login** quanto o **e-mail de boas-vindas do webhook**
+usam o **mesmo caminho** (`src/lib/email.ts` → Resend). Não usamos o SMTP do
+Supabase Auth. Todo envio loga no console: `[email:login] enviando via Resend…`,
+o `id` em caso de sucesso, ou `[email:<ctx>] Resend FALHOU: {status,name,message}`
+em caso de erro — nada é engolido em silêncio.
+
+### Formato do remetente
+`RESEND_FROM` deve ser **`Nome <email@dominio>`** (ex.: `BodyMy <ola@seudominio.com>`).
+
+### Modo de teste (sem domínio verificado) — para dev
+Deixe `RESEND_FROM` **vazio**. O código cai no remetente de teste do Resend
+**`onboarding@resend.dev`**, que envia **sem verificar domínio**. Limitação: no
+modo de teste o Resend só entrega para **o e-mail dono da conta Resend**. Como
+`khedirex@gmail.com` é (provavelmente) o dono da conta, você recebe normalmente.
+Para enviar a **qualquer** endereço, é preciso verificar um domínio (abaixo).
+
+### Produção — verificar domínio (Resend + Hostinger)
+1. No Resend: **Domains → Add Domain** → informe seu domínio (ex.: `seudominio.com`).
+2. O Resend mostra registros DNS. Na **Hostinger** (hPanel → **DNS / Nameservers**
+   do domínio), crie os registros exatamente como o Resend pedir:
+   - **TXT** de verificação (SPF): normalmente `v=spf1 include:amazonses.com ~all`
+     (host `@` ou o subdomínio indicado).
+   - **DKIM**: 1–3 registros **CNAME** (host tipo `resend._domainkey…`) apontando
+     para os valores `…dkim.amazonses.com` que o Resend fornece.
+   - **DMARC** (recomendado): **TXT** em `_dmarc` com `v=DMARC1; p=none;`.
+   > Copie/valore **exatamente** o que o painel do Resend exibir — os valores DKIM
+   > são únicos por domínio. Propagação de DNS pode levar de minutos a algumas horas.
+3. Quando o Resend marcar o domínio como **Verified**, defina
+   `RESEND_FROM="BodyMy <ola@seudominio.com>"` (um e-mail **do domínio verificado**)
+   e reinicie/redeploy.
+
+### O que fica pronto no código
+- Fallback automático para `onboarding@resend.dev` quando `RESEND_FROM` está vazio.
+- Logs explícitos de tentativa/sucesso/erro nos dois e-mails.
+- Aviso claro quando `RESEND_API_KEY` está vazia (não falha em silêncio).
+
+---
+
 ## Webhook da Kiwify
 
 `POST /api/webhooks/kiwify`

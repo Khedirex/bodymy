@@ -78,12 +78,24 @@ export async function processPurchaseEvent(
     if (linkErr) throw linkErr
     const magicLink = linkData.properties?.action_link
     if (magicLink) {
-      await sendWelcomeEmail({
+      // Mesmo caminho de envio do login (Resend, com logs explícitos).
+      const envio = await sendWelcomeEmail({
         to: event.email,
         nome: event.nome,
         programaNome: product.nome,
         magicLink,
       })
+      if (!envio.ok) {
+        // E-mail não saiu, mas o acesso já foi concedido. Logamos o motivo
+        // para reenvio manual (o log detalhado sai em email.ts).
+        const motivo = envio.skipped
+          ? 'resend_nao_configurado'
+          : `resend_erro:${envio.status ?? '?'}:${envio.message}`
+        captureException(new Error(`E-mail de boas-vindas não enviado: ${motivo}`), {
+          etapa: 'email_boas_vindas',
+          email: event.email,
+        })
+      }
     }
   } catch (err) {
     // Não falhamos o processamento por causa do e-mail — o acesso já foi
