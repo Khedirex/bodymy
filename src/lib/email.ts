@@ -1,6 +1,7 @@
 import 'server-only'
 import { Resend } from 'resend'
 import { serverEnv } from '@/lib/env'
+import { welcomeHtml, magicLinkHtml } from '@/lib/email-templates'
 
 // Remetente de TESTE do Resend: funciona SEM verificar domínio, mas só
 // entrega para o e-mail dono da conta Resend. Usado como fallback em dev
@@ -137,76 +138,4 @@ export async function sendMagicLinkEmail(params: {
     subject: 'Seu link de acesso ao BodyMy 🤍',
     html: magicLinkHtml({ primeiroNome, magicLink }),
   })
-}
-
-function magicLinkHtml({
-  primeiroNome,
-  magicLink,
-}: {
-  primeiroNome: string
-  magicLink: string
-}) {
-  return `<!doctype html>
-<html lang="pt-BR">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;background:#FDFBF8;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#39322D;">
-  <div style="max-width:520px;margin:0 auto;padding:32px 20px;">
-    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(74,66,60,.08);">
-      <p style="font-size:16px;line-height:1.5;margin:0 0 12px;">Oi, ${primeiroNome}!</p>
-      <p style="font-size:16px;line-height:1.5;margin:0 0 20px;">
-        Aqui está o seu link de acesso ao BodyMy. É só tocar no botão abaixo — sem senha.
-      </p>
-      <div style="text-align:center;margin:26px 0;">
-        <a href="${magicLink}" style="display:inline-block;background:#E8896B;color:#fff;text-decoration:none;font-weight:bold;font-size:17px;padding:16px 28px;border-radius:16px;">
-          ACESSAR MEU PROGRAMA
-        </a>
-      </div>
-      <p style="font-size:14px;line-height:1.5;color:#6b625b;margin:0;">
-        Se você não pediu este acesso, pode ignorar este e-mail. O link expira em breve.
-      </p>
-    </div>
-  </div>
-</body>
-</html>`
-}
-
-function welcomeHtml({
-  primeiroNome,
-  programaNome,
-  magicLink,
-}: {
-  primeiroNome: string
-  programaNome: string
-  magicLink: string
-}) {
-  return `<!doctype html>
-<html lang="pt-BR">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;background:#FDFBF8;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#39322D;">
-  <div style="max-width:520px;margin:0 auto;padding:32px 20px;">
-    <div style="text-align:center;margin-bottom:24px;">
-      <div style="display:inline-block;width:56px;height:56px;line-height:56px;border-radius:16px;background:#E8896B;color:#fff;font-size:26px;">🤍</div>
-      <h1 style="font-size:22px;margin:14px 0 0;">Bem-vinda ao BodyMy!</h1>
-    </div>
-    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(74,66,60,.08);">
-      <p style="font-size:16px;line-height:1.5;margin:0 0 12px;">Oi, ${primeiroNome}!</p>
-      <p style="font-size:16px;line-height:1.5;margin:0 0 20px;">
-        Sua compra foi confirmada e o seu programa <strong>${programaNome}</strong> já está liberado.
-        É só tocar no botão abaixo para acessar — sem senha, direto pelo seu celular.
-      </p>
-      <div style="text-align:center;margin:26px 0;">
-        <a href="${magicLink}" style="display:inline-block;background:#E8896B;color:#fff;text-decoration:none;font-weight:bold;font-size:17px;padding:16px 28px;border-radius:16px;">
-          ACESSAR MEU PROGRAMA
-        </a>
-      </div>
-      <p style="font-size:14px;line-height:1.5;color:#6b625b;margin:0;">
-        Dica: depois de entrar, adicione o BodyMy à tela do seu celular para abrir como um aplicativo.
-      </p>
-    </div>
-    <p style="font-size:12px;color:#9b938c;text-align:center;margin-top:20px;">
-      Se você não fez esta compra, pode ignorar este e-mail.
-    </p>
-  </div>
-</body>
-</html>`
 }

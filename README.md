@@ -293,6 +293,8 @@ Configure na Kiwify a URL do webhook apontando para
 | `npm run start`   | roda o build                           |
 | `npm run seed`    | popula o banco (usa a service role key)|
 | `npm run seed:admin` | cria o usuário dono/admin de teste (khedirex@gmail.com, "Willian", `is_admin=true`, acesso ao Caminhada Japonesa) |
+| `npm run grant:access -- email "Nome" [slug] --confirm` | concede acesso manual a uma aluna (cria user + profile + entitlement ativo); idempotente; exige `--confirm` |
+| `npm run send:welcome -- email --confirm` | envia o e-mail de boas-vindas (com link) para uma aluna já cadastrada; exige `--confirm` |
 | `npm run setup:env` | cria `.env.local` a partir de `.env.example` (se faltar) e sanea |
 | `npm run check:env` | valida Supabase + APP_URL (sem wildcard) + RESEND_FROM |
 | `npm run whoami -- email` | diagnostica um e-mail (auth/profile/entitlements) |

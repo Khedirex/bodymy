@@ -10,6 +10,8 @@
     "lint": "next lint",
     "seed": "tsx supabase/seed.ts",
     "seed:admin": "tsx supabase/seed-admin.ts",
+    "grant:access": "tsx supabase/grant-access.ts",
+    "send:welcome": "tsx supabase/send-welcome.ts",
     "whoami": "tsx supabase/whoami.ts",
     "test:email": "tsx supabase/test-email.ts",
     "setup:env": "node scripts/setup-env-local.mjs",
