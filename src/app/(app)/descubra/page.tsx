@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
-import { getStorefront } from '@/lib/queries'
+import { getEsteira } from '@/lib/queries'
 import { LockedProductCard } from '@/components/LockedProductCard'
 import { EmptyState } from '@/components/ui/states'
 import { CompassIcon } from '@/components/ui/icons'
@@ -12,7 +12,8 @@ export default async function DescubraPage() {
   const profile = await getProfile()
   if (!profile) redirect('/login')
 
-  const storefront = await getStorefront(profile.id)
+  // Vitrine = esteira: só o que é upsell dos produtos que ela já possui.
+  const storefront = await getEsteira(profile.id)
   const liberados = storefront.filter((s) => s.liberado)
   const bloqueados = storefront.filter((s) => !s.liberado)
 

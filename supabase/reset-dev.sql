@@ -47,6 +47,8 @@ drop table if exists public.entitlements       cascade;
 drop table if exists public.products           cascade;
 drop table if exists public.profiles           cascade;
 drop table if exists public.webhook_events     cascade;
+drop table if exists public.product_upsells    cascade;
+drop table if exists public.admin_logs         cascade;
 
 -- Policies do bucket de fotos (storage.objects NÃO é dropada — é do sistema)
 drop policy if exists "progress_photos_read_own"   on storage.objects;
@@ -199,6 +201,29 @@ create table public.webhook_events (
   unique (provider, event_id)
 );
 
+create table public.product_upsells (
+  id uuid primary key default gen_random_uuid(),
+  product_id uuid not null references public.products(id) on delete cascade,
+  upsell_product_id uuid not null references public.products(id) on delete cascade,
+  ordem int not null default 0,
+  ativo boolean not null default true,
+  created_at timestamptz not null default now(),
+  unique (product_id, upsell_product_id),
+  constraint product_upsells_no_self check (product_id <> upsell_product_id)
+);
+create index product_upsells_product_idx on public.product_upsells(product_id);
+
+create table public.admin_logs (
+  id uuid primary key default gen_random_uuid(),
+  admin_user_id uuid references public.profiles(id) on delete set null,
+  acao text not null,
+  alvo_tipo text,
+  alvo_id text,
+  detalhes jsonb,
+  created_at timestamptz not null default now()
+);
+create index admin_logs_created_idx on public.admin_logs(created_at desc);
+
 -- =====================================================================
 -- 3) RLS + POLICIES (equivale a 0002_rls.sql)
 -- =====================================================================
@@ -216,6 +241,8 @@ alter table public.checkins           enable row level security;
 alter table public.lesson_completions enable row level security;
 alter table public.progress_entries   enable row level security;
 alter table public.webhook_events     enable row level security;
+alter table public.product_upsells    enable row level security;
+alter table public.admin_logs         enable row level security;
 
 -- profiles: dono lê/escreve o próprio perfil
 create policy "profiles_select_own" on public.profiles
@@ -223,8 +250,21 @@ create policy "profiles_select_own" on public.profiles
 create policy "profiles_update_own" on public.profiles
   for update using (auth.uid() = id) with check (auth.uid() = id);
 
--- Catálogo — leitura para autenticados (vitrine)
-create policy "products_read_auth" on public.products
+-- products: só o "mundo" da aluna (possui + upsells ativos do que possui)
+create policy "products_read_own_world" on public.products
+  for select to authenticated using (
+    exists (
+      select 1 from public.entitlements e
+      where e.user_id = auth.uid() and e.product_id = products.id and e.status = 'ativo'
+    )
+    or exists (
+      select 1 from public.product_upsells pu
+      join public.entitlements e
+        on e.product_id = pu.product_id and e.user_id = auth.uid() and e.status = 'ativo'
+      where pu.upsell_product_id = products.id and pu.ativo = true
+    )
+  );
+create policy "product_upsells_read_auth" on public.product_upsells
   for select to authenticated using (true);
 create policy "programs_read_auth" on public.programs
   for select to authenticated using (true);

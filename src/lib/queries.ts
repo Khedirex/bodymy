@@ -340,37 +340,83 @@ export async function getProductWithAccess(
   }
 }
 
-// --- Vitrine ---------------------------------------------------------
+// --- Vitrine (esteira de upsell) ------------------------------------
 export interface StorefrontItem {
   product: Product
   liberado: boolean
 }
 
-/** Todos os produtos ativos com o estado liberado/bloqueado do usuário. */
-export async function getStorefront(userId: string): Promise<StorefrontItem[]> {
+/**
+ * VITRINE = esteira de backend. Lista apenas os produtos que são upsell
+ * (ativo) dos produtos que a aluna JÁ possui. União sem duplicatas quando
+ * ela tem mais de um produto. Um upsell já comprado aparece como liberado.
+ *
+ * (A RLS de `products` já limita a leitura ao "mundo" dela; aqui montamos
+ *  a lista ordenada por `ordem` e marcamos liberado/bloqueado.)
+ */
+export async function getEsteira(userId: string): Promise<StorefrontItem[]> {
   const supabase = createClient()
+
+  const owned = await getActiveEntitlementProductIds(supabase, userId)
+  if (owned.size === 0) return []
+
+  // Upsells (ativos) dos produtos que ela possui, ordenados.
+  const { data: ups, error: upsErr } = await supabase
+    .from('product_upsells')
+    .select('upsell_product_id, ordem')
+    .in('product_id', Array.from(owned))
+    .eq('ativo', true)
+    .order('ordem', { ascending: true })
+  if (upsErr) {
+    logDbError('getEsteira.upsells', upsErr, { userId })
+    return []
+  }
+
+  // Dedup preservando a menor ordem de cada produto.
+  const ordemPorProduto = new Map<string, number>()
+  for (const r of ups ?? []) {
+    const pid = r.upsell_product_id as string
+    const ord = (r.ordem as number) ?? 0
+    if (!ordemPorProduto.has(pid) || ord < (ordemPorProduto.get(pid) as number)) {
+      ordemPorProduto.set(pid, ord)
+    }
+  }
+  const upsellIds = Array.from(ordemPorProduto.keys())
+  if (upsellIds.length === 0) return []
+
   const { data: products, error } = await supabase
     .from('products')
     .select('*')
+    .in('id', upsellIds)
     .eq('ativo', true)
-    .order('created_at', { ascending: true })
-
-  // Falha REAL ao ler o catálogo → não mascaramos como "vazio" (que
-  // enganaria a usuária). Logamos com contexto e deixamos o boundary
-  // mostrar uma mensagem honesta de "não carregou, tente de novo".
   if (error) {
-    logDbError('getStorefront', error, { userId })
+    logDbError('getEsteira.products', error, { userId })
     throw new Error('Não foi possível carregar a vitrine agora.')
   }
 
-  // Entitlements degrada com segurança: se falhar, tudo aparece bloqueado
-  // (o servidor ainda valida acesso ao abrir cada conteúdo).
-  const owned = await getActiveEntitlementProductIds(supabase, userId)
+  return (products ?? [])
+    .map((p) => ({ product: p as Product, liberado: owned.has((p as Product).id) }))
+    .sort(
+      (a, b) =>
+        (ordemPorProduto.get(a.product.id) ?? 0) - (ordemPorProduto.get(b.product.id) ?? 0),
+    )
+}
 
-  return (products ?? []).map((p) => ({
-    product: p as Product,
-    liberado: owned.has((p as Product).id),
-  }))
+/** Produtos que a aluna JÁ possui (para "Seus acessos" no perfil). */
+export async function getMyAccesses(userId: string): Promise<Product[]> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('entitlements')
+    .select('product:products(*), status')
+    .eq('user_id', userId)
+    .eq('status', 'ativo')
+  if (error) {
+    logDbError('getMyAccesses', error, { userId })
+    return []
+  }
+  return (data ?? [])
+    .map((r) => r.product as unknown as Product)
+    .filter(Boolean)
 }
 
 /** Datas (ISO) de check-in do usuário — base do streak e do calendário. */

@@ -163,3 +163,22 @@ export interface WebhookEvent {
   processed: boolean
   created_at: string
 }
+
+export interface ProductUpsell {
+  id: string
+  product_id: string
+  upsell_product_id: string
+  ordem: number
+  ativo: boolean
+  created_at: string
+}
+
+export interface AdminLog {
+  id: string
+  admin_user_id: string | null
+  acao: string
+  alvo_tipo: string | null
+  alvo_id: string | null
+  detalhes: Record<string, unknown> | null
+  created_at: string
+}

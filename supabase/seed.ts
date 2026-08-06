@@ -308,6 +308,22 @@ async function main() {
   })
   console.log('✓ Produtos de vitrine: Pilates de Cadeira, Cardápio Low Carb')
 
+  // Esteira de upsell: quem tem Caminhada Japonesa vê Pilates e Low Carb.
+  // (Sem isso, a vitrine da aluna fica vazia no novo modelo multi-oferta.)
+  for (const [i, upsellId] of [pilatesProductId, lowCarbProductId].entries()) {
+    const { error } = await db.from('product_upsells').upsert(
+      {
+        product_id: caminhadaProductId,
+        upsell_product_id: upsellId,
+        ordem: i,
+        ativo: true,
+      },
+      { onConflict: 'product_id,upsell_product_id' },
+    )
+    if (error) throw error
+  }
+  console.log('✓ Esteira: Caminhada Japonesa → Pilates de Cadeira, Cardápio Low Carb')
+
   // -------------------------------------------------------------------
   // 3) Plano de dieta base (incluso, product_id null)
   // -------------------------------------------------------------------

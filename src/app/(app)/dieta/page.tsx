@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
-import { getBaseDiet, getStorefront } from '@/lib/queries'
+import { getBaseDiet, getEsteira } from '@/lib/queries'
 import { DietMenu } from '@/components/diet/DietMenu'
 import { LockedProductCard } from '@/components/LockedProductCard'
 import { EmptyState } from '@/components/ui/states'
@@ -17,7 +17,7 @@ export default async function DietaPage() {
   const profile = await getProfile()
   if (!profile) redirect('/login')
 
-  const [base, storefront] = await Promise.all([getBaseDiet(), getStorefront(profile.id)])
+  const [base, storefront] = await Promise.all([getBaseDiet(), getEsteira(profile.id)])
 
   // "Cardápio do dia": rotaciona pelos dias do plano conforme a data.
   const totalDias = base?.days.length ?? 7

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
-import { getStorefront } from '@/lib/queries'
+import { getMyAccesses } from '@/lib/queries'
 import { SignOutButton } from '@/components/SignOutButton'
 import { SetPassword } from '@/components/SetPassword'
 import { InstallInstructions } from '@/components/pwa/InstallInstructions'
@@ -16,8 +16,7 @@ export default async function PerfilPage() {
   const profile = await getProfile()
   if (!profile) redirect('/login')
 
-  const storefront = await getStorefront(profile.id)
-  const acessos = storefront.filter((s) => s.liberado)
+  const acessos = await getMyAccesses(profile.id)
 
   return (
     <div className="space-y-6">
@@ -42,12 +41,12 @@ export default async function PerfilPage() {
           </p>
         ) : (
           <ul className="space-y-2">
-            {acessos.map((s) => (
-              <li key={s.product.id} className="card flex items-center gap-3">
+            {acessos.map((p) => (
+              <li key={p.id} className="card flex items-center gap-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-sage-100 text-sage-600">
                   ✓
                 </span>
-                <span className="font-semibold text-ink-900">{s.product.nome}</span>
+                <span className="font-semibold text-ink-900">{p.nome}</span>
               </li>
             ))}
           </ul>

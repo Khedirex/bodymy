@@ -5,7 +5,7 @@ import {
   getPrimaryProgram,
   getProgramTrack,
   getCheckinDates,
-  getStorefront,
+  getEsteira,
 } from '@/lib/queries'
 import { calcularStreak } from '@/lib/streak'
 import { todayISO } from '@/lib/dates'
@@ -26,7 +26,7 @@ export default async function HomePage() {
   const [primary, datas, storefront] = await Promise.all([
     getPrimaryProgram(profile.id),
     getCheckinDates(profile.id),
-    getStorefront(profile.id),
+    getEsteira(profile.id),
   ])
 
   const hoje = todayISO()
