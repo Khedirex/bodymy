@@ -11,6 +11,7 @@
     "seed": "tsx supabase/seed.ts",
     "seed:admin": "tsx supabase/seed-admin.ts",
     "whoami": "tsx supabase/whoami.ts",
+    "test:email": "tsx supabase/test-email.ts",
     "setup:env": "node scripts/setup-env-local.mjs",
     "check:env": "node scripts/check-env.mjs",
     "typecheck": "tsc --noEmit"

@@ -149,9 +149,52 @@ Para enviar a **qualquer** endereço, é preciso verificar um domínio (abaixo).
    e reinicie/redeploy.
 
 ### O que fica pronto no código
-- Fallback automático para `onboarding@resend.dev` quando `RESEND_FROM` está vazio.
+- Fallback automático para `onboarding@resend.dev` quando `RESEND_FROM` está
+  vazio **ou em formato inválido** (evita o erro 422 "domain is invalid").
 - Logs explícitos de tentativa/sucesso/erro nos dois e-mails.
 - Aviso claro quando `RESEND_API_KEY` está vazia (não falha em silêncio).
+
+### Validar o envio isoladamente
+```bash
+npm run test:email -- seu@email.com
+```
+Dispara um e-mail de teste e imprime o resultado detalhado do Resend
+(`id` no sucesso; `status`/`name`/`message` + dica no erro). Não depende do
+fluxo de login.
+
+---
+
+## URLs de ambiente (sanitização + Redirect URLs do Supabase)
+
+O app **sanea as URLs em runtime** — erros comuns de cópia são removidos
+automaticamente (e o `check:env` também avisa):
+
+| Variável | Sanitização automática |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | remove `/rest/v1` e barra final → deve terminar em `.supabase.co` |
+| `NEXT_PUBLIC_APP_URL` | remove `/**`, `/*`, query/hash e barra final |
+| `RESEND_FROM` | se não for `Nome <email@dominio>`, cai no remetente de teste |
+
+### ⚠️ O wildcard `/**` é do Supabase, NUNCA do `.env`
+No painel do Supabase, em **Authentication → URL Configuration → Redirect URLs**,
+você adiciona os padrões **com** wildcard, por exemplo:
+```
+http://localhost:3000/**
+https://SEU-CODESPACE-3000.app.github.dev/**
+https://seu-dominio.com/**
+```
+Esse `/**` autoriza qualquer caminho de callback — ele vive **só ali**. Ele
+**não pode** ir para `NEXT_PUBLIC_APP_URL` (que deve ser só a origem, ex.:
+`https://seu-dominio.com`). Se o `/**` vazar para o `.env`, o `redirect_to` do
+magic link fica quebrado — por isso o app agora remove o wildcard
+automaticamente, mas o certo é não colocá-lo lá.
+
+### Codespaces (GitHub)
+Se `NEXT_PUBLIC_APP_URL` estiver **ausente ou apontando para localhost** e a
+variável `CODESPACE_NAME` existir, o app monta sozinho
+`https://<CODESPACE_NAME>-3000.app.github.dev`. No startup, o servidor loga
+`[BodyMy] URL base para redirects: <url>` para você conferir. Lembre de
+adicionar essa URL (com `/**`) nas Redirect URLs do Supabase.
 
 ---
 
@@ -251,7 +294,9 @@ Configure na Kiwify a URL do webhook apontando para
 | `npm run seed`    | popula o banco (usa a service role key)|
 | `npm run seed:admin` | cria o usuário dono/admin de teste (khedirex@gmail.com, "Willian", `is_admin=true`, acesso ao Caminhada Japonesa) |
 | `npm run setup:env` | cria `.env.local` a partir de `.env.example` (se faltar) e sanea |
-| `npm run check:env` | valida se as variáveis do Supabase estão preenchidas |
+| `npm run check:env` | valida Supabase + APP_URL (sem wildcard) + RESEND_FROM |
+| `npm run whoami -- email` | diagnostica um e-mail (auth/profile/entitlements) |
+| `npm run test:email -- email` | envia um e-mail de teste e mostra o resultado do Resend |
 | `npm run typecheck` | checagem de tipos                    |
 | `npm run lint`    | ESLint                                 |
 
