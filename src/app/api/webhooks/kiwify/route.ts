@@ -36,6 +36,19 @@ export async function POST(request: NextRequest) {
   }
 
   const event = normalizeKiwifyEvent(payload)
+
+  // Log operacional (aparece nos Function Logs da Vercel). Mostra o
+  // product_id que a Kiwify enviou — use este valor no kiwify_product_id
+  // da tabela products se ainda não bater.
+  // eslint-disable-next-line no-console
+  console.log('[webhook:kiwify] recebido', {
+    tipo: event.type,
+    kiwify_product_id: event.kiwifyProductId,
+    email: event.email,
+    orderId: event.orderId,
+    eventId: event.eventId,
+  })
+
   const admin = createAdminClient()
 
   // 2) Idempotência: registra o evento; se já processado, retorna 200.
@@ -62,6 +75,9 @@ export async function POST(request: NextRequest) {
   // 3/4) Processa o evento (compra aprovada / reembolso / chargeback).
   try {
     const result = await processPurchaseEvent(event)
+
+    // eslint-disable-next-line no-console
+    console.log('[webhook:kiwify] resultado', { status: result.status, detail: result.detail })
 
     await admin
       .from('webhook_events')
