@@ -198,3 +198,80 @@ export async function listProductsSimple(): Promise<Pick<Product, 'id' | 'nome' 
     .order('nome', { ascending: true })
   return (data ?? []) as Pick<Product, 'id' | 'nome' | 'slug' | 'tipo'>[]
 }
+
+// --- Produtos (Parte 3) ---------------------------------------------
+export interface ProductAdminRow extends Product {
+  compradores: number
+}
+
+export async function listProductsAdmin(): Promise<ProductAdminRow[]> {
+  const admin = createAdminClient()
+  const { data: products } = await admin
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: true })
+
+  const { data: ents } = await admin
+    .from('entitlements')
+    .select('product_id')
+    .eq('status', 'ativo')
+  const counts = new Map<string, number>()
+  for (const e of ents ?? []) {
+    const pid = e.product_id as string
+    counts.set(pid, (counts.get(pid) ?? 0) + 1)
+  }
+
+  return (products ?? []).map((p) => ({
+    ...(p as Product),
+    compradores: counts.get((p as Product).id) ?? 0,
+  }))
+}
+
+export interface UpsellRow {
+  id: string
+  upsell_product_id: string
+  ordem: number
+  ativo: boolean
+  produto: Pick<Product, 'id' | 'nome' | 'slug' | 'tipo'> | null
+}
+
+export async function getProductAdmin(id: string): Promise<{
+  product: Product
+  upsells: UpsellRow[]
+  todos: Pick<Product, 'id' | 'nome' | 'slug' | 'tipo'>[]
+} | null> {
+  const admin = createAdminClient()
+  const { data: product } = await admin.from('products').select('*').eq('id', id).maybeSingle()
+  if (!product) return null
+
+  const { data: ups } = await admin
+    .from('product_upsells')
+    .select('id, upsell_product_id, ordem, ativo')
+    .eq('product_id', id)
+    .order('ordem', { ascending: true })
+
+  const upsellIds = (ups ?? []).map((u) => u.upsell_product_id as string)
+  const { data: upProds } = upsellIds.length
+    ? await admin.from('products').select('id, nome, slug, tipo').in('id', upsellIds)
+    : { data: [] as Pick<Product, 'id' | 'nome' | 'slug' | 'tipo'>[] }
+  const prodMap = new Map((upProds ?? []).map((p) => [p.id, p as Pick<Product, 'id' | 'nome' | 'slug' | 'tipo'>]))
+
+  const upsells: UpsellRow[] = (ups ?? []).map((u) => ({
+    id: u.id as string,
+    upsell_product_id: u.upsell_product_id as string,
+    ordem: u.ordem as number,
+    ativo: u.ativo as boolean,
+    produto: prodMap.get(u.upsell_product_id as string) ?? null,
+  }))
+
+  const { data: todos } = await admin
+    .from('products')
+    .select('id, nome, slug, tipo')
+    .order('nome', { ascending: true })
+
+  return {
+    product: product as Product,
+    upsells,
+    todos: (todos ?? []) as Pick<Product, 'id' | 'nome' | 'slug' | 'tipo'>[],
+  }
+}

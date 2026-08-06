@@ -51,6 +51,18 @@ precisa também de `SUPABASE_SERVICE_ROLE_KEY`.
 > (rotas de API / server actions / seed). Nunca a exponha no client e nunca a
 > prefixe com `NEXT_PUBLIC_`.
 
+### Painel admin (`/admin`)
+
+Ferramenta interna protegida por `is_admin` (verificado sempre no servidor;
+não-admin recebe **404**). `is_admin` só é alterável por **SQL direto** — nunca
+pela interface. Telas: visão geral, alunas (busca/ficha, conceder/revogar
+acesso, reenviar e-mail), produtos (editar, integração Kiwify, `sales_page` com
+preview, e a **esteira de upsell** de cada produto). Toda ação administrativa
+gera registro em `admin_logs`.
+
+Modelo multi-oferta: a **vitrine** de cada aluna mostra apenas os **upsells**
+dos produtos que ela possui (isolamento reforçado por RLS em `products`).
+
 ### 4. Banco de dados
 
 **Projeto Supabase NOVO e vazio (recomendado) — uma execução:**
