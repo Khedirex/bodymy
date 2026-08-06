@@ -22,7 +22,10 @@ export async function register() {
 
   const dsn = process.env.SENTRY_DSN
   if (!dsn) return
-  if (process.env.NEXT_RUNTIME === 'nodejs' || process.env.NEXT_RUNTIME === 'edge') {
+  // Só inicializa o Sentry no runtime Node (Server Components/rotas). NÃO
+  // no Edge — para evitar qualquer incompatibilidade que possa afetar o
+  // middleware (que roda no Edge). O middleware não usa Sentry mesmo.
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
     Sentry.init({
       dsn,
       tracesSampleRate: 0.1,
