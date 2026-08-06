@@ -2,6 +2,19 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { userHasEntitlement, getActiveEntitlementProductIds } from '@/lib/entitlements'
+import { captureException } from '@/lib/observability'
+
+// Loga um erro de leitura do Supabase com contexto rico (aparece nos
+// logs de Function da Vercel e no Sentry). Nunca engolir em silêncio.
+function logDbError(fn: string, error: { message?: string; code?: string; details?: string; hint?: string } | null, ctx?: Record<string, unknown>) {
+  if (!error) return
+  captureException(new Error(`[queries.${fn}] ${error.message ?? 'erro de leitura'}`), {
+    code: error.code,
+    details: error.details,
+    hint: error.hint,
+    ...ctx,
+  })
+}
 import type {
   Program,
   Lesson,
@@ -36,6 +49,7 @@ export async function getEntitledPrograms(userId: string): Promise<EntitledProgr
     .eq('user_id', userId)
     .eq('status', 'ativo')
 
+  if (error) logDbError('getEntitledPrograms', error, { userId })
   if (error || !data) return []
 
   const productIds = data
@@ -335,12 +349,22 @@ export interface StorefrontItem {
 /** Todos os produtos ativos com o estado liberado/bloqueado do usuário. */
 export async function getStorefront(userId: string): Promise<StorefrontItem[]> {
   const supabase = createClient()
-  const { data: products } = await supabase
+  const { data: products, error } = await supabase
     .from('products')
     .select('*')
     .eq('ativo', true)
     .order('created_at', { ascending: true })
 
+  // Falha REAL ao ler o catálogo → não mascaramos como "vazio" (que
+  // enganaria a usuária). Logamos com contexto e deixamos o boundary
+  // mostrar uma mensagem honesta de "não carregou, tente de novo".
+  if (error) {
+    logDbError('getStorefront', error, { userId })
+    throw new Error('Não foi possível carregar a vitrine agora.')
+  }
+
+  // Entitlements degrada com segurança: se falhar, tudo aparece bloqueado
+  // (o servidor ainda valida acesso ao abrir cada conteúdo).
   const owned = await getActiveEntitlementProductIds(supabase, userId)
 
   return (products ?? []).map((p) => ({
@@ -352,11 +376,12 @@ export async function getStorefront(userId: string): Promise<StorefrontItem[]> {
 /** Datas (ISO) de check-in do usuário — base do streak e do calendário. */
 export async function getCheckinDates(userId: string): Promise<string[]> {
   const supabase = createClient()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('checkins')
     .select('data')
     .eq('user_id', userId)
     .order('data', { ascending: true })
+  if (error) logDbError('getCheckinDates', error, { userId })
   return (data ?? []).map((c) => c.data as string)
 }
 
@@ -369,7 +394,7 @@ export interface BaseDiet {
 /** Plano de dieta base (incluso) com todos os dias de cardápio. */
 export async function getBaseDiet(): Promise<BaseDiet | null> {
   const supabase = createClient()
-  const { data: plan } = await supabase
+  const { data: plan, error } = await supabase
     .from('diet_plans')
     .select('*')
     .is('product_id', null)
@@ -377,6 +402,7 @@ export async function getBaseDiet(): Promise<BaseDiet | null> {
     .order('slug', { ascending: true })
     .limit(1)
     .maybeSingle()
+  if (error) logDbError('getBaseDiet', error)
   if (!plan) return null
 
   const { data: days } = await supabase
@@ -396,11 +422,12 @@ export interface ProgressEntryView extends ProgressEntry {
 /** Entradas de progresso do usuário com URL assinada da foto (privada). */
 export async function getProgressEntries(userId: string): Promise<ProgressEntryView[]> {
   const supabase = createClient()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('progress_entries')
     .select('*')
     .eq('user_id', userId)
     .order('data', { ascending: false })
+  if (error) logDbError('getProgressEntries', error, { userId })
 
   const entries = (data ?? []) as ProgressEntry[]
   if (entries.length === 0) return []

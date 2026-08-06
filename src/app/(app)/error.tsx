@@ -12,6 +12,15 @@ export default function AppError({
   reset: () => void
 }) {
   useEffect(() => {
+    // Vai para o Sentry (se configurado) E para o console — que aparece
+    // nos logs de Function da Vercel mesmo SEM Sentry DSN. Assim a causa
+    // raiz fica visível em produção em vez de sumir.
+    // eslint-disable-next-line no-console
+    console.error('[app/error] render falhou:', {
+      message: error.message,
+      digest: error.digest,
+      stack: error.stack,
+    })
     Sentry.captureException(error)
   }, [error])
 

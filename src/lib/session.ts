@@ -1,28 +1,51 @@
 import { createClient } from '@/lib/supabase/server'
+import { captureException } from '@/lib/observability'
 import type { Profile } from '@/types/db'
 
 // Helpers de sessão para Server Components / Route Handlers.
 
-export async function getUser() {
+// Lê o usuário de forma DEFENSIVA: getUser() pode, em cenários raros,
+// rejeitar (falha de rede Vercel↔Supabase) ou retornar um shape
+// inesperado. Nunca deixamos isso virar um crash genérico sem contexto.
+async function lerUsuario() {
   const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  return user
+  try {
+    const { data, error } = await supabase.auth.getUser()
+    if (error) {
+      // Sem sessão válida (ex.: token expirado) — não é erro fatal.
+      return null
+    }
+    return data?.user ?? null
+  } catch (err) {
+    captureException(err, { fn: 'session.lerUsuario' })
+    // Propaga como erro tratável para o boundary (retry costuma resolver
+    // um problema transitório), com mensagem honesta.
+    throw new Error('Não foi possível verificar sua sessão agora.')
+  }
+}
+
+export async function getUser() {
+  return lerUsuario()
 }
 
 export async function getProfile(): Promise<Profile | null> {
-  const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await lerUsuario()
   if (!user) return null
 
-  const { data } = await supabase
+  const supabase = createClient()
+  const { data, error } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .maybeSingle()
+
+  if (error) {
+    captureException(new Error(`[session.getProfile] ${error.message}`), {
+      code: error.code,
+      userId: user.id,
+    })
+    // Não travamos por causa disso — devolvemos o esqueleto abaixo.
+  }
 
   // Fallback: se o profile ainda não existe (ex: primeiríssimo acesso),
   // devolvemos um esqueleto com o e-mail do auth.

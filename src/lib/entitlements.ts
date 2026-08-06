@@ -1,5 +1,6 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { captureException } from '@/lib/observability'
 
 // =====================================================================
 // Regra de negócio central: acesso a conteúdo é SEMPRE validado no
@@ -28,9 +29,12 @@ export async function userHasEntitlement(
     .maybeSingle()
 
   if (error) {
-    // Em caso de erro de leitura, negamos acesso por segurança.
-    // eslint-disable-next-line no-console
-    console.error('[entitlements] erro ao verificar acesso:', error.message)
+    // Em caso de erro de leitura, negamos acesso por segurança (mas logamos).
+    captureException(new Error(`[entitlements.userHasEntitlement] ${error.message}`), {
+      code: error.code,
+      userId,
+      productId,
+    })
     return false
   }
 
@@ -54,8 +58,10 @@ export async function getActiveEntitlementProductIds(
     .eq('status', 'ativo')
 
   if (error) {
-    // eslint-disable-next-line no-console
-    console.error('[entitlements] erro ao listar acessos:', error.message)
+    captureException(new Error(`[entitlements.getActiveEntitlementProductIds] ${error.message}`), {
+      code: error.code,
+      userId,
+    })
     return new Set()
   }
 
