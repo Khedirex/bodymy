@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "gen:pilates-sql": "tsx scripts/gen-pilates-migration.ts",
     "seed": "tsx supabase/seed.ts",
     "seed:admin": "tsx supabase/seed-admin.ts",
     "grant:access": "tsx supabase/grant-access.ts",

@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
 import { getProgramMeta, getProgramTrack } from '@/lib/queries'
 import { SalesView } from '@/components/SalesView'
+import { SafetyNotice } from '@/components/SafetyNotice'
 import { ProgressBar } from '@/components/ProgressBar'
 import { CheckIcon, LockIcon, PlayIcon, ChevronRight } from '@/components/ui/icons'
 
@@ -38,6 +39,8 @@ export default async function ProgramaPage({ params }: { params: { slug: string 
           />
         </div>
       </header>
+
+      <SafetyNotice />
 
       <div className="space-y-5">
         {track.weeks.map((w) => (

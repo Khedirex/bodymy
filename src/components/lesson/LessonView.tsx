@@ -128,13 +128,25 @@ export function LessonView({
 }
 
 function BlocoCard({ bloco, numero }: { bloco: GuiaBloco; numero?: number }) {
+  if (bloco.tipo === 'aviso') {
+    return (
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+        <p className="mb-1 flex items-center gap-1.5 text-sm font-bold text-amber-700">
+          <span aria-hidden>⚠️</span> {bloco.titulo ?? 'Aviso importante'}
+        </p>
+        <p className="whitespace-pre-line text-sm leading-relaxed text-amber-900">
+          {bloco.conteudo}
+        </p>
+      </div>
+    )
+  }
   if (bloco.tipo === 'dica') {
     return (
       <div className="rounded-2xl bg-gold-300/20 p-4">
         <p className="mb-1 text-sm font-bold text-gold-500">
           {bloco.titulo ?? 'Dica'}
         </p>
-        <p className="text-ink-800">{bloco.conteudo}</p>
+        <p className="whitespace-pre-line text-ink-800">{bloco.conteudo}</p>
       </div>
     )
   }
@@ -149,7 +161,7 @@ function BlocoCard({ bloco, numero }: { bloco: GuiaBloco; numero?: number }) {
         {bloco.titulo ? (
           <p className="font-bold text-ink-900">{bloco.titulo}</p>
         ) : null}
-        <p className="mt-0.5 text-ink-800">{bloco.conteudo}</p>
+        <p className="mt-0.5 whitespace-pre-line text-ink-800">{bloco.conteudo}</p>
       </div>
     </div>
   )

@@ -13,7 +13,7 @@ const nunito = Nunito({
 
 export const metadata: Metadata = {
   title: 'BodyMy',
-  description: 'Seu programa de caminhada e bem-estar, no seu ritmo.',
+  description: 'Sua prática de movimentos somáticos e bem-estar, no seu ritmo.',
   manifest: '/manifest.json',
   applicationName: 'BodyMy',
   appleWebApp: {

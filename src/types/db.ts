@@ -87,7 +87,7 @@ export interface ProgramDay {
 }
 
 export interface GuiaBloco {
-  tipo: 'texto' | 'passo' | 'dica'
+  tipo: 'texto' | 'passo' | 'dica' | 'aviso'
   titulo?: string
   conteudo: string
 }
@@ -98,7 +98,7 @@ export interface Lesson {
   titulo: string
   tipo: LessonTipo
   panda_video_id: string | null
-  conteudo: { blocos: GuiaBloco[] } | null
+  conteudo: { intro?: string; blocos: GuiaBloco[] } | null
   duracao_min: number
   ordem: number
 }

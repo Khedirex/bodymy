@@ -8,7 +8,7 @@
 //   (c) existe completo
 // Resultado final garantido nos três casos:
 //   auth user com e-mail confirmado + profile "Willian" (is_admin=true)
-//   + entitlement ativo (origem manual) do caminhada-japonesa.
+//   + entitlement ativo (origem manual) do pilates-somatico.
 //
 // Ao final, roda a MESMA busca que a rota /api/auth/magic-link usa e
 // imprime "VERIFICAÇÃO: usuário encontrável pelo login? SIM/NÃO".
@@ -16,7 +16,7 @@
 //
 // Uso:  npm run seed:admin
 // Requer: NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY.
-// Requer que o produto "caminhada-japonesa" já exista (rode `npm run seed`).
+// Requer que o produto "pilates-somatico" já exista (rode `npm run seed`).
 // =====================================================================
 
 import './load-env'
@@ -37,7 +37,7 @@ const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
 
 const ADMIN_EMAIL = 'khedirex@gmail.com'.toLowerCase()
 const ADMIN_NOME = 'Willian'
-const PRODUTO_SLUG = 'caminhada-japonesa'
+const PRODUTO_SLUG = 'pilates-somatico'
 
 // Localiza um usuário de auth por e-mail (supabase-js não filtra por e-mail).
 async function findAuthUserByEmail(db: SupabaseClient, email: string) {
@@ -55,7 +55,7 @@ async function main() {
   console.log('→ Seed admin iniciado')
   await assertBodyMyDb(db)
 
-  // 0) Produto Caminhada Japonesa precisa existir.
+  // 0) Produto Pilates Somático precisa existir.
   const { data: product, error: prodErr } = await db
     .from('products')
     .select('id, nome')
@@ -106,7 +106,7 @@ async function main() {
   if (profErr) throw profErr
   console.log('✓ Profile "Willian" com is_admin=true')
 
-  // 3) Entitlement ATIVO (origem manual) do Caminhada Japonesa.
+  // 3) Entitlement ATIVO (origem manual) do Pilates Somático.
   const { error: entErr } = await db.from('entitlements').upsert(
     {
       user_id: userId,
