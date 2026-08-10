@@ -938,7 +938,7 @@ const semana4: Semana = {
   ],
 }
 
-export const PILATES_SEMANAS: Semana[] = [semana1, semana2, semana3, semana4]
+export const RITUAL_SEMANAS: Semana[] = [semana1, semana2, semana3, semana4]
 
 // Sanidade: garante 28 aulas.
-export const TOTAL_AULAS = PILATES_SEMANAS.reduce((n, s) => n + s.dias.length, 0)
+export const TOTAL_AULAS = RITUAL_SEMANAS.reduce((n, s) => n + s.dias.length, 0)

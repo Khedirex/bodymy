@@ -88,9 +88,9 @@ Ela é **idempotente** e **NÃO** altera `kiwify_product_id` nem
 entitlement. O programa antigo apenas fica `ativo=false` (conteúdo preservado
 no banco, reversível). Cole o arquivo no SQL Editor e confira as consultas de
 verificação ao final. O arquivo é **gerado** a partir da fonte única
-`supabase/content/pilates-somatico.ts`:
+`supabase/content/ritual-do-tapetinho.ts`:
 ```bash
-npm run gen:pilates-sql   # regenera supabase/migrations/0006_ritual_tapetinho.sql
+npm run gen:ritual-sql   # regenera supabase/migrations/0006_ritual_tapetinho.sql
 ```
 
 > **Nunca** rode `supabase/reset-dev.sql` num projeto que não seja exclusivo do

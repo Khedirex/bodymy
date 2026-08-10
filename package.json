@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gen:pilates-sql": "tsx scripts/gen-pilates-migration.ts",
+    "gen:ritual-sql": "tsx scripts/gen-ritual-tapetinho-migration.ts",
     "seed": "tsx supabase/seed.ts",
     "seed:admin": "tsx supabase/seed-admin.ts",
     "grant:access": "tsx supabase/grant-access.ts",

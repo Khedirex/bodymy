@@ -10,13 +10,13 @@
 // (Carregue-as via `.env.local` — veja README.)
 //
 // O conteúdo das 28 aulas vem da fonte única supabase/content/
-// pilates-somatico.ts (a mesma usada pelo gerador da migração de produção).
+// ritual-do-tapetinho.ts (a mesma usada pelo gerador da migração de produção).
 // =====================================================================
 
 import './load-env'
 import { createClient } from '@supabase/supabase-js'
 import { assertBodyMyDb } from './guard-db'
-import { PROGRAMA, PILATES_SEMANAS } from './content/pilates-somatico'
+import { PROGRAMA, RITUAL_SEMANAS } from './content/ritual-do-tapetinho'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -35,7 +35,7 @@ const TEST_EMAIL = 'teste@bodymy.app'
 // ---------------------------------------------------------------------
 // Conteúdo do Protocolo 28 Dias — Ritual do Tapetinho (4 semanas × 7 dias).
 // Movimentos somáticos inspirados no Pilates: lentos, conscientes, com
-// respiração. Fonte única em supabase/content/pilates-somatico.ts.
+// respiração. Fonte única em supabase/content/ritual-do-tapetinho.ts.
 // ---------------------------------------------------------------------
 const DIA_NOMES = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo']
 
@@ -120,7 +120,7 @@ async function main() {
   // Limpa semanas antigas do programa (idempotência do conteúdo).
   await db.from('program_weeks').delete().eq('program_id', programId)
 
-  for (const semana of PILATES_SEMANAS) {
+  for (const semana of RITUAL_SEMANAS) {
     const { data: week, error: wErr } = await db
       .from('program_weeks')
       .insert({ program_id: programId, numero: semana.numero, titulo: semana.titulo })

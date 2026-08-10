@@ -2,8 +2,8 @@
 -- 0006_ritual_tapetinho.sql
 -- BodyMy — Troca o programa principal para "Protocolo 28 Dias — Ritual do Tapetinho".
 --
--- GERADO automaticamente por scripts/gen-pilates-migration.ts a partir de
--- supabase/content/pilates-somatico.ts. NÃO edite à mão — regenere.
+-- GERADO automaticamente por scripts/gen-ritual-tapetinho-migration.ts a partir de
+-- supabase/content/ritual-do-tapetinho.ts. NÃO edite à mão — regenere.
 --
 -- O QUE FAZ (idempotente — pode rodar mais de uma vez com segurança):
 --   1. Localiza o produto base por qualquer slug conhecido do programa

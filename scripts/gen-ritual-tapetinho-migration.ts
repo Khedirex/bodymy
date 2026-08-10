@@ -2,11 +2,11 @@
 // =====================================================================
 // BodyMy — Gerador da migração de produção do "Ritual do Tapetinho"
 //
-// Lê a fonte única em supabase/content/pilates-somatico.ts e emite
+// Lê a fonte única em supabase/content/ritual-do-tapetinho.ts e emite
 // supabase/migrations/0006_ritual_tapetinho.sql — script idempotente,
 // comentado e pronto para colar no SQL Editor do Supabase de produção.
 //
-// Uso:  npx tsx scripts/gen-pilates-migration.ts
+// Uso:  npx tsx scripts/gen-ritual-tapetinho-migration.ts
 // =====================================================================
 
 import { writeFileSync } from 'node:fs'
@@ -14,10 +14,10 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import {
   PROGRAMA,
-  PILATES_SEMANAS,
+  RITUAL_SEMANAS,
   TOTAL_AULAS,
   type Semana,
-} from '../supabase/content/pilates-somatico'
+} from '../supabase/content/ritual-do-tapetinho'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const OUT = join(__dirname, '..', 'supabase', 'migrations', '0006_ritual_tapetinho.sql')
@@ -53,7 +53,7 @@ type WeekDoc = {
   }[]
 }
 
-const weeksDoc: WeekDoc[] = PILATES_SEMANAS.map((s: Semana) => ({
+const weeksDoc: WeekDoc[] = RITUAL_SEMANAS.map((s: Semana) => ({
   numero: s.numero,
   titulo: s.titulo,
   dias: s.dias.map((d, i) => ({
@@ -93,8 +93,8 @@ const sql = `-- ================================================================
 -- 0006_ritual_tapetinho.sql
 -- BodyMy — Troca o programa principal para "${PROGRAMA.programaNome}".
 --
--- GERADO automaticamente por scripts/gen-pilates-migration.ts a partir de
--- supabase/content/pilates-somatico.ts. NÃO edite à mão — regenere.
+-- GERADO automaticamente por scripts/gen-ritual-tapetinho-migration.ts a partir de
+-- supabase/content/ritual-do-tapetinho.ts. NÃO edite à mão — regenere.
 --
 -- O QUE FAZ (idempotente — pode rodar mais de uma vez com segurança):
 --   1. Localiza o produto base por qualquer slug conhecido do programa
@@ -246,4 +246,4 @@ select w.numero as semana, w.titulo, count(l.*) as aulas
 
 writeFileSync(OUT, sql, 'utf8')
 console.log(`✓ Migração gerada: ${OUT}`)
-console.log(`  ${TOTAL_AULAS} aulas em ${PILATES_SEMANAS.length} semanas.`)
+console.log(`  ${TOTAL_AULAS} aulas em ${RITUAL_SEMANAS.length} semanas.`)
