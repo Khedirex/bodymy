@@ -12,7 +12,7 @@ import { captureException } from '@/lib/observability'
 //   curl -X POST localhost:3000/api/dev/simulate-purchase \
 //     -H 'content-type: application/json' \
 //     -d '{"email":"nova@cliente.com","nome":"Nova Cliente",
-//          "kiwify_product_id":"kiwify_pilates_somatico"}'
+//          "kiwify_product_id":"kiwify_ritual_tapetinho"}'
 // =====================================================================
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'

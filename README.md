@@ -80,9 +80,9 @@ produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 `0003_functions.sql` → `0004_admin.sql` → `0005_upsells_admin.sql`, via
 `supabase db push` ou colando cada uma no SQL Editor.
 
-### Migração do programa: Caminhada Japonesa → Pilates Somático
+### Migração do programa (Ritual do Tapetinho)
 
-A troca do programa em **produção** é a migração `0006_pilates_somatico.sql`.
+A troca do programa em **produção** é a migração `0006_ritual_tapetinho.sql`.
 Ela é **idempotente** e **NÃO** altera `kiwify_product_id` nem
 `kiwify_checkout_url` — os acessos ativos continuam valendo, sem novo
 entitlement. O programa antigo apenas fica `ativo=false` (conteúdo preservado
@@ -90,7 +90,7 @@ no banco, reversível). Cole o arquivo no SQL Editor e confira as consultas de
 verificação ao final. O arquivo é **gerado** a partir da fonte única
 `supabase/content/pilates-somatico.ts`:
 ```bash
-npm run gen:pilates-sql   # regenera supabase/migrations/0006_pilates_somatico.sql
+npm run gen:pilates-sql   # regenera supabase/migrations/0006_ritual_tapetinho.sql
 ```
 
 > **Nunca** rode `supabase/reset-dev.sql` num projeto que não seja exclusivo do
@@ -101,12 +101,12 @@ npm run gen:pilates-sql   # regenera supabase/migrations/0006_pilates_somatico.s
 > mensagem clara antes de qualquer operação.
 
 ### 5. Seed
-Popula o programa Pilates Somático completo (4 semanas × 7 dias), produtos
+Popula o programa Ritual do Tapetinho completo (4 semanas × 7 dias), produtos
 bloqueados de exemplo, plano de dieta base e um usuário de teste com acesso:
 ```bash
 npm run seed
 ```
-Usuário de teste criado: **teste@bodymy.app** (com acesso ao Pilates Somático).
+Usuário de teste criado: **teste@bodymy.app** (com acesso ao Ritual do Tapetinho).
 Faça login em `/login` com esse e-mail para receber o magic link.
 
 ### 6. Rodar
@@ -128,7 +128,7 @@ curl -X POST http://localhost:3000/api/dev/simulate-purchase \
   -d '{
     "email": "nova@cliente.com",
     "nome": "Nova Cliente",
-    "kiwify_product_id": "kiwify_pilates_somatico"
+    "kiwify_product_id": "kiwify_ritual_tapetinho"
   }'
 ```
 
@@ -317,7 +317,7 @@ Configure na Kiwify a URL do webhook apontando para
 | `npm run build`   | build de produção                      |
 | `npm run start`   | roda o build                           |
 | `npm run seed`    | popula o banco (usa a service role key)|
-| `npm run seed:admin` | cria o usuário dono/admin de teste (khedirex@gmail.com, "Willian", `is_admin=true`, acesso ao Pilates Somático) |
+| `npm run seed:admin` | cria o usuário dono/admin de teste (khedirex@gmail.com, "Willian", `is_admin=true`, acesso ao Ritual do Tapetinho) |
 | `npm run grant:access -- email "Nome" [slug] --confirm` | concede acesso manual a uma aluna (cria user + profile + entitlement ativo); idempotente; exige `--confirm` |
 | `npm run send:welcome -- email --confirm` | envia o e-mail de boas-vindas (com link) para uma aluna já cadastrada; exige `--confirm` |
 | `npm run setup:env` | cria `.env.local` a partir de `.env.example` (se faltar) e sanea |

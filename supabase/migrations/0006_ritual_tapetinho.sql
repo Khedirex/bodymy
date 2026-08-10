@@ -1,27 +1,29 @@
 -- =====================================================================
--- 0006_pilates_somatico.sql
--- BodyMy — Substitui "Caminhada Japonesa" por "Pilates Somático".
+-- 0006_ritual_tapetinho.sql
+-- BodyMy — Troca o programa principal para "Protocolo 28 Dias — Ritual do Tapetinho".
 --
 -- GERADO automaticamente por scripts/gen-pilates-migration.ts a partir de
 -- supabase/content/pilates-somatico.ts. NÃO edite à mão — regenere.
 --
 -- O QUE FAZ (idempotente — pode rodar mais de uma vez com segurança):
---   1. Localiza o produto base pelo slug ('pilates-somatico' ou, ainda,
---      'caminhada-japonesa') — NÃO altera kiwify_product_id nem
---      kiwify_checkout_url, então os 3 acessos ativos continuam valendo.
---   2. Atualiza nome, slug, descrição e sales_page do produto.
+--   1. Localiza o produto base por qualquer slug conhecido do programa
+--      ('ritual-do-tapetinho', 'pilates-somatico', 'caminhada-japonesa') — NÃO altera
+--      kiwify_product_id nem kiwify_checkout_url, então os acessos ativos
+--      continuam valendo, sem novo entitlement.
+--   2. Atualiza nome, slug ('ritual-do-tapetinho'), descrição e sales_page do produto.
 --   3. Desativa (ativo=false) o(s) programa(s) antigo(s) do produto —
---      o conteúdo da Caminhada Japonesa FICA no banco (reversível).
---   4. Cria/atualiza o programa 'pilates-somatico' e (re)insere as
+--      o conteúdo anterior FICA no banco (reversível).
+--   4. Cria/atualiza o programa 'ritual-do-tapetinho' e (re)insere as
 --      28 aulas (4 semanas × 7 dias).
 --   5. Mostra, ao final, a verificação (produto, programa antigo inativo,
 --      programa novo ativo com 28 aulas).
 --
 -- NOTA sobre as alunas atuais: o entitlement é por product_id (inalterado),
--- então elas passam a ver o Pilates sem novo acesso. As lesson_completions
--- delas apontam para as aulas ANTIGAS (que permanecem no banco, apenas em
--- programa inativo), então o progresso no novo programa começa em zero, sem
--- erro. Check-ins e streak são independentes de programa e ficam intactos.
+-- então elas passam a ver o novo programa sem novo acesso. As
+-- lesson_completions delas apontam para as aulas ANTIGAS (que permanecem no
+-- banco, apenas em programa inativo), então o progresso no novo programa
+-- começa em zero, sem erro. Check-ins e streak são independentes de programa
+-- e ficam intactos.
 -- =====================================================================
 
 do $migration$
@@ -35,21 +37,25 @@ declare
   v_week       jsonb;
   v_dia        jsonb;
 begin
-  -- 1) Localiza o produto base (prioriza o slug novo se ambos existirem).
+  -- 1) Localiza o produto base (prioriza o slug alvo; depois os anteriores).
   select id into v_product_id
     from public.products
-   where slug in ('pilates-somatico', 'caminhada-japonesa')
-   order by (slug = 'pilates-somatico') desc
+   where slug in ('ritual-do-tapetinho', 'pilates-somatico', 'caminhada-japonesa')
+   order by case slug
+           when 'ritual-do-tapetinho' then 0
+           when 'pilates-somatico' then 1
+           when 'caminhada-japonesa' then 2
+           else 99 end
    limit 1;
 
   if v_product_id is null then
-    raise exception 'Produto base nao encontrado (slug pilates-somatico ou caminhada-japonesa). Nada foi alterado.';
+    raise exception 'Produto base nao encontrado (slugs: ritual-do-tapetinho, pilates-somatico, caminhada-japonesa). Nada foi alterado.';
   end if;
 
   -- 2) Atualiza o produto. NÃO toca em kiwify_product_id / kiwify_checkout_url.
   update public.products
-     set nome      = $nome$Protocolo 28 Dias — Pilates Somático$nome$,
-         slug      = 'pilates-somatico',
+     set nome      = $nome$Protocolo 28 Dias — Ritual do Tapetinho$nome$,
+         slug      = 'ritual-do-tapetinho',
          descricao = $desc$Movimentos somáticos inspirados no Pilates: 28 dias de prática lenta e consciente para soltar tensão e reconectar com o corpo, no seu ritmo e sem equipamento.$desc$,
          sales_page = v_sales,
          ativo     = true
@@ -59,14 +65,14 @@ begin
   update public.programs
      set ativo = false
    where product_id = v_product_id
-     and slug <> 'pilates-somatico';
+     and slug <> 'ritual-do-tapetinho';
 
   -- 4) Cria/atualiza o programa novo (upsert por slug único).
   insert into public.programs
       (product_id, slug, nome, descricao, capa_url, duracao_semanas, ordem_exibicao, ativo)
   values
-      (v_product_id, 'pilates-somatico',
-       $pnome$Protocolo 28 Dias — Pilates Somático$pnome$,
+      (v_product_id, 'ritual-do-tapetinho',
+       $pnome$Protocolo 28 Dias — Ritual do Tapetinho$pnome$,
        $pdesc$Prática somática progressiva de 4 semanas — movimento lento e consciente para aliviar tensão, respirar melhor e se reconectar com o corpo.$pdesc$,
        null, 4, 0, true)
   on conflict (slug) do update
@@ -107,7 +113,7 @@ begin
     end loop;
   end loop;
 
-  raise notice 'OK: produto % atualizado; programa pilates-somatico % com % aulas.',
+  raise notice 'OK: produto % atualizado; programa ritual-do-tapetinho % com % aulas.',
     v_product_id, v_program_id,
     (select count(*) from public.lessons l
        join public.program_days d on d.id = l.day_id
@@ -123,13 +129,13 @@ $migration$;
 -- Produto atualizado (kiwify_* devem permanecer os originais):
 select slug, nome, ativo, kiwify_product_id, kiwify_checkout_url
   from public.products
- where slug = 'pilates-somatico';
+ where slug = 'ritual-do-tapetinho';
 
 -- Programas do produto: o antigo deve estar ativo=false, o novo ativo=true.
 select p.slug, p.nome, p.ativo, p.ordem_exibicao
   from public.programs p
   join public.products pr on pr.id = p.product_id
- where pr.slug = 'pilates-somatico'
+ where pr.slug = 'ritual-do-tapetinho'
  order by p.ativo desc, p.slug;
 
 -- Contagem de aulas do programa novo (esperado: 28).
@@ -138,7 +144,7 @@ select count(*) as total_aulas
   join public.program_days d on d.id = l.day_id
   join public.program_weeks w on w.id = d.week_id
   join public.programs p on p.id = w.program_id
- where p.slug = 'pilates-somatico';
+ where p.slug = 'ritual-do-tapetinho';
 
 -- Aulas por semana (esperado: 7 em cada uma das 4 semanas).
 select w.numero as semana, w.titulo, count(l.*) as aulas
@@ -146,6 +152,6 @@ select w.numero as semana, w.titulo, count(l.*) as aulas
   join public.programs p on p.id = w.program_id
   join public.program_days d on d.week_id = w.id
   join public.lessons l on l.day_id = d.id
- where p.slug = 'pilates-somatico'
+ where p.slug = 'ritual-do-tapetinho'
  group by w.numero, w.titulo
  order by w.numero;

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 // =====================================================================
 // BodyMy — Seed
-// Popula o banco com o programa Pilates Somático completo, produtos
+// Popula o banco com o programa Ritual do Tapetinho completo, produtos
 // bloqueados de exemplo (vitrine), plano de dieta base e um usuário de
 // teste com entitlement.
 //
@@ -33,7 +33,7 @@ const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
 const TEST_EMAIL = 'teste@bodymy.app'
 
 // ---------------------------------------------------------------------
-// Conteúdo do Protocolo 28 Dias — Pilates Somático (4 semanas × 7 dias).
+// Conteúdo do Protocolo 28 Dias — Ritual do Tapetinho (4 semanas × 7 dias).
 // Movimentos somáticos inspirados no Pilates: lentos, conscientes, com
 // respiração. Fonte única em supabase/content/pilates-somatico.ts.
 // ---------------------------------------------------------------------
@@ -77,15 +77,15 @@ async function main() {
   await assertBodyMyDb(db)
 
   // -------------------------------------------------------------------
-  // 1) Produto + programa: Pilates Somático
+  // 1) Produto + programa: Ritual do Tapetinho
   // -------------------------------------------------------------------
   const programaProductId = await upsertProduct({
     slug: PROGRAMA.productSlugNovo,
     nome: PROGRAMA.productNome,
     descricao: PROGRAMA.productDescricao,
     tipo: 'programa',
-    kiwify_product_id: 'kiwify_pilates_somatico',
-    kiwify_checkout_url: 'https://pay.kiwify.com.br/pilates-somatico',
+    kiwify_product_id: 'kiwify_ritual_tapetinho',
+    kiwify_checkout_url: 'https://pay.kiwify.com.br/ritual-do-tapetinho',
     preco_exibicao: 'R$ 37,00',
     sales_page: {
       headline: PROGRAMA.salesPage.headline,
@@ -152,7 +152,7 @@ async function main() {
       if (lErr) throw lErr
     }
   }
-  console.log('✓ Programa Pilates Somático (4 semanas × 7 dias)')
+  console.log('✓ Programa Ritual do Tapetinho (4 semanas × 7 dias)')
 
   // -------------------------------------------------------------------
   // 2) Produtos bloqueados de exemplo (vitrine)
@@ -200,7 +200,7 @@ async function main() {
   })
   console.log('✓ Produtos de vitrine: Pilates de Cadeira, Cardápio Low Carb')
 
-  // Esteira de upsell: quem tem o Pilates Somático vê Pilates de Cadeira e Low Carb.
+  // Esteira de upsell: quem tem o Ritual do Tapetinho vê Pilates de Cadeira e Low Carb.
   // (Sem isso, a vitrine da aluna fica vazia no novo modelo multi-oferta.)
   for (const [i, upsellId] of [pilatesProductId, lowCarbProductId].entries()) {
     const { error } = await db.from('product_upsells').upsert(
@@ -214,7 +214,7 @@ async function main() {
     )
     if (error) throw error
   }
-  console.log('✓ Esteira: Pilates Somático → Pilates de Cadeira, Cardápio Low Carb')
+  console.log('✓ Esteira: Ritual do Tapetinho → Pilates de Cadeira, Cardápio Low Carb')
 
   // -------------------------------------------------------------------
   // 3) Plano de dieta base (incluso, product_id null)
@@ -248,7 +248,7 @@ async function main() {
   console.log('✓ Plano de dieta base (7 dias)')
 
   // -------------------------------------------------------------------
-  // 4) Usuário de teste + entitlement do Pilates Somático
+  // 4) Usuário de teste + entitlement do Ritual do Tapetinho
   // -------------------------------------------------------------------
   let userId: string | null = null
   const { data: created, error: cErr } = await db.auth.admin.createUser({
@@ -284,7 +284,7 @@ async function main() {
     },
     { onConflict: 'user_id,product_id' },
   )
-  console.log(`✓ Usuário de teste (${TEST_EMAIL}) com acesso ao Pilates Somático`)
+  console.log(`✓ Usuário de teste (${TEST_EMAIL}) com acesso ao Ritual do Tapetinho`)
 
   console.log('→ Seed concluído com sucesso 🎉')
 }

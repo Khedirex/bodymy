@@ -1,5 +1,5 @@
 // =====================================================================
-// BodyMy — Conteúdo do "Protocolo 28 Dias — Pilates Somático"
+// BodyMy — Conteúdo do "Protocolo 28 Dias — Ritual do Tapetinho"
 //
 // Movimentos SOMÁTICOS inspirados no Pilates: movimento lento, consciente,
 // respiração, liberação de tensão, reconexão com o corpo. NÃO é aula de
@@ -9,12 +9,15 @@
 // =====================================================================
 
 export const PROGRAMA = {
-  productSlugNovo: 'pilates-somatico',
-  productSlugAntigo: 'caminhada-japonesa',
-  productNome: 'Protocolo 28 Dias — Pilates Somático',
+  productSlugNovo: 'ritual-do-tapetinho',
+  // Slugs anteriores do MESMO produto — a migração usa esta lista (em ordem
+  // de prioridade) para localizar o produto qualquer que seja o estado atual
+  // do banco em produção.
+  legacySlugs: ['pilates-somatico', 'caminhada-japonesa'],
+  productNome: 'Protocolo 28 Dias — Ritual do Tapetinho',
   productDescricao:
     'Movimentos somáticos inspirados no Pilates: 28 dias de prática lenta e consciente para soltar tensão e reconectar com o corpo, no seu ritmo e sem equipamento.',
-  programaNome: 'Protocolo 28 Dias — Pilates Somático',
+  programaNome: 'Protocolo 28 Dias — Ritual do Tapetinho',
   programaDescricao:
     'Prática somática progressiva de 4 semanas — movimento lento e consciente para aliviar tensão, respirar melhor e se reconectar com o corpo.',
   salesPage: {

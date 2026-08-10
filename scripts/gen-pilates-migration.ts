@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 // =====================================================================
-// BodyMy — Gerador da migração de produção do Pilates Somático
+// BodyMy — Gerador da migração de produção do "Ritual do Tapetinho"
 //
 // Lê a fonte única em supabase/content/pilates-somatico.ts e emite
-// supabase/migrations/0006_pilates_somatico.sql — script idempotente,
+// supabase/migrations/0006_ritual_tapetinho.sql — script idempotente,
 // comentado e pronto para colar no SQL Editor do Supabase de produção.
 //
 // Uso:  npx tsx scripts/gen-pilates-migration.ts
@@ -20,7 +20,7 @@ import {
 } from '../supabase/content/pilates-somatico'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const OUT = join(__dirname, '..', 'supabase', 'migrations', '0006_pilates_somatico.sql')
+const OUT = join(__dirname, '..', 'supabase', 'migrations', '0006_ritual_tapetinho.sql')
 
 if (TOTAL_AULAS !== 28) {
   console.error(`✗ Esperava 28 aulas, encontrei ${TOTAL_AULAS}. Abortando.`)
@@ -28,6 +28,17 @@ if (TOTAL_AULAS !== 28) {
 }
 
 const DIA_NOMES = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo']
+
+// Slug alvo + slugs anteriores do mesmo produto (para localizar o produto
+// seja qual for o estado atual do banco em produção). Ordem = prioridade.
+const NEW_SLUG = PROGRAMA.productSlugNovo
+const CANDIDATES = [NEW_SLUG, ...PROGRAMA.legacySlugs]
+const slugInList = CANDIDATES.map((s) => `'${s}'`).join(', ')
+const slugListPlain = CANDIDATES.join(', ') // sem aspas, para mensagens de erro
+const slugPriorityCase =
+  'case slug\n' +
+  CANDIDATES.map((s, i) => `           when '${s}' then ${i}`).join('\n') +
+  '\n           else 99 end'
 
 // Estrutura serializada como JSON e embutida no SQL. O plpgsql percorre
 // este documento para (re)criar semanas, dias e aulas — assim todo o
@@ -79,29 +90,31 @@ const weeksJson = JSON.stringify(weeksDoc)
 const salesJson = JSON.stringify(salesPage)
 
 const sql = `-- =====================================================================
--- 0006_pilates_somatico.sql
--- BodyMy — Substitui "Caminhada Japonesa" por "Pilates Somático".
+-- 0006_ritual_tapetinho.sql
+-- BodyMy — Troca o programa principal para "${PROGRAMA.programaNome}".
 --
 -- GERADO automaticamente por scripts/gen-pilates-migration.ts a partir de
 -- supabase/content/pilates-somatico.ts. NÃO edite à mão — regenere.
 --
 -- O QUE FAZ (idempotente — pode rodar mais de uma vez com segurança):
---   1. Localiza o produto base pelo slug ('pilates-somatico' ou, ainda,
---      'caminhada-japonesa') — NÃO altera kiwify_product_id nem
---      kiwify_checkout_url, então os 3 acessos ativos continuam valendo.
---   2. Atualiza nome, slug, descrição e sales_page do produto.
+--   1. Localiza o produto base por qualquer slug conhecido do programa
+--      (${slugInList}) — NÃO altera
+--      kiwify_product_id nem kiwify_checkout_url, então os acessos ativos
+--      continuam valendo, sem novo entitlement.
+--   2. Atualiza nome, slug ('${NEW_SLUG}'), descrição e sales_page do produto.
 --   3. Desativa (ativo=false) o(s) programa(s) antigo(s) do produto —
---      o conteúdo da Caminhada Japonesa FICA no banco (reversível).
---   4. Cria/atualiza o programa 'pilates-somatico' e (re)insere as
+--      o conteúdo anterior FICA no banco (reversível).
+--   4. Cria/atualiza o programa '${NEW_SLUG}' e (re)insere as
 --      ${TOTAL_AULAS} aulas (4 semanas × 7 dias).
 --   5. Mostra, ao final, a verificação (produto, programa antigo inativo,
 --      programa novo ativo com ${TOTAL_AULAS} aulas).
 --
 -- NOTA sobre as alunas atuais: o entitlement é por product_id (inalterado),
--- então elas passam a ver o Pilates sem novo acesso. As lesson_completions
--- delas apontam para as aulas ANTIGAS (que permanecem no banco, apenas em
--- programa inativo), então o progresso no novo programa começa em zero, sem
--- erro. Check-ins e streak são independentes de programa e ficam intactos.
+-- então elas passam a ver o novo programa sem novo acesso. As
+-- lesson_completions delas apontam para as aulas ANTIGAS (que permanecem no
+-- banco, apenas em programa inativo), então o progresso no novo programa
+-- começa em zero, sem erro. Check-ins e streak são independentes de programa
+-- e ficam intactos.
 -- =====================================================================
 
 do $migration$
@@ -115,21 +128,21 @@ declare
   v_week       jsonb;
   v_dia        jsonb;
 begin
-  -- 1) Localiza o produto base (prioriza o slug novo se ambos existirem).
+  -- 1) Localiza o produto base (prioriza o slug alvo; depois os anteriores).
   select id into v_product_id
     from public.products
-   where slug in ('pilates-somatico', 'caminhada-japonesa')
-   order by (slug = 'pilates-somatico') desc
+   where slug in (${slugInList})
+   order by ${slugPriorityCase}
    limit 1;
 
   if v_product_id is null then
-    raise exception 'Produto base nao encontrado (slug pilates-somatico ou caminhada-japonesa). Nada foi alterado.';
+    raise exception 'Produto base nao encontrado (slugs: ${slugListPlain}). Nada foi alterado.';
   end if;
 
   -- 2) Atualiza o produto. NÃO toca em kiwify_product_id / kiwify_checkout_url.
   update public.products
      set nome      = ${dq(PROGRAMA.productNome, 'nome')},
-         slug      = 'pilates-somatico',
+         slug      = '${NEW_SLUG}',
          descricao = ${dq(PROGRAMA.productDescricao, 'desc')},
          sales_page = v_sales,
          ativo     = true
@@ -139,13 +152,13 @@ begin
   update public.programs
      set ativo = false
    where product_id = v_product_id
-     and slug <> 'pilates-somatico';
+     and slug <> '${NEW_SLUG}';
 
   -- 4) Cria/atualiza o programa novo (upsert por slug único).
   insert into public.programs
       (product_id, slug, nome, descricao, capa_url, duracao_semanas, ordem_exibicao, ativo)
   values
-      (v_product_id, 'pilates-somatico',
+      (v_product_id, '${NEW_SLUG}',
        ${dq(PROGRAMA.programaNome, 'pnome')},
        ${dq(PROGRAMA.programaDescricao, 'pdesc')},
        null, 4, 0, true)
@@ -187,7 +200,7 @@ begin
     end loop;
   end loop;
 
-  raise notice 'OK: produto % atualizado; programa pilates-somatico % com % aulas.',
+  raise notice 'OK: produto % atualizado; programa ${NEW_SLUG} % com % aulas.',
     v_product_id, v_program_id,
     (select count(*) from public.lessons l
        join public.program_days d on d.id = l.day_id
@@ -203,13 +216,13 @@ $migration$;
 -- Produto atualizado (kiwify_* devem permanecer os originais):
 select slug, nome, ativo, kiwify_product_id, kiwify_checkout_url
   from public.products
- where slug = 'pilates-somatico';
+ where slug = '${NEW_SLUG}';
 
 -- Programas do produto: o antigo deve estar ativo=false, o novo ativo=true.
 select p.slug, p.nome, p.ativo, p.ordem_exibicao
   from public.programs p
   join public.products pr on pr.id = p.product_id
- where pr.slug = 'pilates-somatico'
+ where pr.slug = '${NEW_SLUG}'
  order by p.ativo desc, p.slug;
 
 -- Contagem de aulas do programa novo (esperado: ${TOTAL_AULAS}).
@@ -218,7 +231,7 @@ select count(*) as total_aulas
   join public.program_days d on d.id = l.day_id
   join public.program_weeks w on w.id = d.week_id
   join public.programs p on p.id = w.program_id
- where p.slug = 'pilates-somatico';
+ where p.slug = '${NEW_SLUG}';
 
 -- Aulas por semana (esperado: 7 em cada uma das 4 semanas).
 select w.numero as semana, w.titulo, count(l.*) as aulas
@@ -226,7 +239,7 @@ select w.numero as semana, w.titulo, count(l.*) as aulas
   join public.programs p on p.id = w.program_id
   join public.program_days d on d.week_id = w.id
   join public.lessons l on l.day_id = d.id
- where p.slug = 'pilates-somatico'
+ where p.slug = '${NEW_SLUG}'
  group by w.numero, w.titulo
  order by w.numero;
 `
