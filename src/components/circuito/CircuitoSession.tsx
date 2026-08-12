@@ -326,7 +326,7 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, exercicios,
         ))}
       </div>
 
-      <VideoBox videoId={ex.videoId} />
+      <VideoBox videoId={ex.videoId} autoPlay />
 
       <div className="card">
         <div className="flex flex-wrap gap-3 text-sm font-semibold text-ink-800">
