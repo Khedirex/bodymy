@@ -77,8 +77,21 @@ No SQL Editor do projeto (que deve ser EXCLUSIVO do BodyMy), rode em ordem:
 
 **Alternativa por migrations** (`supabase/migrations`, fonte da verdade para
 produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
-`0003_functions.sql` → `0004_admin.sql` → `0005_upsells_admin.sql`, via
-`supabase db push` ou colando cada uma no SQL Editor.
+`0003_functions.sql` → `0004_admin.sql` → `0005_upsells_admin.sql` →
+`0006_ritual_tapetinho.sql` → `0007_circuito.sql`, via `supabase db push` ou
+colando cada uma no SQL Editor.
+
+### Circuito de vídeo adaptativo (`0007_circuito.sql`)
+
+O formato principal é um **circuito**: Semana Zero (3 dias de alongamento) e
+depois 4 semanas de **5 exercícios/dia**, com séries, descanso e variação
+(v1–v4) que se ajustam pelo feedback da aluna ao fim de cada sessão. A
+migração cria as 8 tabelas do circuito (RLS dono-apenas) e os **150 slots de
+vídeo** (35 exercícios × 4 variações + 10 alongamentos) com `panda_video_id`
+NULL — o admin preenche em **/admin/exercicios**. É idempotente e não toca nas
+28 aulas de movimento somático, que viram material complementar em
+**/entenda** ("Entenda a prática"). Um dia concluído gera check-in `treino`,
+então streak e constância seguem funcionando como antes.
 
 ### Migração do programa (Ritual do Tapetinho)
 

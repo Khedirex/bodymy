@@ -12,7 +12,7 @@ import {
 
 const ITEMS = [
   { href: '/', label: 'Início', Icon: HomeIcon, match: (p: string) => p === '/' },
-  { href: '/programa/ritual-do-tapetinho', label: 'Programa', Icon: RouteIcon, match: (p: string) => p.startsWith('/programa') },
+  { href: '/treino', label: 'Treino', Icon: RouteIcon, match: (p: string) => p.startsWith('/treino') || p.startsWith('/programa') },
   { href: '/dieta', label: 'Dieta', Icon: SaladIcon, match: (p: string) => p.startsWith('/dieta') },
   { href: '/progresso', label: 'Progresso', Icon: ChartIcon, match: (p: string) => p.startsWith('/progresso') },
   { href: '/descubra', label: 'Descubra', Icon: CompassIcon, match: (p: string) => p.startsWith('/descubra') || p.startsWith('/oferta') },

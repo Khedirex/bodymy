@@ -14,7 +14,7 @@ export default async function AlunaFichaPage({ params }: { params: { id: string 
   const [ficha, produtos] = await Promise.all([getAlunaFicha(params.id), listProductsSimple()])
   if (!ficha) notFound()
 
-  const { profile, auth, entitlements, streak, aulasConcluidas, totalCheckins, progresso, webhooks } = ficha
+  const { profile, auth, entitlements, streak, aulasConcluidas, totalCheckins, progresso, webhooks, config, sessoes, comentarios, variacoes } = ficha
 
   return (
     <div className="space-y-6">
@@ -58,6 +58,80 @@ export default async function AlunaFichaPage({ params }: { params: { id: string 
               </ul>
             )}
           </section>
+
+          {/* Circuito: configuração atual */}
+          <section className="rounded-lg border border-slate-200 bg-white p-4">
+            <h2 className="mb-3 text-sm font-semibold text-slate-700">Circuito — configuração</h2>
+            {config ? (
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                <dt className="text-slate-500">Faixa etária</dt><dd className="text-slate-800">{config.faixa_etaria ?? '—'}</dd>
+                <dt className="text-slate-500">Séries</dt><dd className="text-slate-800">{config.series}</dd>
+                <dt className="text-slate-500">Descanso</dt><dd className="text-slate-800">{config.descanso_seg}s</dd>
+                <dt className="text-slate-500">Estágio</dt><dd className="text-slate-800">{config.semana_zero_completa ? `Semana ${config.semana_atual} · Dia ${config.dia_atual}` : 'Semana Zero'}</dd>
+              </dl>
+            ) : (
+              <p className="text-sm text-slate-400">Ainda não iniciou o circuito.</p>
+            )}
+          </section>
+
+          {/* Circuito: histórico de sessões */}
+          <section className="rounded-lg border border-slate-200 bg-white p-4">
+            <h2 className="mb-2 text-sm font-semibold text-slate-700">Sessões recentes</h2>
+            {sessoes.length === 0 ? (
+              <p className="text-sm text-slate-400">Nenhuma sessão ainda.</p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="text-left text-slate-500">
+                  <tr><th className="py-1 font-medium">Data</th><th className="py-1 font-medium">Sem/Dia</th><th className="py-1 font-medium">Séries/Desc.</th><th className="py-1 font-medium">Completa</th></tr>
+                </thead>
+                <tbody>
+                  {sessoes.map((s, i) => (
+                    <tr key={i} className="border-t border-slate-100">
+                      <td className="py-1.5 text-slate-700">{s.data}</td>
+                      <td className="py-1.5 text-slate-600">S{s.semana}·D{s.dia}</td>
+                      <td className="py-1.5 text-slate-600">{s.series_usadas ?? '—'} / {s.descanso_usado ?? '—'}s</td>
+                      <td className="py-1.5">{s.completa ? <span className="text-emerald-700">sim</span> : <span className="text-slate-400">não</span>}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+
+          {/* Circuito: comentários da aluna */}
+          <section className="rounded-lg border border-slate-200 bg-white p-4">
+            <h2 className="mb-2 text-sm font-semibold text-slate-700">Comentários</h2>
+            {comentarios.length === 0 ? (
+              <p className="text-sm text-slate-400">Nenhum comentário.</p>
+            ) : (
+              <ul className="space-y-2">
+                {comentarios.map((c, i) => (
+                  <li key={i} className="border-t border-slate-100 pt-2 text-sm">
+                    <p className="text-slate-800">{c.comentario}</p>
+                    <p className="mt-0.5 text-xs text-slate-400">
+                      {fmt(c.created_at)}
+                      {c.intensidade_percebida ? ` · intensidade ${c.intensidade_percebida}/6` : ''}
+                      {c.eixo_dificuldade ? ` · ${c.eixo_dificuldade}` : ''}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {/* Circuito: variações escolhidas */}
+          {variacoes.length > 0 && (
+            <section className="rounded-lg border border-slate-200 bg-white p-4">
+              <h2 className="mb-2 text-sm font-semibold text-slate-700">Variações por exercício</h2>
+              <div className="flex flex-wrap gap-1.5">
+                {variacoes.map((v, i) => (
+                  <span key={i} className="rounded bg-slate-100 px-2 py-1 text-xs text-slate-700">
+                    {v.nome}: <span className="font-semibold">v{v.nivel}</span>
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section className="rounded-lg border border-slate-200 bg-white p-4">
             <h2 className="mb-2 text-sm font-semibold text-slate-700">Acessos</h2>

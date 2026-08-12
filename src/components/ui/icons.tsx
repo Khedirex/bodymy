@@ -89,6 +89,13 @@ export const ChevronLeft = (p: IconProps) => (
   </svg>
 )
 
+export const BookIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+  </svg>
+)
+
 export const CameraIcon = (p: IconProps) => (
   <svg {...base(p)}>
     <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" />

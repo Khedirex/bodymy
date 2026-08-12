@@ -1,20 +1,18 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
-import {
-  getPrimaryProgram,
-  getProgramTrack,
-  getCheckinDates,
-  getEsteira,
-} from '@/lib/queries'
+import { getCheckinDates, getEsteira } from '@/lib/queries'
+import { createClient } from '@/lib/supabase/server'
+import { getTrainingConfig, hasCircuitoAccess } from '@/lib/circuito'
 import { calcularStreak } from '@/lib/streak'
 import { todayISO } from '@/lib/dates'
+import { SEMANA_ZERO_DIAS } from '@/lib/training'
 import { StreakBadge } from '@/components/StreakBadge'
 import { ProgressBar } from '@/components/ProgressBar'
 import { LockedProductCard } from '@/components/LockedProductCard'
 import { InstallBanner } from '@/components/pwa/InstallBanner'
 import { EmptyState } from '@/components/ui/states'
-import { PlayIcon, ChevronRight, SaladIcon, LockIcon } from '@/components/ui/icons'
+import { PlayIcon, ChevronRight, SaladIcon, LockIcon, BookIcon } from '@/components/ui/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,18 +21,31 @@ export default async function HomePage() {
   if (!profile) redirect('/login')
   if (!profile.onboarding_completo) redirect('/bem-vinda')
 
-  const [primary, datas, storefront] = await Promise.all([
-    getPrimaryProgram(profile.id),
+  const supabase = createClient()
+  const [datas, storefront, temAcesso, config] = await Promise.all([
     getCheckinDates(profile.id),
     getEsteira(profile.id),
+    hasCircuitoAccess(supabase, profile.id),
+    getTrainingConfig(supabase, profile.id),
   ])
 
   const hoje = todayISO()
   const streak = calcularStreak(datas, hoje)
 
-  const track = primary ? await getProgramTrack(profile.id, primary.program.slug) : null
-  const proxima = track?.nextLesson ?? null
-  const programaConcluido = track ? track.completedCount >= track.totalLessons && track.totalLessons > 0 : false
+  // Rótulo do "Hoje" conforme o estágio do circuito.
+  const emSemanaZero = !config?.semana_zero_completa
+  const chipHoje = !config
+    ? 'Vamos começar'
+    : emSemanaZero
+      ? `Semana Zero · Dia ${Math.min(config.semana_zero_dias + 1, SEMANA_ZERO_DIAS)} de ${SEMANA_ZERO_DIAS}`
+      : `Semana ${config.semana_atual} · Dia ${config.dia_atual}`
+  const tituloHoje = !config
+    ? 'Seu treino de hoje'
+    : emSemanaZero
+      ? 'Reconhecendo o corpo'
+      : 'Seu circuito de hoje'
+  // Progresso nas 4 semanas (28 dias) depois da Semana Zero.
+  const diasFeitos = config && !emSemanaZero ? (config.semana_atual - 1) * 7 + (config.dia_atual - 1) : 0
 
   const primeiroNome = (profile.nome ?? '').split(' ')[0] || 'Olá'
   const bloqueados = storefront.filter((s) => !s.liberado)
@@ -52,57 +63,51 @@ export default async function HomePage() {
 
       <InstallBanner />
 
-      {/* Card "Hoje" */}
+      {/* Card "Hoje" — circuito */}
       <section>
         <h2 className="section-title mb-2">Hoje</h2>
-        {track && proxima ? (
+        {temAcesso ? (
           <div className="card">
             <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-coral-600">
-              <span className="chip">
-                Semana {proxima.weekNumero} · Dia {proxima.dayNumero}
-              </span>
+              <span className="chip">{chipHoje}</span>
             </div>
-            <h3 className="text-lg font-bold text-ink-900">{proxima.lesson.titulo}</h3>
+            <h3 className="text-lg font-bold text-ink-900">{tituloHoje}</h3>
             <p className="mt-1 text-sm text-ink-700">
-              {proxima.lesson.duracao_min} min · no seu ritmo
+              {emSemanaZero ? 'Alongamentos suaves, no seu ritmo.' : '5 exercícios · ajusta-se a você'}
             </p>
             <div className="mt-4">
-              <Link
-                href={`/programa/${track.program.slug}/aula/${proxima.lesson.id}`}
-                className="btn-primary w-full"
-              >
+              <Link href="/treino" className="btn-primary w-full">
                 <PlayIcon width={20} height={20} /> Começar agora
               </Link>
             </div>
-            <div className="mt-4">
-              <ProgressBar
-                atual={track.completedCount}
-                total={track.totalLessons}
-                label="Seu progresso no programa"
-              />
-            </div>
-          </div>
-        ) : track && programaConcluido ? (
-          <div className="card text-center">
-            <div className="mb-2 text-4xl" aria-hidden>
-              🏆
-            </div>
-            <h3 className="text-lg font-bold text-ink-900">Você concluiu o programa!</h3>
-            <p className="mt-1 text-sm text-ink-700">
-              Que constância linda. Continue se movimentando no seu ritmo.
-            </p>
-            <Link href={`/programa/${track.program.slug}`} className="btn-secondary mt-4 w-full">
-              Rever meu programa
-            </Link>
+            {config && !emSemanaZero ? (
+              <div className="mt-4">
+                <ProgressBar atual={diasFeitos} total={28} label="Seu progresso nas 4 semanas" />
+              </div>
+            ) : null}
           </div>
         ) : (
           <EmptyState
-            titulo="Seu programa aparece aqui"
-            descricao="Assim que seu acesso estiver ativo, sua aula do dia aparece neste espaço."
+            titulo="Seu treino aparece aqui"
+            descricao="Assim que seu acesso estiver ativo, seu circuito do dia aparece neste espaço."
             icone={<LockIcon width={28} height={28} />}
           />
         )}
       </section>
+
+      {/* Material complementar: as 28 aulas viram "Entenda a prática" */}
+      {temAcesso ? (
+        <Link href="/entenda" className="card flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cream-200 text-ink-800">
+            <BookIcon width={22} height={22} />
+          </div>
+          <div className="flex-1">
+            <p className="font-bold text-ink-900">Entenda a prática</p>
+            <p className="text-sm text-ink-700">Textos curtos sobre o movimento somático</p>
+          </div>
+          <ChevronRight className="text-ink-700/40" width={20} height={20} />
+        </Link>
+      ) : null}
 
       {/* Atalho para o cardápio do dia */}
       <Link

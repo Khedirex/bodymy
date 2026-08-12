@@ -147,16 +147,43 @@ export async function getAlunaFicha(id: string) {
     produtoSlug: (e.product as unknown as { slug?: string })?.slug ?? '',
   }))
 
-  const [{ data: checkins }, { count: aulas }, { data: progresso }] = await Promise.all([
-    admin.from('checkins').select('data').eq('user_id', id),
-    admin.from('lesson_completions').select('id', { count: 'exact', head: true }).eq('user_id', id),
-    admin
-      .from('progress_entries')
-      .select('data, medidas, peso, nota, foto_path')
-      .eq('user_id', id)
-      .order('data', { ascending: false })
-      .limit(5),
-  ])
+  const [{ data: checkins }, { count: aulas }, { data: progresso }, { data: config }, { data: sessoes }, { data: comentarios }, { data: variacoes }] =
+    await Promise.all([
+      admin.from('checkins').select('data').eq('user_id', id),
+      admin.from('lesson_completions').select('id', { count: 'exact', head: true }).eq('user_id', id),
+      admin
+        .from('progress_entries')
+        .select('data, medidas, peso, nota, foto_path')
+        .eq('user_id', id)
+        .order('data', { ascending: false })
+        .limit(5),
+      admin.from('user_training_config').select('*').eq('user_id', id).maybeSingle(),
+      admin
+        .from('training_sessions')
+        .select('data, semana, dia, completa, series_usadas, descanso_usado')
+        .eq('user_id', id)
+        .order('data', { ascending: false })
+        .limit(15),
+      admin
+        .from('session_feedback')
+        .select('comentario, eixo_dificuldade, intensidade_percebida, created_at')
+        .eq('user_id', id)
+        .not('comentario', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(10),
+      admin
+        .from('user_exercise_variations')
+        .select('variacao_nivel, exercise:exercises(nome, ordem_no_circuito)')
+        .eq('user_id', id),
+    ])
+
+  const variacoesView = ((variacoes ?? []) as Array<{ variacao_nivel: number; exercise: { nome?: string; ordem_no_circuito?: number } | null }>)
+    .map((v) => ({
+      nome: v.exercise?.nome ?? '?',
+      ordem: v.exercise?.ordem_no_circuito ?? 0,
+      nivel: v.variacao_nivel,
+    }))
+    .sort((a, b) => a.ordem - b.ordem)
 
   const streak = calcularStreak((checkins ?? []).map((c) => c.data as string))
 
@@ -192,6 +219,18 @@ export async function getAlunaFicha(id: string) {
     totalCheckins: (checkins ?? []).length,
     progresso: (progresso ?? []) as Pick<ProgressEntry, 'data' | 'medidas' | 'peso' | 'nota' | 'foto_path'>[],
     webhooks,
+    // Circuito:
+    config: (config as {
+      faixa_etaria: string | null
+      series: number
+      descanso_seg: number
+      semana_atual: number
+      dia_atual: number
+      semana_zero_completa: boolean
+    } | null) ?? null,
+    sessoes: (sessoes ?? []) as Array<{ data: string; semana: number; dia: number; completa: boolean; series_usadas: number | null; descanso_usado: number | null }>,
+    comentarios: (comentarios ?? []) as Array<{ comentario: string | null; eixo_dificuldade: string | null; intensidade_percebida: number | null; created_at: string }>,
+    variacoes: variacoesView,
   }
 }
 
@@ -343,4 +382,81 @@ export async function getExerciseAdmin(id: string): Promise<ExerciseWithVariatio
     .eq('exercise_id', id)
     .order('nivel', { ascending: true })
   return { ...(ex as Exercise), variacoes: (vars ?? []) as ExerciseVariation[] }
+}
+
+// --- Circuito: feedbacks das alunas (Willian lê regularmente) ---------
+export interface FeedbackRow {
+  id: string
+  user_id: string
+  aluna: string
+  email: string | null
+  comentario: string | null
+  eixo_dificuldade: string | null
+  intensidade_percebida: number | null
+  ajuste_aceito: boolean
+  data_sessao: string | null
+  created_at: string
+}
+
+export async function listFeedbacks(opts: {
+  q?: string
+  soComentario?: boolean
+  de?: string // ISO date
+  ate?: string
+  page?: number
+  perPage?: number
+}) {
+  const admin = createAdminClient()
+  const page = Math.max(1, opts.page ?? 1)
+  const perPage = opts.perPage ?? 30
+  const from = (page - 1) * perPage
+
+  let query = admin
+    .from('session_feedback')
+    .select('id, user_id, comentario, eixo_dificuldade, intensidade_percebida, ajuste_aceito, created_at, session:training_sessions(data)', { count: 'exact' })
+  if (opts.soComentario) query = query.not('comentario', 'is', null)
+  if (opts.de) query = query.gte('created_at', `${opts.de}T00:00:00`)
+  if (opts.ate) query = query.lte('created_at', `${opts.ate}T23:59:59`)
+  query = query.order('created_at', { ascending: false }).range(from, from + perPage - 1)
+
+  const { data, count } = await query
+  const rows = (data ?? []) as Array<{
+    id: string
+    user_id: string
+    comentario: string | null
+    eixo_dificuldade: string | null
+    intensidade_percebida: number | null
+    ajuste_aceito: boolean
+    created_at: string
+    session: { data?: string } | null
+  }>
+
+  // Perfis das alunas (nome/email) numa tacada.
+  const ids = Array.from(new Set(rows.map((r) => r.user_id)))
+  const nomeMap = new Map<string, { nome: string | null; email: string | null }>()
+  if (ids.length) {
+    const { data: profs } = await admin.from('profiles').select('id, nome, email').in('id', ids)
+    for (const p of profs ?? []) nomeMap.set(p.id as string, { nome: (p.nome as string) ?? null, email: (p.email as string) ?? null })
+  }
+
+  let out: FeedbackRow[] = rows.map((r) => ({
+    id: r.id,
+    user_id: r.user_id,
+    aluna: nomeMap.get(r.user_id)?.nome ?? '—',
+    email: nomeMap.get(r.user_id)?.email ?? null,
+    comentario: r.comentario,
+    eixo_dificuldade: r.eixo_dificuldade,
+    intensidade_percebida: r.intensidade_percebida,
+    ajuste_aceito: r.ajuste_aceito,
+    data_sessao: r.session?.data ?? null,
+    created_at: r.created_at,
+  }))
+
+  // Filtro por aluna (nome/email) — aplicado após o join (client-side).
+  if (opts.q) {
+    const q = opts.q.toLowerCase()
+    out = out.filter((r) => r.aluna.toLowerCase().includes(q) || (r.email ?? '').toLowerCase().includes(q))
+  }
+
+  return { rows: out, total: count ?? 0, page, perPage }
 }
