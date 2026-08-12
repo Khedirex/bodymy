@@ -4,13 +4,8 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { InstallInstructions } from '@/components/pwa/InstallInstructions'
 import { analytics } from '@/lib/analytics'
-
-type Horario = 'manha' | 'tarde' | 'noite'
-const OPCOES: { valor: Horario; label: string; emoji: string }[] = [
-  { valor: 'manha', label: 'De manhã', emoji: '🌅' },
-  { valor: 'tarde', label: 'À tarde', emoji: '☀️' },
-  { valor: 'noite', label: 'À noite', emoji: '🌙' },
-]
+import { FAIXAS } from '@/lib/training'
+import type { FaixaEtaria } from '@/types/db'
 
 export function Onboarding({
   nome,
@@ -21,21 +16,21 @@ export function Onboarding({
 }) {
   const router = useRouter()
   const [passo, setPasso] = useState<1 | 2 | 3>(1)
-  const [horario, setHorario] = useState<Horario | null>(null)
+  const [faixa, setFaixa] = useState<FaixaEtaria | null>(null)
   const [pending, startTransition] = useTransition()
   const primeiroNome = (nome ?? '').split(' ')[0] || 'Bem-vinda'
 
   const [erro, setErro] = useState<string | null>(null)
 
   function finalizar() {
-    if (!horario) return
+    if (!faixa) return
     setErro(null)
     startTransition(async () => {
       try {
         const res = await fetch('/api/onboarding', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ horario }),
+          body: JSON.stringify({ faixa_etaria: faixa }),
         })
         if (!res.ok) {
           setErro('Não conseguimos salvar agora. Tente novamente.')
@@ -90,25 +85,23 @@ export function Onboarding({
       {passo === 2 && (
         <section className="flex flex-1 flex-col animate-fade-up">
           <h2 className="text-2xl font-extrabold text-ink-900">
-            Qual o melhor horário para você se movimentar?
+            Qual a sua faixa de idade?
           </h2>
           <p className="mt-2 text-ink-700">
-            Assim conseguimos te lembrar na hora certa. Você pode mudar depois.
+            Usamos isso só para começar no ponto certo para você — um ritmo seguro e
+            confortável. O treino se ajusta a partir do que você sentir.
           </p>
           <div className="mt-6 space-y-3">
-            {OPCOES.map((o) => (
+            {FAIXAS.map((o) => (
               <button
                 key={o.valor}
-                onClick={() => setHorario(o.valor)}
+                onClick={() => setFaixa(o.valor)}
                 className={`flex w-full items-center gap-3 rounded-2xl border-2 px-5 py-4 text-left text-lg font-semibold transition ${
-                  horario === o.valor
+                  faixa === o.valor
                     ? 'border-coral-400 bg-coral-50 text-coral-700'
                     : 'border-cream-200 bg-white text-ink-800'
                 }`}
               >
-                <span className="text-2xl" aria-hidden>
-                  {o.emoji}
-                </span>
                 {o.label}
               </button>
             ))}
@@ -116,7 +109,7 @@ export function Onboarding({
           <div className="mt-auto pt-8">
             <button
               className="btn-primary w-full"
-              disabled={!horario}
+              disabled={!faixa}
               onClick={() => setPasso(3)}
             >
               Continuar

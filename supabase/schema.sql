@@ -385,6 +385,159 @@ values ('progress-photos', 'progress-photos', false)
 on conflict (id) do nothing;
 
 -- ---------------------------------------------------------------------
+-- CIRCUITO DE VÍDEO (Semana Zero + 5 exercícios/dia com adaptação)
+-- Catálogo (exercises/exercise_variations/stretches): sem policy de
+-- leitura no client — servido via servidor após validar entitlement.
+-- Estado da aluna: RLS dono apenas. Um dia concluído gera check-in
+-- 'treino', então streak/constância continuam funcionando.
+-- ---------------------------------------------------------------------
+create table public.exercises (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null,
+  descricao text,
+  dia_do_ciclo int not null check (dia_do_ciclo between 1 and 7),
+  ordem_no_dia int not null check (ordem_no_dia between 1 and 5),
+  ordem_no_circuito int not null,
+  ativo boolean not null default true,
+  created_at timestamptz not null default now(),
+  unique (dia_do_ciclo, ordem_no_dia)
+);
+create index exercises_dia_idx on public.exercises(dia_do_ciclo, ordem_no_dia);
+
+create table public.exercise_variations (
+  id uuid primary key default gen_random_uuid(),
+  exercise_id uuid not null references public.exercises(id) on delete cascade,
+  nivel int not null check (nivel between 1 and 4),
+  panda_video_id text,
+  duracao_seg int,
+  instrucoes text,
+  created_at timestamptz not null default now(),
+  unique (exercise_id, nivel)
+);
+create index exercise_variations_ex_idx on public.exercise_variations(exercise_id);
+
+create table public.stretches (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null,
+  descricao text,
+  panda_video_id text,
+  ordem int not null,
+  duracao_seg int,
+  created_at timestamptz not null default now(),
+  unique (ordem)
+);
+
+create table public.user_training_config (
+  user_id uuid primary key references public.profiles(id) on delete cascade,
+  faixa_etaria text,
+  series int not null default 3 check (series between 2 and 6),
+  descanso_seg int not null default 60 check (descanso_seg between 20 and 120),
+  semana_atual int not null default 1 check (semana_atual between 1 and 4),
+  dia_atual int not null default 1 check (dia_atual between 1 and 7),
+  semana_zero_completa boolean not null default false,
+  semana_zero_dias int not null default 0 check (semana_zero_dias between 0 and 3),
+  atualizado_em timestamptz not null default now()
+);
+
+create table public.user_exercise_variations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  exercise_id uuid not null references public.exercises(id) on delete cascade,
+  variacao_nivel int not null default 1 check (variacao_nivel between 1 and 4),
+  atualizado_em timestamptz not null default now(),
+  unique (user_id, exercise_id)
+);
+create index user_exercise_variations_user_idx on public.user_exercise_variations(user_id);
+
+create table public.training_sessions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  data date not null,
+  semana int not null,
+  dia int not null,
+  completa boolean not null default false,
+  series_usadas int,
+  descanso_usado int,
+  created_at timestamptz not null default now()
+);
+create index training_sessions_user_idx on public.training_sessions(user_id, data);
+
+create table public.session_exercises (
+  id uuid primary key default gen_random_uuid(),
+  session_id uuid not null references public.training_sessions(id) on delete cascade,
+  exercise_id uuid not null references public.exercises(id) on delete cascade,
+  variacao_nivel int not null check (variacao_nivel between 1 and 4),
+  status text not null check (status in ('fez','nao_conseguiu','pulou')),
+  ordem int not null default 0,
+  created_at timestamptz not null default now(),
+  unique (session_id, exercise_id)
+);
+create index session_exercises_session_idx on public.session_exercises(session_id);
+
+create table public.session_feedback (
+  id uuid primary key default gen_random_uuid(),
+  session_id uuid not null references public.training_sessions(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  comentario text,
+  eixo_dificuldade text check (eixo_dificuldade in ('descanso','exercicio','series')),
+  intensidade_percebida int check (intensidade_percebida between 1 and 6),
+  ajuste_aceito boolean not null default false,
+  ajuste_aplicado jsonb,
+  created_at timestamptz not null default now(),
+  unique (session_id)
+);
+create index session_feedback_user_idx on public.session_feedback(user_id, created_at desc);
+
+alter table public.exercises                enable row level security;
+alter table public.exercise_variations      enable row level security;
+alter table public.stretches                enable row level security;
+alter table public.user_training_config     enable row level security;
+alter table public.user_exercise_variations enable row level security;
+alter table public.training_sessions        enable row level security;
+alter table public.session_exercises        enable row level security;
+alter table public.session_feedback         enable row level security;
+
+-- Catálogo: sem policy de leitura no client (servido via servidor).
+create policy "utc_select_own" on public.user_training_config
+  for select using (auth.uid() = user_id);
+create policy "utc_insert_own" on public.user_training_config
+  for insert with check (auth.uid() = user_id);
+create policy "utc_update_own" on public.user_training_config
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "uev_select_own" on public.user_exercise_variations
+  for select using (auth.uid() = user_id);
+create policy "uev_insert_own" on public.user_exercise_variations
+  for insert with check (auth.uid() = user_id);
+create policy "uev_update_own" on public.user_exercise_variations
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "ts_select_own" on public.training_sessions
+  for select using (auth.uid() = user_id);
+create policy "ts_insert_own" on public.training_sessions
+  for insert with check (auth.uid() = user_id);
+create policy "ts_update_own" on public.training_sessions
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "se_select_own" on public.session_exercises
+  for select using (exists (
+    select 1 from public.training_sessions ts
+    where ts.id = session_exercises.session_id and ts.user_id = auth.uid()));
+create policy "se_insert_own" on public.session_exercises
+  for insert with check (exists (
+    select 1 from public.training_sessions ts
+    where ts.id = session_exercises.session_id and ts.user_id = auth.uid()));
+create policy "se_update_own" on public.session_exercises
+  for update using (exists (
+    select 1 from public.training_sessions ts
+    where ts.id = session_exercises.session_id and ts.user_id = auth.uid()));
+
+create policy "sf_select_own" on public.session_feedback
+  for select using (auth.uid() = user_id);
+create policy "sf_insert_own" on public.session_feedback
+  for insert with check (auth.uid() = user_id);
+
+-- ---------------------------------------------------------------------
 -- Recarrega o cache de schema do PostgREST
 -- ---------------------------------------------------------------------
 notify pgrst, 'reload schema';
@@ -394,7 +547,7 @@ notify pgrst, 'reload schema';
 -- ---------------------------------------------------------------------
 select * from (
   values
-    ('tabelas em public (esperado 13)',
+    ('tabelas em public (esperado 23)',
       (select count(*)::text from information_schema.tables
         where table_schema = 'public' and table_type = 'BASE TABLE')),
     ('products.kiwify_product_id',

@@ -182,3 +182,95 @@ export interface AdminLog {
   detalhes: Record<string, unknown> | null
   created_at: string
 }
+
+// =====================================================================
+// Circuito de vídeo com personalização adaptativa
+// =====================================================================
+export type FaixaEtaria = '30-35' | '36-40' | '41-45' | '46+'
+export type SessionExerciseStatus = 'fez' | 'nao_conseguiu' | 'pulou'
+export type EixoDificuldade = 'descanso' | 'exercicio' | 'series'
+
+export interface Exercise {
+  id: string
+  nome: string
+  descricao: string | null
+  dia_do_ciclo: number // 1-7
+  ordem_no_dia: number // 1-5
+  ordem_no_circuito: number // 1-35
+  ativo: boolean
+  created_at: string
+}
+
+export interface ExerciseVariation {
+  id: string
+  exercise_id: string
+  nivel: number // 1-4
+  panda_video_id: string | null
+  duracao_seg: number | null
+  instrucoes: string | null
+  created_at: string
+}
+
+export interface Stretch {
+  id: string
+  nome: string
+  descricao: string | null
+  panda_video_id: string | null
+  ordem: number // 1-10
+  duracao_seg: number | null
+  created_at: string
+}
+
+export interface UserTrainingConfig {
+  user_id: string
+  faixa_etaria: FaixaEtaria | null
+  series: number // 2-6
+  descanso_seg: number // 20-120
+  semana_atual: number // 1-4
+  dia_atual: number // 1-7
+  semana_zero_completa: boolean
+  semana_zero_dias: number // 0-3
+  atualizado_em: string
+}
+
+export interface UserExerciseVariation {
+  id: string
+  user_id: string
+  exercise_id: string
+  variacao_nivel: number // 1-4
+  atualizado_em: string
+}
+
+export interface TrainingSession {
+  id: string
+  user_id: string
+  data: string
+  semana: number
+  dia: number
+  completa: boolean
+  series_usadas: number | null
+  descanso_usado: number | null
+  created_at: string
+}
+
+export interface SessionExercise {
+  id: string
+  session_id: string
+  exercise_id: string
+  variacao_nivel: number
+  status: SessionExerciseStatus
+  ordem: number
+  created_at: string
+}
+
+export interface SessionFeedback {
+  id: string
+  session_id: string
+  user_id: string
+  comentario: string | null
+  eixo_dificuldade: EixoDificuldade | null
+  intensidade_percebida: number | null // 1-6
+  ajuste_aceito: boolean
+  ajuste_aplicado: Record<string, unknown> | null
+  created_at: string
+}

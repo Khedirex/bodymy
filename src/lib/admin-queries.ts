@@ -2,7 +2,14 @@ import 'server-only'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { calcularStreak } from '@/lib/streak'
 import { todayISO } from '@/lib/dates'
-import type { Product, Entitlement, ProgressEntry } from '@/types/db'
+import type {
+  Product,
+  Entitlement,
+  ProgressEntry,
+  Exercise,
+  ExerciseVariation,
+  Stretch,
+} from '@/types/db'
 
 // =====================================================================
 // Consultas do painel admin. TODAS usam a service role (enxergam tudo,
@@ -274,4 +281,66 @@ export async function getProductAdmin(id: string): Promise<{
     upsells,
     todos: (todos ?? []) as Pick<Product, 'id' | 'nome' | 'slug' | 'tipo'>[],
   }
+}
+
+// --- Circuito: gestão de exercícios/variações/alongamentos -----------
+export interface ExerciseWithVariations extends Exercise {
+  variacoes: ExerciseVariation[]
+}
+
+export async function getCircuitoOverview() {
+  const admin = createAdminClient()
+  const [{ data: exercises }, { data: variations }, { data: stretches }] = await Promise.all([
+    admin.from('exercises').select('*').order('ordem_no_circuito', { ascending: true }),
+    admin.from('exercise_variations').select('*').order('nivel', { ascending: true }),
+    admin.from('stretches').select('*').order('ordem', { ascending: true }),
+  ])
+
+  const varsByExercise = new Map<string, ExerciseVariation[]>()
+  for (const v of (variations ?? []) as ExerciseVariation[]) {
+    const arr = varsByExercise.get(v.exercise_id) ?? []
+    arr.push(v)
+    varsByExercise.set(v.exercise_id, arr)
+  }
+
+  const exs: ExerciseWithVariations[] = ((exercises ?? []) as Exercise[]).map((e) => ({
+    ...e,
+    variacoes: (varsByExercise.get(e.id) ?? []).sort((a, b) => a.nivel - b.nivel),
+  }))
+
+  // Exercícios agrupados por dia do ciclo (1-7).
+  const porDia = new Map<number, ExerciseWithVariations[]>()
+  for (const e of exs) {
+    const arr = porDia.get(e.dia_do_ciclo) ?? []
+    arr.push(e)
+    porDia.set(e.dia_do_ciclo, arr)
+  }
+  const dias = Array.from(porDia.entries())
+    .sort((a, b) => a[0] - b[0])
+    .map(([dia, itens]) => ({ dia, exercicios: itens.sort((a, b) => a.ordem_no_dia - b.ordem_no_dia) }))
+
+  const st = (stretches ?? []) as Stretch[]
+  const videosVariacoes = ((variations ?? []) as ExerciseVariation[]).filter((v) => v.panda_video_id).length
+  const videosAlongamentos = st.filter((s) => s.panda_video_id).length
+
+  return {
+    dias,
+    stretches: st,
+    counts: {
+      preenchidos: videosVariacoes + videosAlongamentos,
+      total: ((variations ?? []).length) + st.length,
+    },
+  }
+}
+
+export async function getExerciseAdmin(id: string): Promise<ExerciseWithVariations | null> {
+  const admin = createAdminClient()
+  const { data: ex } = await admin.from('exercises').select('*').eq('id', id).maybeSingle()
+  if (!ex) return null
+  const { data: vars } = await admin
+    .from('exercise_variations')
+    .select('*')
+    .eq('exercise_id', id)
+    .order('nivel', { ascending: true })
+  return { ...(ex as Exercise), variacoes: (vars ?? []) as ExerciseVariation[] }
 }

@@ -286,7 +286,47 @@ async function main() {
   )
   console.log(`✓ Usuário de teste (${TEST_EMAIL}) com acesso ao Ritual do Tapetinho`)
 
+  // -------------------------------------------------------------------
+  // 5) Circuito: 150 slots de vídeo (35 exercícios × 4 variações + 10
+  //    alongamentos), com panda_video_id nulo — o admin preenche depois.
+  // -------------------------------------------------------------------
+  await seedCircuito()
+
   console.log('→ Seed concluído com sucesso 🎉')
+}
+
+async function seedCircuito() {
+  const { count: jaExiste } = await db
+    .from('exercises')
+    .select('id', { count: 'exact', head: true })
+  if ((jaExiste ?? 0) > 0) {
+    console.log('• Circuito já tinha exercícios — mantidos')
+    return
+  }
+
+  for (let dia = 1; dia <= 7; dia++) {
+    for (let o = 1; o <= 5; o++) {
+      const ord = (dia - 1) * 5 + o
+      const { data: ex, error: exErr } = await db
+        .from('exercises')
+        .insert({ nome: `Exercício ${ord}`, dia_do_ciclo: dia, ordem_no_dia: o, ordem_no_circuito: ord })
+        .select('id')
+        .single()
+      if (exErr) throw exErr
+      const variacoes = [1, 2, 3, 4].map((nivel) => ({ exercise_id: ex.id, nivel }))
+      const { error: vErr } = await db.from('exercise_variations').insert(variacoes)
+      if (vErr) throw vErr
+    }
+  }
+
+  const alongamentos = Array.from({ length: 10 }, (_, i) => ({
+    nome: `Alongamento ${i + 1}`,
+    ordem: i + 1,
+  }))
+  const { error: sErr } = await db.from('stretches').insert(alongamentos)
+  if (sErr) throw sErr
+
+  console.log('✓ Circuito: 35 exercícios × 4 variações + 10 alongamentos (150 slots, vídeos nulos)')
 }
 
 // Cardápio base — 7 dias de comida brasileira simples.
