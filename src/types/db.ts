@@ -230,6 +230,13 @@ export interface UserTrainingConfig {
   dia_atual: number // 1-7
   semana_zero_completa: boolean
   semana_zero_dias: number // 0-3
+  aguardando_liberacao: number // 0 = não aguarda; senão, a semana aguardada
+  atualizado_em: string
+}
+
+export interface ProgramWeekConfig {
+  semana: number // 1-4
+  liberada: boolean
   atualizado_em: string
 }
 

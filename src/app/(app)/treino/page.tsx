@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getProfile } from '@/lib/session'
 import { createClient } from '@/lib/supabase/server'
-import { getTrainingConfig, hasCircuitoAccess, getTodayPlan } from '@/lib/circuito'
+import { getTrainingConfig, hasCircuitoAccess, getTodayPlan, syncLiberacao } from '@/lib/circuito'
 import { AgeGate } from '@/components/circuito/AgeGate'
 import { SemanaZeroView } from '@/components/circuito/SemanaZeroView'
 import { CircuitoSession } from '@/components/circuito/CircuitoSession'
@@ -34,10 +34,15 @@ export default async function TreinoPage() {
   }
 
   // Sem config → coleta a faixa etária uma única vez (age gate).
-  const config = await getTrainingConfig(supabase, profile.id)
+  let config = await getTrainingConfig(supabase, profile.id)
   if (!config) return <AgeGate />
 
+  // "Avança no próximo acesso": se aguardava uma liberação que já aconteceu.
+  config = await syncLiberacao(supabase, profile.id, config)
+
   const plan = await getTodayPlan(supabase, profile.id, config)
+  // Concluiu a semana e ainda aguarda a próxima ser liberada.
+  const aguardando = config.aguardando_liberacao > 0 ? config.semana_atual : 0
 
   if (plan.tipo === 'semana_zero') {
     return <SemanaZeroView dia={plan.diaSemanaZero} stretches={plan.stretches} />
@@ -49,6 +54,7 @@ export default async function TreinoPage() {
       dia={plan.dia}
       series={plan.series}
       descanso_seg={plan.descanso_seg}
+      aguardandoDesde={aguardando}
       exercicios={plan.exercicios.map((e) => ({
         exercise_id: e.exercise.id,
         nome: e.exercise.nome,

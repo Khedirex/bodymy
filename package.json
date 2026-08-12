@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "gen:ritual-sql": "tsx scripts/gen-ritual-tapetinho-migration.ts",
+    "gen:semana1-sql": "tsx scripts/gen-circuito-semana1.ts",
     "seed": "tsx supabase/seed.ts",
     "seed:admin": "tsx supabase/seed-admin.ts",
     "grant:access": "tsx supabase/grant-access.ts",

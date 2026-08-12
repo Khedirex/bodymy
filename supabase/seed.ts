@@ -17,6 +17,7 @@ import './load-env'
 import { createClient } from '@supabase/supabase-js'
 import { assertBodyMyDb } from './guard-db'
 import { PROGRAMA, RITUAL_SEMANAS } from './content/ritual-do-tapetinho'
+import { EXERCICIOS, ALONGAMENTOS, instrucoesV1 } from './content/circuito-semana1'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -304,29 +305,29 @@ async function seedCircuito() {
     return
   }
 
-  for (let dia = 1; dia <= 7; dia++) {
-    for (let o = 1; o <= 5; o++) {
-      const ord = (dia - 1) * 5 + o
-      const { data: ex, error: exErr } = await db
-        .from('exercises')
-        .insert({ nome: `Exercício ${ord}`, dia_do_ciclo: dia, ordem_no_dia: o, ordem_no_circuito: ord })
-        .select('id')
-        .single()
-      if (exErr) throw exErr
-      const variacoes = [1, 2, 3, 4].map((nivel) => ({ exercise_id: ex.id, nivel }))
-      const { error: vErr } = await db.from('exercise_variations').insert(variacoes)
-      if (vErr) throw vErr
-    }
+  // Conteúdo real da Semana 1 (v1). v2/v3/v4 ficam com instrucoes null.
+  for (const e of EXERCICIOS) {
+    const ord = (e.dia - 1) * 5 + e.ordem
+    const { data: ex, error: exErr } = await db
+      .from('exercises')
+      .insert({ nome: e.nome, descricao: e.descricao, dia_do_ciclo: e.dia, ordem_no_dia: e.ordem, ordem_no_circuito: ord })
+      .select('id')
+      .single()
+    if (exErr) throw exErr
+    const variacoes = [1, 2, 3, 4].map((nivel) => ({
+      exercise_id: ex.id,
+      nivel,
+      instrucoes: nivel === 1 ? instrucoesV1(e) : null,
+    }))
+    const { error: vErr } = await db.from('exercise_variations').insert(variacoes)
+    if (vErr) throw vErr
   }
 
-  const alongamentos = Array.from({ length: 10 }, (_, i) => ({
-    nome: `Alongamento ${i + 1}`,
-    ordem: i + 1,
-  }))
+  const alongamentos = ALONGAMENTOS.map((a) => ({ nome: a.nome, descricao: a.descricao, ordem: a.ordem }))
   const { error: sErr } = await db.from('stretches').insert(alongamentos)
   if (sErr) throw sErr
 
-  console.log('✓ Circuito: 35 exercícios × 4 variações + 10 alongamentos (150 slots, vídeos nulos)')
+  console.log('✓ Circuito: 35 exercícios (v1) × 4 variações + 10 alongamentos (150 slots, vídeos nulos)')
 }
 
 // Cardápio base — 7 dias de comida brasileira simples.

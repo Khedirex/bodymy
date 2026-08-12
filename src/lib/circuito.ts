@@ -144,40 +144,105 @@ export async function getTodayPlan(
   }
 }
 
+// Semanas liberadas (a 1 é sempre liberada). As demais o admin libera quando
+// os vídeos das variações v2/v3/v4 ficam prontos.
+export async function getSemanasLiberadas(supabase: SupabaseClient): Promise<Set<number>> {
+  const { data } = await supabase.from('program_weeks_config').select('semana, liberada')
+  const set = new Set<number>([1])
+  for (const r of (data ?? []) as { semana: number; liberada: boolean }[]) {
+    if (r.liberada) set.add(r.semana)
+  }
+  return set
+}
+
+export interface AvancoResultado {
+  avancou: boolean
+  concluiuCiclo: boolean // completou uma semana inteira (dia 7)
+  aguardando: number // 0 = não aguarda; senão, semana bloqueada aguardada
+  semana: number
+  dia: number
+}
+
 // Avança o dia/semana após um dia CONCLUÍDO (todos os 5 = "Fiz").
-// Ao virar a semana, reseta as variações da aluna para a entrada da nova
-// semana (Semana N entra em vN). Na semana 4, o dia volta ao 1 (mantém a
-// prática consolidada rodando). Não avança se a sessão não foi completa.
+// - dia < 7: só avança o dia.
+// - dia 7 e a próxima semana LIBERADA: entra na próxima semana (dia 1) e
+//   reseta as variações para a entrada (vN).
+// - dia 7 e a próxima semana BLOQUEADA: NÃO avança — volta ao Dia 1 da mesma
+//   semana (continua praticando) e registra aguardando_liberacao.
+// - semana 4: volta ao dia 1 (mantém a prática consolidada).
 export async function advanceAfterCompletion(
   supabase: SupabaseClient,
   userId: string,
   config: UserTrainingConfig,
-): Promise<void> {
+): Promise<AvancoResultado> {
+  const now = new Date().toISOString()
   let semana = config.semana_atual
   let dia = config.dia_atual
+  let aguardando = config.aguardando_liberacao
   let virouSemana = false
+  let concluiuCiclo = false
+  let avancou = true
 
   if (dia < 7) {
     dia += 1
-  } else if (semana < 4) {
-    semana += 1
-    dia = 1
-    virouSemana = true
   } else {
-    dia = 1 // semana 4 concluída → repete a semana consolidada
+    concluiuCiclo = true
+    if (semana < 4) {
+      const liberadas = await getSemanasLiberadas(supabase)
+      const prox = semana + 1
+      if (liberadas.has(prox)) {
+        semana = prox
+        dia = 1
+        virouSemana = true
+        aguardando = 0
+      } else {
+        // Próxima semana bloqueada: repete a semana atual, aguardando liberação.
+        dia = 1
+        aguardando = prox
+        avancou = false
+      }
+    } else {
+      dia = 1 // semana 4 concluída → repete a consolidada
+      aguardando = 0
+    }
   }
 
   await supabase
     .from('user_training_config')
-    .update({ semana_atual: semana, dia_atual: dia, atualizado_em: new Date().toISOString() })
+    .update({ semana_atual: semana, dia_atual: dia, aguardando_liberacao: aguardando, atualizado_em: now })
     .eq('user_id', userId)
 
   if (virouSemana) {
-    // Entrada da nova semana = vN. Reseta as variações já registradas.
-    const novaEntrada = nivelEntradaSemana(semana)
     await supabase
       .from('user_exercise_variations')
-      .update({ variacao_nivel: novaEntrada, atualizado_em: new Date().toISOString() })
+      .update({ variacao_nivel: nivelEntradaSemana(semana), atualizado_em: now })
       .eq('user_id', userId)
   }
+
+  return { avancou, concluiuCiclo, aguardando, semana, dia }
+}
+
+// "Avança no próximo acesso": se a aluna concluiu a semana e ficou aguardando
+// uma liberação que já aconteceu, entra na nova semana. Não reseta progresso.
+export async function syncLiberacao(
+  supabase: SupabaseClient,
+  userId: string,
+  config: UserTrainingConfig,
+): Promise<UserTrainingConfig> {
+  if (config.aguardando_liberacao <= 0) return config
+  const liberadas = await getSemanasLiberadas(supabase)
+  if (!liberadas.has(config.aguardando_liberacao)) return config
+
+  const novaSemana = config.aguardando_liberacao
+  const now = new Date().toISOString()
+  await supabase
+    .from('user_training_config')
+    .update({ semana_atual: novaSemana, dia_atual: 1, aguardando_liberacao: 0, atualizado_em: now })
+    .eq('user_id', userId)
+  await supabase
+    .from('user_exercise_variations')
+    .update({ variacao_nivel: nivelEntradaSemana(novaSemana), atualizado_em: now })
+    .eq('user_id', userId)
+
+  return { ...config, semana_atual: novaSemana, dia_atual: 1, aguardando_liberacao: 0 }
 }

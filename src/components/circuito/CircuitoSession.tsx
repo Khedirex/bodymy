@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { VideoBox } from '@/components/circuito/VideoBox'
+import { InstrucoesExercicio } from '@/components/circuito/InstrucoesExercicio'
 import {
   INTENSIDADES,
   direcaoPorIntensidade,
@@ -34,6 +35,7 @@ interface Props {
   series: number
   descanso_seg: number
   exercicios: PlanExercicioUI[]
+  aguardandoDesde?: number // semana concluída aguardando liberação (0 = não)
 }
 
 type Fase = 'exercicios' | 'feedback' | 'oferta' | 'ajustando' | 'fim'
@@ -44,7 +46,7 @@ const EIXOS: { valor: EixoDificuldade; label: string }[] = [
   { valor: 'series', label: 'Quantidade de séries' },
 ]
 
-export function CircuitoSession({ semana, dia, series, descanso_seg, exercicios }: Props) {
+export function CircuitoSession({ semana, dia, series, descanso_seg, exercicios, aguardandoDesde = 0 }: Props) {
   const router = useRouter()
   const [exs, setExs] = useState(exercicios)
   const [fase, setFase] = useState<Fase>('exercicios')
@@ -52,6 +54,9 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, exercicios 
   const [statuses, setStatuses] = useState<Record<string, SessionExerciseStatus>>({})
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [erro, setErro] = useState<string | null>(null)
+  // Preenchido pela resposta da sessão: concluiu a semana mas a próxima está
+  // bloqueada (aguardando o Willian liberar os vídeos).
+  const [aguardandoAposSessao, setAguardandoAposSessao] = useState(0)
 
   // feedback
   const [comentario, setComentario] = useState('')
@@ -117,6 +122,7 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, exercicios 
         return
       }
       setSessionId(d.session_id)
+      if (d.aguardandoLiberacao > 0) setAguardandoAposSessao(d.semanaConcluida ?? d.aguardandoLiberacao - 1)
       setFase('feedback')
     } catch {
       setErro('Sem conexão. Tente novamente.')
@@ -178,8 +184,18 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, exercicios 
   if (fase === 'fim') {
     return (
       <div className="space-y-5 text-center">
-        <div className="text-5xl" aria-hidden>{completou ? '🎉' : '💛'}</div>
-        {completou ? (
+        <div className="text-5xl" aria-hidden>{aguardandoAposSessao > 0 ? '🌱' : completou ? '🎉' : '💛'}</div>
+        {aguardandoAposSessao > 0 ? (
+          <>
+            <h1 className="text-2xl font-extrabold text-ink-900">
+              Você completou a semana {aguardandoAposSessao}!
+            </h1>
+            <p className="rounded-2xl bg-sage-100 px-4 py-3 text-ink-800">
+              Continue praticando enquanto preparamos os próximos movimentos para você. Cada dia
+              que você repete conta — sua constância não para.
+            </p>
+          </>
+        ) : completou ? (
           <>
             <h1 className="text-2xl font-extrabold text-ink-900">Você fez o circuito de hoje!</h1>
             <p className="text-ink-700">Chegar já é a vitória. Seu corpo agradece cada movimento.</p>
@@ -284,6 +300,12 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, exercicios 
   // ---- Fase: exercícios (default) -----------------------------------
   return (
     <div className="space-y-5">
+      {aguardandoDesde > 0 ? (
+        <div className="rounded-2xl bg-sage-100 px-4 py-3 text-sm text-ink-800">
+          🌱 Você concluiu a semana {aguardandoDesde}. Continue praticando enquanto preparamos os
+          próximos movimentos — cada dia conta para a sua constância.
+        </div>
+      ) : null}
       <header>
         <span className="chip">Semana {semana} · Dia {dia}</span>
         <div className="mt-2 flex items-center justify-between">
@@ -312,8 +334,16 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, exercicios 
           <span className="rounded-full bg-cream-200 px-3 py-1">{formatarDescanso(descanso_seg)} de descanso</span>
           <span className="rounded-full bg-cream-200 px-3 py-1">variação v{ex.nivel}</span>
         </div>
-        {ex.instrucoes ? <p className="mt-3 whitespace-pre-line text-ink-800">{ex.instrucoes}</p> : null}
-        {ex.descricao ? <p className="mt-2 text-sm text-ink-700">{ex.descricao}</p> : null}
+        {ex.instrucoes ? (
+          <div className="mt-3">
+            <InstrucoesExercicio texto={ex.instrucoes} />
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-ink-700">
+            As instruções em texto deste movimento estão sendo preparadas. Siga pelo vídeo quando
+            estiver disponível.
+          </p>
+        )}
       </div>
 
       {ex.podeFacilitar ? (

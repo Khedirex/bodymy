@@ -436,6 +436,7 @@ create table public.user_training_config (
   dia_atual int not null default 1 check (dia_atual between 1 and 7),
   semana_zero_completa boolean not null default false,
   semana_zero_dias int not null default 0 check (semana_zero_dias between 0 and 3),
+  aguardando_liberacao int not null default 0,
   atualizado_em timestamptz not null default now()
 );
 
@@ -488,6 +489,17 @@ create table public.session_feedback (
 );
 create index session_feedback_user_idx on public.session_feedback(user_id, created_at desc);
 
+-- Liberação de semanas: semana 1 sempre liberada; 2-4 liberadas pelo admin
+-- quando os vídeos das variações v2/v3/v4 estiverem prontos.
+create table public.program_weeks_config (
+  semana int primary key check (semana between 1 and 4),
+  liberada boolean not null default false,
+  atualizado_em timestamptz not null default now()
+);
+insert into public.program_weeks_config (semana, liberada)
+values (1, true), (2, false), (3, false), (4, false)
+on conflict (semana) do nothing;
+
 alter table public.exercises                enable row level security;
 alter table public.exercise_variations      enable row level security;
 alter table public.stretches                enable row level security;
@@ -496,6 +508,10 @@ alter table public.user_exercise_variations enable row level security;
 alter table public.training_sessions        enable row level security;
 alter table public.session_exercises        enable row level security;
 alter table public.session_feedback         enable row level security;
+alter table public.program_weeks_config     enable row level security;
+
+create policy "pwc_read_auth" on public.program_weeks_config
+  for select to authenticated using (true);
 
 -- Catálogo: sem policy de leitura no client (servido via servidor).
 create policy "utc_select_own" on public.user_training_config
@@ -547,7 +563,7 @@ notify pgrst, 'reload schema';
 -- ---------------------------------------------------------------------
 select * from (
   values
-    ('tabelas em public (esperado 23)',
+    ('tabelas em public (esperado 24)',
       (select count(*)::text from information_schema.tables
         where table_schema = 'public' and table_type = 'BASE TABLE')),
     ('products.kiwify_product_id',

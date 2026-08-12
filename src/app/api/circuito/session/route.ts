@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
     const { error: seErr } = await supabase.from('session_exercises').insert(rows)
     if (seErr) throw seErr
 
+    let avanco = null
     if (completa) {
       // Check-in 'treino' do dia (idempotente) → mantém streak/constância.
       await supabase
@@ -69,10 +70,18 @@ export async function POST(request: NextRequest) {
           { user_id: user.id, data: hoje, tipo: 'treino' },
           { onConflict: 'user_id,data,tipo', ignoreDuplicates: true },
         )
-      await advanceAfterCompletion(supabase, user.id, config)
+      avanco = await advanceAfterCompletion(supabase, user.id, config)
     }
 
-    return NextResponse.json({ ok: true, session_id: session.id, completa })
+    return NextResponse.json({
+      ok: true,
+      session_id: session.id,
+      completa,
+      // Concluiu a semana mas a próxima está bloqueada → mostrar mensagem.
+      aguardandoLiberacao: avanco && avanco.aguardando > 0 ? avanco.aguardando : 0,
+      concluiuCiclo: Boolean(avanco?.concluiuCiclo),
+      semanaConcluida: avanco?.concluiuCiclo ? config.semana_atual : 0,
+    })
   } catch (err) {
     captureException(err, { rota: 'circuito_session' })
     return NextResponse.json({ error: 'falha_ao_salvar_sessao' }, { status: 500 })

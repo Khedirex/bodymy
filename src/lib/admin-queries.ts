@@ -384,6 +384,47 @@ export async function getExerciseAdmin(id: string): Promise<ExerciseWithVariatio
   return { ...(ex as Exercise), variacoes: (vars ?? []) as ExerciseVariation[] }
 }
 
+// --- Circuito: liberação de semanas -----------------------------------
+export interface SemanaAdminRow {
+  semana: number
+  liberada: boolean
+  variacao: number // vN dessa semana
+  videosPreenchidos: number
+  videosTotal: number
+  alunasAguardando: number
+}
+
+export async function getSemanasAdmin(): Promise<SemanaAdminRow[]> {
+  const admin = createAdminClient()
+  const [{ data: config }, { data: variations }, { data: aguardando }] = await Promise.all([
+    admin.from('program_weeks_config').select('semana, liberada'),
+    admin.from('exercise_variations').select('nivel, panda_video_id'),
+    admin.from('user_training_config').select('aguardando_liberacao'),
+  ])
+
+  const liberadaMap = new Map<number, boolean>()
+  for (const c of (config ?? []) as { semana: number; liberada: boolean }[]) liberadaMap.set(c.semana, c.liberada)
+
+  const preenchidosPorNivel = new Map<number, number>()
+  for (const v of (variations ?? []) as { nivel: number; panda_video_id: string | null }[]) {
+    if (v.panda_video_id) preenchidosPorNivel.set(v.nivel, (preenchidosPorNivel.get(v.nivel) ?? 0) + 1)
+  }
+
+  const aguardandoPorSemana = new Map<number, number>()
+  for (const a of (aguardando ?? []) as { aguardando_liberacao: number }[]) {
+    if (a.aguardando_liberacao > 0) aguardandoPorSemana.set(a.aguardando_liberacao, (aguardandoPorSemana.get(a.aguardando_liberacao) ?? 0) + 1)
+  }
+
+  return [1, 2, 3, 4].map((semana) => ({
+    semana,
+    liberada: semana === 1 ? true : liberadaMap.get(semana) ?? false,
+    variacao: semana, // Semana N entra em vN
+    videosPreenchidos: preenchidosPorNivel.get(semana) ?? 0,
+    videosTotal: 35,
+    alunasAguardando: aguardandoPorSemana.get(semana) ?? 0,
+  }))
+}
+
 // --- Circuito: feedbacks das alunas (Willian lê regularmente) ---------
 export interface FeedbackRow {
   id: string

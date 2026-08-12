@@ -78,8 +78,21 @@ No SQL Editor do projeto (que deve ser EXCLUSIVO do BodyMy), rode em ordem:
 **Alternativa por migrations** (`supabase/migrations`, fonte da verdade para
 produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 `0003_functions.sql` → `0004_admin.sql` → `0005_upsells_admin.sql` →
-`0006_ritual_tapetinho.sql` → `0007_circuito.sql`, via `supabase db push` ou
-colando cada uma no SQL Editor.
+`0006_ritual_tapetinho.sql` → `0007_circuito.sql` → `0008_semana1_e_bloqueio.sql`,
+via `supabase db push` ou colando cada uma no SQL Editor.
+
+### Semana 1 + bloqueio de semanas (`0008_semana1_e_bloqueio.sql`)
+
+Cadastra os nomes e as descrições reais dos 35 exercícios (variação v1) e dos
+10 alongamentos, e cria o **bloqueio por semana**: `program_weeks_config`
+(Semana 1 sempre liberada; 2, 3 e 4 bloqueadas até o admin liberar em
+**/admin/semanas**). Enquanto a próxima semana está bloqueada, a aluna que
+conclui a semana atual **repete o ciclo** (streak segue contando) e o app
+registra `aguardando_liberacao`; ao liberar, ela avança no próximo acesso sem
+reset de progresso. As variações v2/v3/v4 ficam com texto pendente. Gerada por:
+```bash
+npm run gen:semana1-sql   # regenera supabase/migrations/0008_semana1_e_bloqueio.sql
+```
 
 ### Circuito de vídeo adaptativo (`0007_circuito.sql`)
 
