@@ -190,6 +190,8 @@ export type FaixaEtaria = '30-35' | '36-40' | '41-45' | '46+'
 export type SessionExerciseStatus = 'fez' | 'nao_conseguiu' | 'pulou'
 export type EixoDificuldade = 'descanso' | 'exercicio' | 'series'
 
+export type ExercicioTipo = 'tempo' | 'repeticao' | 'permanencia'
+
 export interface Exercise {
   id: string
   nome: string
@@ -197,6 +199,8 @@ export interface Exercise {
   dia_do_ciclo: number // 1-7
   ordem_no_dia: number // 1-5
   ordem_no_circuito: number // 1-35
+  tipo: ExercicioTipo
+  bilateral: boolean
   ativo: boolean
   created_at: string
 }
@@ -226,6 +230,7 @@ export interface UserTrainingConfig {
   faixa_etaria: FaixaEtaria | null
   series: number // 2-6
   descanso_seg: number // 20-120
+  tempo_execucao_seg: number // 10-120 (execução por série nos tipo 'tempo')
   semana_atual: number // 1-4
   dia_atual: number // 1-7
   semana_zero_completa: boolean

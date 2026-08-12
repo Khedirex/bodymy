@@ -54,6 +54,7 @@ export default async function TreinoPage() {
       dia={plan.dia}
       series={plan.series}
       descanso_seg={plan.descanso_seg}
+      tempoExecSeg={config.tempo_execucao_seg}
       aguardandoDesde={aguardando}
       exercicios={plan.exercicios.map((e) => ({
         exercise_id: e.exercise.id,
@@ -63,6 +64,9 @@ export default async function TreinoPage() {
         nivel: e.nivel,
         videoId: e.variation?.panda_video_id ?? null,
         podeFacilitar: e.podeFacilitar,
+        tipo: e.exercise.tipo,
+        bilateral: e.exercise.bilateral,
+        permanenciaSeg: e.variation?.duracao_seg ?? 0,
       }))}
     />
   )

@@ -224,6 +224,7 @@ export async function getAlunaFicha(id: string) {
       faixa_etaria: string | null
       series: number
       descanso_seg: number
+      tempo_execucao_seg: number
       semana_atual: number
       dia_atual: number
       semana_zero_completa: boolean

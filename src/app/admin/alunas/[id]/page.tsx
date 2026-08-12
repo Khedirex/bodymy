@@ -67,6 +67,7 @@ export default async function AlunaFichaPage({ params }: { params: { id: string 
                 <dt className="text-slate-500">Faixa etária</dt><dd className="text-slate-800">{config.faixa_etaria ?? '—'}</dd>
                 <dt className="text-slate-500">Séries</dt><dd className="text-slate-800">{config.series}</dd>
                 <dt className="text-slate-500">Descanso</dt><dd className="text-slate-800">{config.descanso_seg}s</dd>
+                <dt className="text-slate-500">Tempo execução</dt><dd className="text-slate-800">{config.tempo_execucao_seg}s</dd>
                 <dt className="text-slate-500">Estágio</dt><dd className="text-slate-800">{config.semana_zero_completa ? `Semana ${config.semana_atual} · Dia ${config.dia_atual}` : 'Semana Zero'}</dd>
               </dl>
             ) : (

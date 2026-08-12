@@ -17,6 +17,14 @@ export const DESCANSO_STEP = 15 // segundos por ajuste
 export const NIVEL_MIN = 1
 export const NIVEL_MAX = 4
 
+// Cronômetro guiado (segundos).
+export const PREP_SEG = 5 // preparação antes de cada execução
+export const TRANSICAO_SEG = 3 // troca de lado nos bilaterais tipo 'tempo'
+export const TEMPO_EXEC_MIN = 10
+export const TEMPO_EXEC_MAX = 120
+export const clampTempoExec = (n: number) =>
+  Math.min(TEMPO_EXEC_MAX, Math.max(TEMPO_EXEC_MIN, Math.round(n)))
+
 // Estrutura do programa.
 export const SEMANA_ZERO_DIAS = 3
 export const ALONGAMENTOS = 10
@@ -34,18 +42,22 @@ export const FAIXAS: { valor: FaixaEtaria; label: string }[] = [
 ]
 
 // Ponto de PARTIDA por faixa (só a entrada; depois os eixos andam sozinhos).
-const PARTIDA: Record<FaixaEtaria, { series: number; descanso_seg: number }> = {
-  '30-35': { series: 4, descanso_seg: 40 },
-  '36-40': { series: 4, descanso_seg: 60 },
-  '41-45': { series: 3, descanso_seg: 60 },
-  '46+': { series: 3, descanso_seg: 40 },
+// tempo_execucao_seg: duração da execução por série nos exercícios 'tempo'.
+// (default 30s p/ todas as faixas — CONFIRMAR com o prompt-base de tempo.)
+const PARTIDA: Record<FaixaEtaria, { series: number; descanso_seg: number; tempo_execucao_seg: number }> = {
+  '30-35': { series: 4, descanso_seg: 40, tempo_execucao_seg: 30 },
+  '36-40': { series: 4, descanso_seg: 60, tempo_execucao_seg: 30 },
+  '41-45': { series: 3, descanso_seg: 60, tempo_execucao_seg: 30 },
+  '46+': { series: 3, descanso_seg: 40, tempo_execucao_seg: 30 },
 }
 
 export function isFaixa(v: unknown): v is FaixaEtaria {
   return v === '30-35' || v === '36-40' || v === '41-45' || v === '46+'
 }
 
-export function partidaPorFaixa(faixa: FaixaEtaria): { series: number; descanso_seg: number } {
+export function partidaPorFaixa(
+  faixa: FaixaEtaria,
+): { series: number; descanso_seg: number; tempo_execucao_seg: number } {
   return PARTIDA[faixa]
 }
 

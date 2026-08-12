@@ -32,12 +32,14 @@ export async function POST(request: NextRequest) {
     if (kind === 'exercise') {
       const nome = (b.nome as string)?.trim()
       if (!nome) return NextResponse.json({ error: 'nome_obrigatorio' }, { status: 400 })
+      const tipos = ['tempo', 'repeticao', 'permanencia']
+      const tipo = tipos.includes(b.tipo as string) ? (b.tipo as string) : 'tempo'
       const { error } = await admin
         .from('exercises')
-        .update({ nome, descricao: vid(b.descricao), ativo: b.ativo !== false })
+        .update({ nome, descricao: vid(b.descricao), tipo, bilateral: b.bilateral === true, ativo: b.ativo !== false })
         .eq('id', id)
       if (error) throw error
-      await adminLog({ adminId: guard.info.adminId, acao: 'editar_exercicio', alvoTipo: 'exercise', alvoId: id, detalhes: { nome } })
+      await adminLog({ adminId: guard.info.adminId, acao: 'editar_exercicio', alvoTipo: 'exercise', alvoId: id, detalhes: { nome, tipo } })
     } else if (kind === 'variation') {
       const { error } = await admin
         .from('exercise_variations')

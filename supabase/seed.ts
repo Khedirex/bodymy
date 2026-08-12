@@ -306,11 +306,19 @@ async function seedCircuito() {
   }
 
   // Conteúdo real da Semana 1 (v1). v2/v3/v4 ficam com instrucoes null.
+  const BILATERAIS = ['Figura quatro', 'Equilíbrio de um pé', 'Alongamento em C', 'Nuca longa']
   for (const e of EXERCICIOS) {
     const ord = (e.dia - 1) * 5 + e.ordem
     const { data: ex, error: exErr } = await db
       .from('exercises')
-      .insert({ nome: e.nome, descricao: e.descricao, dia_do_ciclo: e.dia, ordem_no_dia: e.ordem, ordem_no_circuito: ord })
+      .insert({
+        nome: e.nome,
+        descricao: e.descricao,
+        dia_do_ciclo: e.dia,
+        ordem_no_dia: e.ordem,
+        ordem_no_circuito: ord,
+        bilateral: BILATERAIS.includes(e.nome),
+      })
       .select('id')
       .single()
     if (exErr) throw exErr

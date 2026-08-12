@@ -78,8 +78,18 @@ No SQL Editor do projeto (que deve ser EXCLUSIVO do BodyMy), rode em ordem:
 **Alternativa por migrations** (`supabase/migrations`, fonte da verdade para
 produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 `0003_functions.sql` → `0004_admin.sql` → `0005_upsells_admin.sql` →
-`0006_ritual_tapetinho.sql` → `0007_circuito.sql` → `0008_semana1_e_bloqueio.sql`,
-via `supabase db push` ou colando cada uma no SQL Editor.
+`0006_ritual_tapetinho.sql` → `0007_circuito.sql` → `0008_semana1_e_bloqueio.sql`
+→ `0009_cronometro.sql`, via `supabase db push` ou colando cada uma no SQL Editor.
+
+### Cronômetro guiado (`0009_cronometro.sql`)
+
+Adiciona `exercises.tipo` (`tempo`/`repeticao`/`permanencia`), `exercises.bilateral`
+e `user_training_config.tempo_execucao_seg`. O treino passa a ser conduzido por
+cronômetro (preparação 5s → execução → descanso, repetindo pelas séries), com
+vibração + som suave nas transições, Wake Lock para não apagar a tela e contagem
+por timestamps reais (sobrevive a segundo plano). **Defaults a confirmar** com o
+prompt-base de "repetições e tempo": todos os exercícios entram como `tempo` (o
+admin ajusta em /admin/exercicios) e `tempo_execucao_seg` = 30s por faixa.
 
 ### Semana 1 + bloqueio de semanas (`0008_semana1_e_bloqueio.sql`)
 

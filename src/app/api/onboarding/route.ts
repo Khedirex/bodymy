@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
         faixa_etaria: faixa,
         series: partida.series,
         descanso_seg: partida.descanso_seg,
+        tempo_execucao_seg: partida.tempo_execucao_seg,
       })
       if (cfgErr) throw cfgErr
     } else {

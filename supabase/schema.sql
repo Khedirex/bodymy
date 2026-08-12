@@ -398,6 +398,8 @@ create table public.exercises (
   dia_do_ciclo int not null check (dia_do_ciclo between 1 and 7),
   ordem_no_dia int not null check (ordem_no_dia between 1 and 5),
   ordem_no_circuito int not null,
+  tipo text not null default 'tempo' check (tipo in ('tempo','repeticao','permanencia')),
+  bilateral boolean not null default false,
   ativo boolean not null default true,
   created_at timestamptz not null default now(),
   unique (dia_do_ciclo, ordem_no_dia)
@@ -432,6 +434,7 @@ create table public.user_training_config (
   faixa_etaria text,
   series int not null default 3 check (series between 2 and 6),
   descanso_seg int not null default 60 check (descanso_seg between 20 and 120),
+  tempo_execucao_seg int not null default 30 check (tempo_execucao_seg between 10 and 120),
   semana_atual int not null default 1 check (semana_atual between 1 and 4),
   dia_atual int not null default 1 check (dia_atual between 1 and 7),
   semana_zero_completa boolean not null default false,

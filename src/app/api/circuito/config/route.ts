@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
       faixa_etaria: body.faixa_etaria,
       series: partida.series,
       descanso_seg: partida.descanso_seg,
+      tempo_execucao_seg: partida.tempo_execucao_seg,
     })
     if (error) throw error
 

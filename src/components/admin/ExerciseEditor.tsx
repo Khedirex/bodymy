@@ -10,6 +10,8 @@ export function ExerciseEditor({ exercise }: { exercise: ExerciseWithVariations 
   const [nome, setNome] = useState(exercise.nome)
   const [descricao, setDescricao] = useState(exercise.descricao ?? '')
   const [ativo, setAtivo] = useState(exercise.ativo)
+  const [tipo, setTipo] = useState(exercise.tipo)
+  const [bilateral, setBilateral] = useState(exercise.bilateral)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
 
@@ -20,7 +22,7 @@ export function ExerciseEditor({ exercise }: { exercise: ExerciseWithVariations 
       const res = await fetch('/api/admin/circuito', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ kind: 'exercise', id: exercise.id, nome, descricao, ativo }),
+        body: JSON.stringify({ kind: 'exercise', id: exercise.id, nome, descricao, ativo, tipo, bilateral }),
       })
       const d = await res.json().catch(() => ({}))
       setMsg(res.ok ? 'Exercício salvo.' : d.error ?? 'Erro ao salvar')
@@ -49,6 +51,24 @@ export function ExerciseEditor({ exercise }: { exercise: ExerciseWithVariations 
           rows={2}
           className="mt-1 w-full rounded border border-slate-200 px-3 py-2 text-sm"
         />
+        <div className="mt-3 flex flex-wrap gap-4">
+          <label className="text-sm">
+            <span className="block font-medium text-slate-600">Tipo (cronômetro)</span>
+            <select
+              value={tipo}
+              onChange={(e) => setTipo(e.target.value as typeof tipo)}
+              className="mt-1 rounded border border-slate-200 px-2 py-1"
+            >
+              <option value="tempo">tempo (execução cronometrada)</option>
+              <option value="repeticao">repetição (no ritmo dela)</option>
+              <option value="permanencia">permanência (duração fixa)</option>
+            </select>
+          </label>
+          <label className="flex items-end gap-2 pb-1 text-sm text-slate-700">
+            <input type="checkbox" checked={bilateral} onChange={(e) => setBilateral(e.target.checked)} />
+            Bilateral (alterna lados)
+          </label>
+        </div>
         <label className="mt-3 flex items-center gap-2 text-sm text-slate-700">
           <input type="checkbox" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} />
           Ativo
