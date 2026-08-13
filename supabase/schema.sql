@@ -424,7 +424,8 @@ create table public.stretches (
   descricao text,
   panda_video_id text,
   ordem int not null,
-  duracao_seg int,
+  duracao_seg int default 30,
+  lados int not null default 1 check (lados between 1 and 3), -- 1 simples, 2 bilateral, 3 pescoço
   created_at timestamptz not null default now(),
   unique (ordem)
 );
@@ -437,8 +438,6 @@ create table public.user_training_config (
   tempo_execucao_seg int not null default 30 check (tempo_execucao_seg between 10 and 120),
   semana_atual int not null default 1 check (semana_atual between 1 and 4),
   dia_atual int not null default 1 check (dia_atual between 1 and 7),
-  semana_zero_completa boolean not null default false,
-  semana_zero_dias int not null default 0 check (semana_zero_dias between 0 and 3),
   aguardando_liberacao int not null default 0,
   atualizado_em timestamptz not null default now()
 );
@@ -462,6 +461,7 @@ create table public.training_sessions (
   completa boolean not null default false,
   series_usadas int,
   descanso_usado int,
+  alongou boolean, -- adesão ao bloco de mobilidade (null = desconhecido)
   created_at timestamptz not null default now()
 );
 create index training_sessions_user_idx on public.training_sessions(user_id, data);

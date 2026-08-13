@@ -4,8 +4,7 @@ import { getProfile } from '@/lib/session'
 import { createClient } from '@/lib/supabase/server'
 import { getTrainingConfig, hasCircuitoAccess, getTodayPlan, syncLiberacao } from '@/lib/circuito'
 import { AgeGate } from '@/components/circuito/AgeGate'
-import { SemanaZeroView } from '@/components/circuito/SemanaZeroView'
-import { CircuitoSession } from '@/components/circuito/CircuitoSession'
+import { TreinoFluxo } from '@/components/circuito/TreinoFluxo'
 import { EmptyState } from '@/components/ui/states'
 import { LockIcon } from '@/components/ui/icons'
 
@@ -44,18 +43,15 @@ export default async function TreinoPage() {
   // Concluiu a semana e ainda aguarda a próxima ser liberada.
   const aguardando = config.aguardando_liberacao > 0 ? config.semana_atual : 0
 
-  if (plan.tipo === 'semana_zero') {
-    return <SemanaZeroView dia={plan.diaSemanaZero} stretches={plan.stretches} />
-  }
-
   return (
-    <CircuitoSession
+    <TreinoFluxo
       semana={plan.semana}
       dia={plan.dia}
       series={plan.series}
       descanso_seg={plan.descanso_seg}
       tempoExecSeg={config.tempo_execucao_seg}
       aguardandoDesde={aguardando}
+      stretches={plan.stretches}
       exercicios={plan.exercicios.map((e) => ({
         exercise_id: e.exercise.id,
         nome: e.exercise.nome,

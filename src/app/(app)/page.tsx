@@ -6,7 +6,6 @@ import { createClient } from '@/lib/supabase/server'
 import { getTrainingConfig, hasCircuitoAccess } from '@/lib/circuito'
 import { calcularStreak } from '@/lib/streak'
 import { todayISO } from '@/lib/dates'
-import { SEMANA_ZERO_DIAS } from '@/lib/training'
 import { StreakBadge } from '@/components/StreakBadge'
 import { ProgressBar } from '@/components/ProgressBar'
 import { LockedProductCard } from '@/components/LockedProductCard'
@@ -33,19 +32,12 @@ export default async function HomePage() {
   const streak = calcularStreak(datas, hoje)
 
   // Rótulo do "Hoje" conforme o estágio do circuito.
-  const emSemanaZero = !config?.semana_zero_completa
   const chipHoje = !config
     ? 'Vamos começar'
-    : emSemanaZero
-      ? `Semana Zero · Dia ${Math.min(config.semana_zero_dias + 1, SEMANA_ZERO_DIAS)} de ${SEMANA_ZERO_DIAS}`
-      : `Semana ${config.semana_atual} · Dia ${config.dia_atual}`
-  const tituloHoje = !config
-    ? 'Seu treino de hoje'
-    : emSemanaZero
-      ? 'Reconhecendo o corpo'
-      : 'Seu circuito de hoje'
-  // Progresso nas 4 semanas (28 dias) depois da Semana Zero.
-  const diasFeitos = config && !emSemanaZero ? (config.semana_atual - 1) * 7 + (config.dia_atual - 1) : 0
+    : `Semana ${config.semana_atual} · Dia ${config.dia_atual}`
+  const tituloHoje = 'Seu treino de hoje'
+  // Progresso nas 4 semanas (28 dias).
+  const diasFeitos = config ? (config.semana_atual - 1) * 7 + (config.dia_atual - 1) : 0
 
   const primeiroNome = (profile.nome ?? '').split(' ')[0] || 'Olá'
   const bloqueados = storefront.filter((s) => !s.liberado)
@@ -73,14 +65,14 @@ export default async function HomePage() {
             </div>
             <h3 className="text-lg font-bold text-ink-900">{tituloHoje}</h3>
             <p className="mt-1 text-sm text-ink-700">
-              {emSemanaZero ? 'Alongamentos suaves, no seu ritmo.' : '5 exercícios · ajusta-se a você'}
+              Mobilidade + 5 exercícios · ajusta-se a você
             </p>
             <div className="mt-4">
               <Link href="/treino" className="btn-primary w-full">
                 <PlayIcon width={20} height={20} /> Começar agora
               </Link>
             </div>
-            {config && !emSemanaZero ? (
+            {config ? (
               <div className="mt-4">
                 <ProgressBar atual={diasFeitos} total={28} label="Seu progresso nas 4 semanas" />
               </div>

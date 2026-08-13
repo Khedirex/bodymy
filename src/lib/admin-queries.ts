@@ -147,7 +147,7 @@ export async function getAlunaFicha(id: string) {
     produtoSlug: (e.product as unknown as { slug?: string })?.slug ?? '',
   }))
 
-  const [{ data: checkins }, { count: aulas }, { data: progresso }, { data: config }, { data: sessoes }, { data: comentarios }, { data: variacoes }] =
+  const [{ data: checkins }, { count: aulas }, { data: progresso }, { data: config }, { data: sessoes }, { data: comentarios }, { data: variacoes }, { count: comAlongamento }, { count: semAlongamento }] =
     await Promise.all([
       admin.from('checkins').select('data').eq('user_id', id),
       admin.from('lesson_completions').select('id', { count: 'exact', head: true }).eq('user_id', id),
@@ -160,7 +160,7 @@ export async function getAlunaFicha(id: string) {
       admin.from('user_training_config').select('*').eq('user_id', id).maybeSingle(),
       admin
         .from('training_sessions')
-        .select('data, semana, dia, completa, series_usadas, descanso_usado')
+        .select('data, semana, dia, completa, series_usadas, descanso_usado, alongou')
         .eq('user_id', id)
         .order('data', { ascending: false })
         .limit(15),
@@ -175,6 +175,9 @@ export async function getAlunaFicha(id: string) {
         .from('user_exercise_variations')
         .select('variacao_nivel, exercise:exercises(nome, ordem_no_circuito)')
         .eq('user_id', id),
+      // Adesão ao alongamento (todas as sessões, não só as 15 exibidas).
+      admin.from('training_sessions').select('id', { count: 'exact', head: true }).eq('user_id', id).eq('alongou', true),
+      admin.from('training_sessions').select('id', { count: 'exact', head: true }).eq('user_id', id).eq('alongou', false),
     ])
 
   const variacoesView = ((variacoes ?? []) as Array<{ variacao_nivel: number; exercise: { nome?: string; ordem_no_circuito?: number } | null }>)
@@ -227,9 +230,9 @@ export async function getAlunaFicha(id: string) {
       tempo_execucao_seg: number
       semana_atual: number
       dia_atual: number
-      semana_zero_completa: boolean
     } | null) ?? null,
-    sessoes: (sessoes ?? []) as Array<{ data: string; semana: number; dia: number; completa: boolean; series_usadas: number | null; descanso_usado: number | null }>,
+    alongamento: { com: comAlongamento ?? 0, sem: semAlongamento ?? 0 },
+    sessoes: (sessoes ?? []) as Array<{ data: string; semana: number; dia: number; completa: boolean; series_usadas: number | null; descanso_usado: number | null; alongou: boolean | null }>,
     comentarios: (comentarios ?? []) as Array<{ comentario: string | null; eixo_dificuldade: string | null; intensidade_percebida: number | null; created_at: string }>,
     variacoes: variacoesView,
   }

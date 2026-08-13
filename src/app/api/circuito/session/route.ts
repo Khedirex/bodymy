@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
 
   const b = (await request.json().catch(() => ({}))) as {
     exercicios?: { exercise_id: string; variacao_nivel: number; status: SessionExerciseStatus }[]
+    alongou?: boolean
   }
   const itens = b.exercicios ?? []
   if (itens.length === 0 || itens.some((e) => !e.exercise_id || !STATUS.includes(e.status))) {
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
         completa,
         series_usadas: config.series,
         descanso_usado: config.descanso_seg,
+        alongou: typeof b.alongou === 'boolean' ? b.alongou : null,
       })
       .select('id')
       .single()

@@ -14,7 +14,7 @@ export default async function AlunaFichaPage({ params }: { params: { id: string 
   const [ficha, produtos] = await Promise.all([getAlunaFicha(params.id), listProductsSimple()])
   if (!ficha) notFound()
 
-  const { profile, auth, entitlements, streak, aulasConcluidas, totalCheckins, progresso, webhooks, config, sessoes, comentarios, variacoes } = ficha
+  const { profile, auth, entitlements, streak, aulasConcluidas, totalCheckins, progresso, webhooks, config, alongamento, sessoes, comentarios, variacoes } = ficha
 
   return (
     <div className="space-y-6">
@@ -68,7 +68,8 @@ export default async function AlunaFichaPage({ params }: { params: { id: string 
                 <dt className="text-slate-500">Séries</dt><dd className="text-slate-800">{config.series}</dd>
                 <dt className="text-slate-500">Descanso</dt><dd className="text-slate-800">{config.descanso_seg}s</dd>
                 <dt className="text-slate-500">Tempo execução</dt><dd className="text-slate-800">{config.tempo_execucao_seg}s</dd>
-                <dt className="text-slate-500">Estágio</dt><dd className="text-slate-800">{config.semana_zero_completa ? `Semana ${config.semana_atual} · Dia ${config.dia_atual}` : 'Semana Zero'}</dd>
+                <dt className="text-slate-500">Estágio</dt><dd className="text-slate-800">Semana {config.semana_atual} · Dia {config.dia_atual}</dd>
+                <dt className="text-slate-500">Alongamento</dt><dd className="text-slate-800">{alongamento.com} com · {alongamento.sem} sem</dd>
               </dl>
             ) : (
               <p className="text-sm text-slate-400">Ainda não iniciou o circuito.</p>

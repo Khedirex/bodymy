@@ -222,6 +222,7 @@ export interface Stretch {
   panda_video_id: string | null
   ordem: number // 1-10
   duracao_seg: number | null
+  lados: number // 1 simples, 2 bilateral (30s/lado), 3 pescoço (3 posições)
   created_at: string
 }
 
@@ -233,8 +234,6 @@ export interface UserTrainingConfig {
   tempo_execucao_seg: number // 10-120 (execução por série nos tipo 'tempo')
   semana_atual: number // 1-4
   dia_atual: number // 1-7
-  semana_zero_completa: boolean
-  semana_zero_dias: number // 0-3
   aguardando_liberacao: number // 0 = não aguarda; senão, a semana aguardada
   atualizado_em: string
 }
@@ -262,6 +261,7 @@ export interface TrainingSession {
   completa: boolean
   series_usadas: number | null
   descanso_usado: number | null
+  alongou: boolean | null
   created_at: string
 }
 

@@ -13,8 +13,8 @@ export default async function ExerciciosPage() {
       <div>
         <h1 className="text-xl font-bold text-slate-900">Circuito</h1>
         <p className="mt-1 text-sm text-slate-500">
-          35 exercícios (5 por dia × 7 dias), cada um com 4 variações, mais 10 alongamentos da
-          Semana Zero. Cole o <code>panda_video_id</code> de cada vídeo aqui.
+          35 exercícios (5 por dia × 7 dias), cada um com 4 variações, mais 10 alongamentos do
+          bloco de mobilidade. Cole o <code>panda_video_id</code> de cada vídeo aqui.
         </p>
         <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3">
           <div className="flex items-center justify-between text-sm">
@@ -88,11 +88,11 @@ export default async function ExerciciosPage() {
         </section>
       ))}
 
-      {/* Semana Zero — alongamentos */}
+      {/* Bloco de mobilidade — alongamentos */}
       <section>
-        <h2 className="mb-2 text-base font-bold text-slate-900">Semana Zero — 10 alongamentos</h2>
+        <h2 className="mb-2 text-base font-bold text-slate-900">Bloco de mobilidade — 10 alongamentos</h2>
         <p className="mb-3 text-sm text-slate-500">
-          Os mesmos 10 alongamentos são exibidos nos 3 dias de adaptação.
+          A mesma sequência de 10 alongamentos (30s cada) roda antes do circuito, todos os dias.
         </p>
         <StretchesEditor stretches={stretches} />
       </section>

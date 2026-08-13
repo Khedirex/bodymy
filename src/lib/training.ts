@@ -25,8 +25,9 @@ export const TEMPO_EXEC_MAX = 120
 export const clampTempoExec = (n: number) =>
   Math.min(TEMPO_EXEC_MAX, Math.max(TEMPO_EXEC_MIN, Math.round(n)))
 
-// Estrutura do programa.
-export const SEMANA_ZERO_DIAS = 3
+// Bloco de mobilidade: 10 alongamentos, 30s cada (bilaterais 30s/lado,
+// pescoço 30s por posição), duração fixa para todas as faixas.
+export const ALONGAMENTO_SEG = 30
 export const ALONGAMENTOS = 10
 export const CIRCUITO_SEMANAS = 4
 export const CIRCUITO_DIAS = 7

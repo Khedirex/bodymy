@@ -1,6 +1,6 @@
 // =====================================================================
 // BodyMy — Conteúdo real da Semana 1 do circuito (variação v1) + os 10
-// alongamentos da Semana Zero. Fonte única usada pelo seed e pelo gerador
+// alongamentos do bloco de mobilidade. Fonte única usada pelo seed e pelo gerador
 // da migração de produção. v2/v3/v4 ficam pendentes (instrucoes null).
 //
 // Cada exercício tem 5 blocos: Preparação, Movimento, Respiração,

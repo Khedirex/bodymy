@@ -55,19 +55,17 @@ export interface PlanExercise {
   podeDificultar: boolean // existe v(nivel+1) dentro do limite da semana
 }
 
-export type TodayPlan =
-  | { tipo: 'semana_zero'; diaSemanaZero: number; stretches: Stretch[] }
-  | {
-      tipo: 'circuito'
-      semana: number
-      dia: number
-      series: number
-      descanso_seg: number
-      exercicios: PlanExercise[]
-    }
+export interface TodayPlan {
+  semana: number
+  dia: number
+  series: number
+  descanso_seg: number
+  exercicios: PlanExercise[]
+  stretches: Stretch[] // bloco de mobilidade (mesma sequência todo dia)
+}
 
-// Monta o plano do dia a partir da config. Semana Zero enquanto
-// !semana_zero_completa; depois, o circuito no (semana_atual, dia_atual).
+// Monta o plano do dia: o bloco de mobilidade (10 alongamentos) + o circuito
+// no (semana_atual, dia_atual). A Semana Zero não existe mais.
 export async function getTodayPlan(
   supabase: SupabaseClient,
   userId: string,
@@ -75,29 +73,21 @@ export async function getTodayPlan(
 ): Promise<TodayPlan> {
   const admin = createAdminClient()
 
-  if (!config.semana_zero_completa) {
-    const { data: stretches } = await admin
-      .from('stretches')
-      .select('*')
-      .order('ordem', { ascending: true })
-    return {
-      tipo: 'semana_zero',
-      diaSemanaZero: config.semana_zero_dias + 1,
-      stretches: (stretches ?? []) as Stretch[],
-    }
-  }
-
   const semana = config.semana_atual
   const dia = config.dia_atual
   const entrada = nivelEntradaSemana(semana)
 
-  const { data: exs } = await admin
-    .from('exercises')
-    .select('*')
-    .eq('dia_do_ciclo', dia)
-    .eq('ativo', true)
-    .order('ordem_no_dia', { ascending: true })
+  const [{ data: exs }, { data: stretchRows }] = await Promise.all([
+    admin
+      .from('exercises')
+      .select('*')
+      .eq('dia_do_ciclo', dia)
+      .eq('ativo', true)
+      .order('ordem_no_dia', { ascending: true }),
+    admin.from('stretches').select('*').order('ordem', { ascending: true }),
+  ])
   const exercises = (exs ?? []) as Exercise[]
+  const stretches = (stretchRows ?? []) as Stretch[]
   const exIds = exercises.map((e) => e.id)
 
   // Variações da aluna (por exercício) + todas as variações do catálogo.
@@ -135,12 +125,12 @@ export async function getTodayPlan(
   })
 
   return {
-    tipo: 'circuito',
     semana,
     dia,
     series: config.series,
     descanso_seg: config.descanso_seg,
     exercicios,
+    stretches,
   }
 }
 

@@ -87,6 +87,43 @@ export function indicePrepDaSerie(fases: Fase[], serie: number): number {
   return idx >= 0 ? idx : 0
 }
 
+// -------------------- Bloco de mobilidade --------------------
+// Sequência contínua dos 10 alongamentos: 30s cada, sem descanso, avanço
+// automático. Bilaterais (lados=2) = 30s direito + 30s esquerdo. Pescoço
+// (lados=3) = 30s em cada direção (direita, esquerda, frente).
+export interface AlongamentoInput {
+  nome: string
+  lados: number // 1 | 2 | 3
+}
+export interface FaseAlongamento {
+  duracaoSeg: number
+  nome: string
+  posicao?: string // "lado direito" | "à esquerda" | ...
+  indice: number // 1-based (qual alongamento)
+  total: number // total de alongamentos
+}
+
+const POSICOES: Record<number, string[]> = {
+  2: ['lado direito', 'lado esquerdo'],
+  3: ['à direita', 'à esquerda', 'à frente'],
+}
+
+export function construirFasesAlongamento(alongamentos: AlongamentoInput[], seg: number): FaseAlongamento[] {
+  const total = alongamentos.length
+  const fases: FaseAlongamento[] = []
+  alongamentos.forEach((a, i) => {
+    const posicoes = POSICOES[a.lados]
+    if (posicoes) {
+      for (const p of posicoes) {
+        fases.push({ duracaoSeg: seg, nome: a.nome, posicao: p, indice: i + 1, total })
+      }
+    } else {
+      fases.push({ duracaoSeg: seg, nome: a.nome, indice: i + 1, total })
+    }
+  })
+  return fases
+}
+
 // -------------------- Sinalização --------------------
 export interface Sinal {
   vibrar: number[] // padrão para navigator.vibrate (ignorado no iOS)

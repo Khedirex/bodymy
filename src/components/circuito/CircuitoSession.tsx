@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { VideoBox } from '@/components/circuito/VideoBox'
 import { InstrucoesExercicio } from '@/components/circuito/InstrucoesExercicio'
 import { CronometroExercicio } from '@/components/circuito/CronometroExercicio'
-import { criarSinalizador, type Sinalizador } from '@/components/circuito/sinais'
+import { type Sinalizador } from '@/components/circuito/sinais'
 import {
   INTENSIDADES,
   direcaoPorIntensidade,
@@ -41,6 +41,8 @@ interface Props {
   descanso_seg: number
   tempoExecSeg: number
   exercicios: PlanExercicioUI[]
+  alongou: boolean // fez o bloco de mobilidade nesta sessão
+  sinalizador: Sinalizador
   aguardandoDesde?: number // semana concluída aguardando liberação (0 = não)
 }
 
@@ -52,13 +54,12 @@ const EIXOS: { valor: EixoDificuldade; label: string }[] = [
   { valor: 'series', label: 'Quantidade de séries' },
 ]
 
-export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSeg, exercicios, aguardandoDesde = 0 }: Props) {
+export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSeg, exercicios, alongou, sinalizador, aguardandoDesde = 0 }: Props) {
   const router = useRouter()
   const [exs, setExs] = useState(exercicios)
   const [fase, setFase] = useState<Fase>('exercicios')
   const [idx, setIdx] = useState(0)
   const [guiado, setGuiado] = useState(false) // cronômetro guiado ativo
-  const sinalRef = useRef<Sinalizador | null>(null)
   const [statuses, setStatuses] = useState<Record<string, SessionExerciseStatus>>({})
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [erro, setErro] = useState<string | null>(null)
@@ -77,17 +78,13 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
   const ex = exs[idx]
   const completou = exs.every((e) => statuses[e.exercise_id] === 'fez')
 
-  // Inicializa o sinalizador de áudio (uma vez, no client).
-  useEffect(() => {
-    sinalRef.current = criarSinalizador()
-  }, [])
   // Sai do modo guiado ao trocar de exercício.
   useEffect(() => {
     setGuiado(false)
   }, [idx])
 
   function iniciarGuiado() {
-    sinalRef.current?.desbloquear() // libera o áudio neste gesto
+    sinalizador.desbloquear() // libera o áudio neste gesto
     setGuiado(true)
   }
 
@@ -131,6 +128,7 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
+          alongou,
           exercicios: exs.map((e) => ({
             exercise_id: e.exercise_id,
             variacao_nivel: e.nivel,
@@ -378,7 +376,7 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
       ) : null}
 
       {/* Cronômetro guiado */}
-      {guiado && sinalRef.current ? (
+      {guiado ? (
         <CronometroExercicio
           tipo={ex.tipo}
           bilateral={ex.bilateral}
@@ -386,7 +384,7 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
           tempoExecSeg={tempoExecSeg}
           descansoSeg={descanso_seg}
           permanenciaSeg={ex.permanenciaSeg}
-          sinalizador={sinalRef.current}
+          sinalizador={sinalizador}
           onConcluir={() => setGuiado(false)}
           onCancelar={() => setGuiado(false)}
         />

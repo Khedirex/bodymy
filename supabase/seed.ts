@@ -331,7 +331,15 @@ async function seedCircuito() {
     if (vErr) throw vErr
   }
 
-  const alongamentos = ALONGAMENTOS.map((a) => ({ nome: a.nome, descricao: a.descricao, ordem: a.ordem }))
+  // lados: 2 = bilateral (30s/lado); 3 = pescoço (3 direções); 1 = simples.
+  const ALONG_BILATERAIS = ['Torção deitada', 'Alongar atrás da perna', 'Quadril em quatro']
+  const alongamentos = ALONGAMENTOS.map((a) => ({
+    nome: a.nome,
+    descricao: a.descricao,
+    ordem: a.ordem,
+    duracao_seg: 30,
+    lados: a.nome === 'Pescoço em três direções' ? 3 : ALONG_BILATERAIS.includes(a.nome) ? 2 : 1,
+  }))
   const { error: sErr } = await db.from('stretches').insert(alongamentos)
   if (sErr) throw sErr
 

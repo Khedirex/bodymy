@@ -79,7 +79,20 @@ No SQL Editor do projeto (que deve ser EXCLUSIVO do BodyMy), rode em ordem:
 produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 `0003_functions.sql` → `0004_admin.sql` → `0005_upsells_admin.sql` →
 `0006_ritual_tapetinho.sql` → `0007_circuito.sql` → `0008_semana1_e_bloqueio.sql`
-→ `0009_cronometro.sql`, via `supabase db push` ou colando cada uma no SQL Editor.
+→ `0009_cronometro.sql` → `0010_bloco_mobilidade.sql`, via `supabase db push`
+ou colando cada uma no SQL Editor.
+
+### Bloco de mobilidade (`0010_bloco_mobilidade.sql`)
+
+A **Semana Zero deixou de existir**: os 10 alongamentos viraram um **bloco de
+mobilidade** executado todo dia, antes do circuito. A migração leva quem estava
+na Semana Zero para Semana 1/Dia 1 (quem já está no circuito não muda) e remove
+`semana_zero_completa`/`semana_zero_dias`. Ao abrir o treino, a aluna escolhe
+_fazer o alongamento_ ou _ir direto_ (com aviso de prevenção de lesão que
+informa, não bloqueia). O bloco roda no motor de cronômetro em sequência
+contínua (30s cada, bilaterais 30s/lado, pescoço 30s por direção, ~7,5 min),
+com avanço automático. Não conta para streak nem para a conclusão do dia; a
+adesão (`training_sessions.alongou`) fica visível na ficha do admin.
 
 ### Cronômetro guiado (`0009_cronometro.sql`)
 
