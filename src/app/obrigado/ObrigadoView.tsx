@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type ReactNode } from 'react'
 import Link from 'next/link'
-import { InstallInstructions } from '@/components/pwa/InstallInstructions'
 
 type Status = 'verificando' | 'pronto' | 'demorou' | 'sem_email'
 
@@ -68,8 +67,8 @@ export function ObrigadoView({ email, produtoNome, whatsapp }: Props) {
         </div>
         <h1 className="text-2xl font-extrabold text-ink-900">Compra confirmada!</h1>
         <p className="mt-2 text-ink-700">
-          Que alegria ter você aqui. Seu acesso ao <strong>{produtoNome}</strong> está sendo preparado.
-          Vamos deixar tudo pronto em 3 passos simples. 🤍
+          Que alegria ter você aqui. Seu acesso ao <strong>{produtoNome}</strong> está sendo preparado —
+          é rapidinho para entrar. 🤍
         </p>
       </header>
 
@@ -107,16 +106,8 @@ export function ObrigadoView({ email, produtoNome, whatsapp }: Props) {
         ) : null}
       </section>
 
-      {/* Passo 1 — Instalar o app */}
-      <StepCard numero={1} titulo="Coloque o app na tela do seu celular">
-        <p className="mb-3 text-ink-700">
-          Assim o BodyMy fica igual a qualquer aplicativo — é só tocar no ícone, sem procurar link nenhum de novo.
-        </p>
-        <InstallInstructions />
-      </StepCard>
-
-      {/* Passo 2 — Como entrar */}
-      <StepCard numero={2} titulo="Entre no BodyMy">
+      {/* Passo 1 — Como entrar */}
+      <StepCard numero={1} titulo="Entre no BodyMy">
         <p className="mb-3 text-ink-700">
           Você <strong>não precisa criar senha</strong>. Toque no botão, digite seu e-mail e nós enviamos um
           código de 6 números. É só digitar o código no app e pronto.
@@ -133,8 +124,8 @@ export function ObrigadoView({ email, produtoNome, whatsapp }: Props) {
         </Link>
       </StepCard>
 
-      {/* Passo 3 — Se o e-mail demorar */}
-      <StepCard numero={3} titulo="Se o e-mail do código demorar">
+      {/* Passo 2 — Se o e-mail demorar */}
+      <StepCard numero={2} titulo="Se o e-mail do código demorar">
         <p className="text-ink-700">
           O e-mail com seu código pode levar alguns minutos. Se não aparecer, confira a caixa de{' '}
           <strong>spam</strong> ou <strong>promoções</strong> — e marque como <strong>&ldquo;não é spam&rdquo;</strong>{' '}
