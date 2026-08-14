@@ -20,7 +20,8 @@ export function LoginForm() {
 
   const [metodo, setMetodo] = useState<Metodo>('codigo')
   const [etapa, setEtapa] = useState<'email' | 'codigo'>('email')
-  const [email, setEmail] = useState('')
+  // Pré-preenche o e-mail quando veio da página de obrigado (?email=).
+  const [email, setEmail] = useState(() => (params.get('email') ?? '').trim())
   const [codigo, setCodigo] = useState('')
   const [senha, setSenha] = useState('')
   const [status, setStatus] = useState<'idle' | 'enviando' | 'verificando'>('idle')

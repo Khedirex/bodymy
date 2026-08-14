@@ -8,7 +8,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 type CookieToSet = { name: string; value: string; options: CookieOptions }
 
 // Rotas públicas (não exigem sessão).
-const PUBLIC_PATHS = ['/login', '/auth']
+const PUBLIC_PATHS = ['/login', '/auth', '/obrigado']
 
 // Sanea a URL do Supabase inline (o middleware não importa @/lib/env para
 // ficar leve no Edge). Remove aspas, espaços, /rest/v1 e barra final —
