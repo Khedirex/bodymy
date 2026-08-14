@@ -8,12 +8,12 @@ type Status = 'verificando' | 'pronto' | 'demorou' | 'sem_email'
 interface Props {
   email: string | null
   produtoNome: string
-  whatsapp: string
+  suporteEmail: string
 }
 
 const MAX_TENTATIVAS = 18 // ~45s (2,5s cada)
 
-export function ObrigadoView({ email, produtoNome, whatsapp }: Props) {
+export function ObrigadoView({ email, produtoNome, suporteEmail }: Props) {
   const [status, setStatus] = useState<Status>(email ? 'verificando' : 'sem_email')
   const [progresso, setProgresso] = useState(email ? 8 : 100)
 
@@ -135,12 +135,10 @@ export function ObrigadoView({ email, produtoNome, whatsapp }: Props) {
 
       {/* Rodapé — suporte */}
       <a
-        href={whatsapp}
-        target="_blank"
-        rel="noopener noreferrer"
+        href={`mailto:${suporteEmail}`}
         className="mt-6 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-cream-200 bg-white px-5 text-base font-bold text-ink-800"
       >
-        <span aria-hidden>💬</span> Precisa de ajuda? Fale com o suporte
+        <span aria-hidden>✉️</span> Precisa de ajuda? Escreva para {suporteEmail}
       </a>
       <p className="mt-6 pb-2 text-center text-xs text-ink-700/50">BodyMy · feito com 🤍</p>
     </div>

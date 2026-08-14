@@ -9,8 +9,8 @@ import { UserIcon } from '@/components/ui/icons'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Perfil — BodyMy' }
 
-// Número de suporte (WhatsApp). Ajuste no deploy conforme o negócio.
-const WHATSAPP_SUPORTE = 'https://wa.me/5599999999999'
+// Suporte por e-mail (por enquanto). Ajuste conforme o negócio.
+const SUPORTE_EMAIL = 'contato@bodymy.com.br'
 
 export default async function PerfilPage() {
   const profile = await getProfile()
@@ -68,18 +68,13 @@ export default async function PerfilPage() {
       {/* Suporte */}
       <section>
         <h2 className="section-title mb-2">Precisa de ajuda?</h2>
-        <a
-          href={WHATSAPP_SUPORTE}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="card flex items-center gap-3"
-        >
+        <a href={`mailto:${SUPORTE_EMAIL}`} className="card flex items-center gap-3">
           <span className="text-2xl" aria-hidden>
-            💬
+            ✉️
           </span>
           <div className="flex-1">
             <p className="font-bold text-ink-900">Falar com o suporte</p>
-            <p className="text-sm text-ink-700">Atendimento pelo WhatsApp</p>
+            <p className="text-sm text-ink-700">{SUPORTE_EMAIL}</p>
           </div>
         </a>
       </section>

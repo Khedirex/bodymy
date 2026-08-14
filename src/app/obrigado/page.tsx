@@ -5,8 +5,8 @@ import { ObrigadoView } from './ObrigadoView'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Bem-vinda ao BodyMy 🤍' }
 
-// Número de suporte (WhatsApp). Ajuste no deploy conforme o negócio.
-const WHATSAPP_SUPORTE = 'https://wa.me/5599999999999'
+// Suporte por e-mail (por enquanto). Ajuste conforme o negócio.
+const SUPORTE_EMAIL = 'contato@bodymy.com.br'
 
 // Página pública pós-compra (Kiwify). Recebe ?email= opcional.
 export default async function ObrigadoPage({
@@ -33,5 +33,5 @@ export default async function ObrigadoPage({
     /* mantém o fallback */
   }
 
-  return <ObrigadoView email={email} produtoNome={produtoNome} whatsapp={WHATSAPP_SUPORTE} />
+  return <ObrigadoView email={email} produtoNome={produtoNome} suporteEmail={SUPORTE_EMAIL} />
 }
