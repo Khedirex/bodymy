@@ -2,7 +2,7 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { userHasEntitlement } from '@/lib/entitlements'
-import { CIRCUITO_PRODUCT_SLUG, nivelEntradaSemana, clampNivel } from '@/lib/training'
+import { CIRCUITO_PRODUCT_SLUGS, nivelEntradaSemana, clampNivel } from '@/lib/training'
 import type {
   UserTrainingConfig,
   Exercise,
@@ -30,10 +30,13 @@ export async function getTrainingConfig(
 
 export async function getCircuitoProductId(): Promise<string | null> {
   const admin = createAdminClient()
+  // Busca pelo slug novo ou anterior (só um existe por vez) → resiliente à
+  // ordem entre deploy e migração de rename.
   const { data } = await admin
     .from('products')
     .select('id')
-    .eq('slug', CIRCUITO_PRODUCT_SLUG)
+    .in('slug', CIRCUITO_PRODUCT_SLUGS)
+    .limit(1)
     .maybeSingle()
   return (data?.id as string) ?? null
 }

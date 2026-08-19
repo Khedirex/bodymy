@@ -1,31 +1,32 @@
 // =====================================================================
-// BodyMy — Conteúdo do "Protocolo 28 Dias — Ritual do Tapetinho"
+// BodyMy — Conteúdo do "Protocolo 28 Dias: Drenagem Tailandesa"
 //
-// Movimentos SOMÁTICOS inspirados no Pilates: movimento lento, consciente,
-// respiração, liberação de tensão, reconexão com o corpo. NÃO é aula de
-// Pilates clássico nem prática terapêutica. Sem promessas estéticas, sem
-// alegações de cura, sem linguagem punitiva. Fonte única usada tanto pelo
-// seed (novos ambientes) quanto pelo gerador da migração de produção.
+// Movimentos suaves INSPIRADOS na massagem tailandesa: movimento lento,
+// consciente, respiração, liberação de tensão, reconexão com o corpo. NÃO
+// afirma efeito de drenagem linfática nem qualquer alegação terapêutica.
+// Sem promessas de emagrecimento, medidas ou prazos, sem linguagem punitiva.
+// Fonte única usada tanto pelo seed (novos ambientes) quanto pelo gerador da
+// migração de produção.
 // =====================================================================
 
 export const PROGRAMA = {
-  productSlugNovo: 'ritual-do-tapetinho',
+  productSlugNovo: 'drenagem-tailandesa',
   // Slugs anteriores do MESMO produto — a migração usa esta lista (em ordem
   // de prioridade) para localizar o produto qualquer que seja o estado atual
   // do banco em produção.
-  legacySlugs: ['pilates-somatico', 'caminhada-japonesa'],
-  productNome: 'Protocolo 28 Dias — Ritual do Tapetinho',
+  legacySlugs: ['ritual-do-tapetinho', 'pilates-somatico', 'caminhada-japonesa'],
+  productNome: 'Protocolo 28 Dias: Drenagem Tailandesa',
   productDescricao:
-    'Movimentos somáticos inspirados no Pilates: 28 dias de prática lenta e consciente para soltar tensão e reconectar com o corpo, no seu ritmo e sem equipamento.',
-  programaNome: 'Protocolo 28 Dias — Ritual do Tapetinho',
+    'Movimentos suaves inspirados na massagem tailandesa: 28 dias de prática lenta e consciente para relaxar o corpo e soltar a tensão do dia, no seu ritmo e sem equipamento.',
+  programaNome: 'Protocolo 28 Dias: Drenagem Tailandesa',
   programaDescricao:
-    'Prática somática progressiva de 4 semanas — movimento lento e consciente para aliviar tensão, respirar melhor e se reconectar com o corpo.',
+    'Prática progressiva de 4 semanas com movimentos inspirados na massagem tailandesa — lentos e conscientes, para relaxar, respirar melhor e soltar a tensão, no seu ritmo.',
   salesPage: {
-    headline: 'Reconecte com o seu corpo em 28 dias, no seu ritmo',
-    subheadline: 'Movimentos somáticos suaves inspirados no Pilates — sem academia, sem equipamento, sem pressa.',
+    headline: 'Reserve 28 dias para cuidar do seu corpo, no seu ritmo',
+    subheadline: 'Movimentos suaves inspirados na massagem tailandesa — sem academia, sem equipamento, sem pressa.',
     bullets: [
       'Práticas guiadas de 10 a 25 minutos, dia a dia',
-      'Movimento lento e consciente para soltar a tensão do dia',
+      'Movimentos lentos e conscientes inspirados na massagem tailandesa',
       'Feito para quem está começando — respeitando os seus limites',
     ],
     cta_label: 'QUERO O PROTOCOLO',
@@ -717,7 +718,7 @@ const semana4: Semana = {
         titulo: 'Sua sequência da manhã',
         duracao: 22,
         intro:
-          'Uma sequência completa para começar o dia acordando o corpo com gentileza. Guarde esta — ela pode virar seu ritual matinal.',
+          'Uma sequência completa para começar o dia acordando o corpo com gentileza. Guarde esta — ela pode virar sua rotina matinal.',
         blocos: [
           prep('Comece deitada na cama ou no tapete, ao acordar. Depois vamos para sentada e em pé. Tenha um apoio por perto.'),
           mov(

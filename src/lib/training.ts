@@ -6,7 +6,10 @@
 import type { FaixaEtaria, EixoDificuldade } from '@/types/db'
 
 // Produto que dá acesso ao circuito (entitlement). Cada programa é 1 produto.
-export const CIRCUITO_PRODUCT_SLUG = 'ritual-do-tapetinho'
+export const CIRCUITO_PRODUCT_SLUG = 'drenagem-tailandesa'
+// Slug atual + anteriores do MESMO produto. A busca por slug usa esta lista,
+// então o app funciona antes ou depois da migração de rename rodar.
+export const CIRCUITO_PRODUCT_SLUGS = ['drenagem-tailandesa', 'ritual-do-tapetinho']
 
 // Limites rígidos dos eixos.
 export const SERIES_MIN = 2

@@ -23,6 +23,27 @@ const nextConfig = {
     ]
     return config
   },
+  async redirects() {
+    // Slug do programa mudou (ritual-do-tapetinho → drenagem-tailandesa).
+    // Redireciona links antigos já compartilhados para não quebrar.
+    return [
+      {
+        source: '/programa/ritual-do-tapetinho',
+        destination: '/programa/drenagem-tailandesa',
+        permanent: true,
+      },
+      {
+        source: '/programa/ritual-do-tapetinho/:path*',
+        destination: '/programa/drenagem-tailandesa/:path*',
+        permanent: true,
+      },
+      {
+        source: '/oferta/ritual-do-tapetinho',
+        destination: '/oferta/drenagem-tailandesa',
+        permanent: true,
+      },
+    ]
+  },
   async headers() {
     return [
       {

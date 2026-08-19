@@ -79,8 +79,19 @@ No SQL Editor do projeto (que deve ser EXCLUSIVO do BodyMy), rode em ordem:
 produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 `0003_functions.sql` → `0004_admin.sql` → `0005_upsells_admin.sql` →
 `0006_ritual_tapetinho.sql` → `0007_circuito.sql` → `0008_semana1_e_bloqueio.sql`
-→ `0009_cronometro.sql` → `0010_bloco_mobilidade.sql`, via `supabase db push`
-ou colando cada uma no SQL Editor.
+→ `0009_cronometro.sql` → `0010_bloco_mobilidade.sql` → `0011_drenagem_tailandesa.sql`,
+via `supabase db push` ou colando cada uma no SQL Editor.
+
+### Rename do produto (`0011_drenagem_tailandesa.sql`)
+
+Renomeia o produto/programa principal para **"Protocolo 28 Dias: Drenagem
+Tailandesa"** (slug `drenagem-tailandesa`). É um rename **em lugar**: preserva
+`kiwify_product_id`/`kiwify_checkout_url` (entitlements ativos seguem valendo) e
+o `program_id` (nenhuma aluna perde progresso). Rode a migração **antes** do
+redeploy; URLs antigas `/(programa|oferta)/ritual-do-tapetinho` redirecionam
+para o novo slug (em `next.config.mjs`). Posicionamento: movimentos inspirados
+na massagem tailandesa — sem alegação de drenagem linfática/terapêutica, sem
+promessa de emagrecimento, medidas ou prazos.
 
 ### Bloco de mobilidade (`0010_bloco_mobilidade.sql`)
 

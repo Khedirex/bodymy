@@ -8,7 +8,7 @@
 // Uso:
 //   npm run grant:access -- email@x.com "Nome Completo" [slug-do-produto] --confirm
 //
-// - slug-do-produto é opcional (padrão: ritual-do-tapetinho)
+// - slug-do-produto é opcional (padrão: drenagem-tailandesa)
 // - --confirm é OBRIGATÓRIO (roda contra PRODUÇÃO). Sem ele, o script só
 //   mostra o que faria e não altera nada.
 //
@@ -34,8 +34,8 @@ const args = rawArgs.filter((a) => a !== '--confirm')
 const email = args.find((a) => a.includes('@'))?.trim().toLowerCase()
 const resto = args.filter((a) => a !== args.find((x) => x.includes('@')))
 // slug = argumento todo minúsculo com hífens/letras (nomes são capitalizados
-// e têm espaço, então não colidem). Default: ritual-do-tapetinho.
-const slug = resto.find((a) => /^[a-z0-9][a-z0-9-]*$/.test(a)) ?? 'ritual-do-tapetinho'
+// e têm espaço, então não colidem). Default: drenagem-tailandesa.
+const slug = resto.find((a) => /^[a-z0-9][a-z0-9-]*$/.test(a)) ?? 'drenagem-tailandesa'
 const nome = resto.filter((a) => a !== slug).join(' ').trim()
 
 if (!email || !nome) {
@@ -82,7 +82,7 @@ async function main() {
     .maybeSingle()
   if (prodErr) throw prodErr
   if (!product) {
-    console.error(`✗ Produto "${slug}" não encontrado. Confira o slug (ex.: ritual-do-tapetinho).`)
+    console.error(`✗ Produto "${slug}" não encontrado. Confira o slug (ex.: drenagem-tailandesa).`)
     process.exit(1)
   }
 

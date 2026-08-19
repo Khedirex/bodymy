@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 // =====================================================================
-// BodyMy — Gerador da migração de produção do "Ritual do Tapetinho"
+// BodyMy — Gerador da migração de produção do programa principal
 //
 // Lê a fonte única em supabase/content/ritual-do-tapetinho.ts e emite
 // supabase/migrations/0006_ritual_tapetinho.sql — script idempotente,

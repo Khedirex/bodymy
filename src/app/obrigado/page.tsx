@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { CIRCUITO_PRODUCT_SLUG } from '@/lib/training'
+import { CIRCUITO_PRODUCT_SLUGS } from '@/lib/training'
 import { ObrigadoView } from './ObrigadoView'
 
 export const dynamic = 'force-dynamic'
@@ -26,7 +26,8 @@ export default async function ObrigadoPage({
     const { data } = await admin
       .from('products')
       .select('nome')
-      .eq('slug', CIRCUITO_PRODUCT_SLUG)
+      .in('slug', CIRCUITO_PRODUCT_SLUGS)
+      .limit(1)
       .maybeSingle()
     if (data?.nome) produtoNome = data.nome as string
   } catch {
