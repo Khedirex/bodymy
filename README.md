@@ -79,8 +79,13 @@ No SQL Editor do projeto (que deve ser EXCLUSIVO do BodyMy), rode em ordem:
 produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 `0003_functions.sql` → `0004_admin.sql` → `0005_upsells_admin.sql` →
 `0006_ritual_tapetinho.sql` → `0007_circuito.sql` → `0008_semana1_e_bloqueio.sql`
-→ `0009_cronometro.sql` → `0010_bloco_mobilidade.sql` → `0011_drenagem_tailandesa.sql`,
-via `supabase db push` ou colando cada uma no SQL Editor.
+→ `0009_cronometro.sql` → `0010_bloco_mobilidade.sql` → `0011_drenagem_tailandesa.sql`
+→ `0012_kiwify_drenagem.sql`, via `supabase db push` ou colando cada uma no SQL Editor.
+
+`0012` aponta o produto para o NOVO produto da Kiwify (novo `kiwify_product_id`
++ `kiwify_checkout_url`). O entitlement é por `product_id` interno (inalterado),
+então quem já comprou mantém o acesso; só muda como o webhook casa compras
+futuras.
 
 ### Rename do produto (`0011_drenagem_tailandesa.sql`)
 
