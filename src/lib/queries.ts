@@ -2,6 +2,8 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { userHasEntitlement, getActiveEntitlementProductIds } from '@/lib/entitlements'
+import { hasCircuitoAccess } from '@/lib/circuito'
+import { CIRCUITO_PRODUCT_SLUGS } from '@/lib/training'
 import { captureException } from '@/lib/observability'
 
 // Loga um erro de leitura do Supabase com contexto rico (aparece nos
@@ -139,13 +141,18 @@ export interface ProgramTrack {
 export async function getProgramTrack(
   userId: string,
   slug: string,
+  opts?: { skipEntitlement?: boolean },
 ): Promise<ProgramTrack | null> {
   const meta = await getProgramMeta(slug)
   if (!meta) return null
 
-  const supabase = createClient()
-  const temAcesso = await userHasEntitlement(supabase, userId, meta.product.id)
-  if (!temAcesso) return null
+  // skipEntitlement: quem chama já validou o acesso (ex.: /entenda usa
+  // hasCircuitoAccess, que aceita qualquer SKU que libera a experiência).
+  if (!opts?.skipEntitlement) {
+    const supabase = createClient()
+    const temAcesso = await userHasEntitlement(supabase, userId, meta.product.id)
+    if (!temAcesso) return null
+  }
 
   // Conteúdo lido com admin (lessons não têm policy de leitura no client).
   const admin = createAdminClient()
@@ -270,11 +277,12 @@ export async function getLessonForUser(
   if (!day || !week || !program) return { hasAccess: false, ctx: null }
 
   const supabase = createClient()
-  const hasAccess = await userHasEntitlement(
-    supabase,
-    userId,
-    (program as Program).product_id,
-  )
+  // Aulas do programa canônico são liberadas por qualquer SKU da experiência
+  // (ex.: Pilates Hormonal). Outros programas exigem o próprio entitlement.
+  const canonico = CIRCUITO_PRODUCT_SLUGS.includes((program as Program).slug)
+  const hasAccess = canonico
+    ? await hasCircuitoAccess(supabase, userId)
+    : await userHasEntitlement(supabase, userId, (program as Program).product_id)
   if (!hasAccess) return { hasAccess: false, ctx: null }
 
   const { data: completion } = await admin
@@ -285,7 +293,8 @@ export async function getLessonForUser(
     .maybeSingle()
 
   // Próxima aula: montamos a trilha e pegamos a seguinte por índice global.
-  const track = await getProgramTrack(userId, (program as Program).slug)
+  // Acesso já validado acima → pula a checagem por-produto.
+  const track = await getProgramTrack(userId, (program as Program).slug, { skipEntitlement: true })
   let proxima: { id: string; titulo: string } | null = null
   if (track) {
     const flat = track.weeks

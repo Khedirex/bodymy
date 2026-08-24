@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
+import { createClient } from '@/lib/supabase/server'
 import { getProgramTrack } from '@/lib/queries'
+import { hasCircuitoAccess } from '@/lib/circuito'
 import { CIRCUITO_PRODUCT_SLUG } from '@/lib/training'
 import { SafetyNotice } from '@/components/SafetyNotice'
 import { EmptyState } from '@/components/ui/states'
@@ -15,7 +17,13 @@ export default async function EntendaPage() {
   const profile = await getProfile()
   if (!profile) redirect('/login')
 
-  const track = await getProgramTrack(profile.id, CIRCUITO_PRODUCT_SLUG)
+  // Acesso: qualquer SKU que libera a experiência (não só o produto canônico).
+  const supabase = createClient()
+  const temAcesso = await hasCircuitoAccess(supabase, profile.id)
+  // Conteúdo é sempre o do programa canônico; entitlement já validado acima.
+  const track = temAcesso
+    ? await getProgramTrack(profile.id, CIRCUITO_PRODUCT_SLUG, { skipEntitlement: true })
+    : null
   if (!track) {
     return (
       <EmptyState

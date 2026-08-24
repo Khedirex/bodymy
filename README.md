@@ -80,12 +80,23 @@ produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 `0003_functions.sql` → `0004_admin.sql` → `0005_upsells_admin.sql` →
 `0006_ritual_tapetinho.sql` → `0007_circuito.sql` → `0008_semana1_e_bloqueio.sql`
 → `0009_cronometro.sql` → `0010_bloco_mobilidade.sql` → `0011_drenagem_tailandesa.sql`
-→ `0012_kiwify_drenagem.sql`, via `supabase db push` ou colando cada uma no SQL Editor.
+→ `0012_kiwify_drenagem.sql` → `0013_pilates_hormonal.sql`, via `supabase db push`
+ou colando cada uma no SQL Editor.
 
 `0012` aponta o produto para o NOVO produto da Kiwify (novo `kiwify_product_id`
 + `kiwify_checkout_url`). O entitlement é por `product_id` interno (inalterado),
 então quem já comprou mantém o acesso; só muda como o webhook casa compras
 futuras.
+
+### SKU "Pilates Hormonal" (`0013_pilates_hormonal.sql`)
+
+Cria um **produto separado** (`pilates-hormonal`, Kiwify
+`e08d83c0-…`) vendido por outro checkout, que libera **exatamente a mesma
+experiência** (mesmo circuito + mesmas aulas) — sem duplicar conteúdo. No
+código, `CIRCUITO_ACCESS_SLUGS` lista os produtos cujo entitlement libera a
+experiência, e `hasCircuitoAccess` aceita qualquer um deles. As alunas atuais
+(produto principal) não são afetadas. Checkout URL do novo produto fica em
+branco até ser preenchido no admin (compras chegam direto pela Kiwify).
 
 ### Rename do produto (`0011_drenagem_tailandesa.sql`)
 

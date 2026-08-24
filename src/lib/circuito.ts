@@ -1,8 +1,8 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { userHasEntitlement } from '@/lib/entitlements'
-import { CIRCUITO_PRODUCT_SLUGS, nivelEntradaSemana, clampNivel } from '@/lib/training'
+import { getActiveEntitlementProductIds } from '@/lib/entitlements'
+import { CIRCUITO_PRODUCT_SLUGS, CIRCUITO_ACCESS_SLUGS, nivelEntradaSemana, clampNivel } from '@/lib/training'
 import type {
   UserTrainingConfig,
   Exercise,
@@ -41,13 +41,25 @@ export async function getCircuitoProductId(): Promise<string | null> {
   return (data?.id as string) ?? null
 }
 
+// Ids de TODOS os produtos que liberam a mesma experiência (produto canônico
+// + SKUs vendidos à parte, ex.: Pilates Hormonal).
+export async function getCircuitoAccessProductIds(): Promise<string[]> {
+  const admin = createAdminClient()
+  const { data } = await admin
+    .from('products')
+    .select('id')
+    .in('slug', CIRCUITO_ACCESS_SLUGS)
+  return (data ?? []).map((r) => r.id as string)
+}
+
 export async function hasCircuitoAccess(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<boolean> {
-  const productId = await getCircuitoProductId()
-  if (!productId) return false
-  return userHasEntitlement(supabase, userId, productId)
+  const ids = await getCircuitoAccessProductIds()
+  if (ids.length === 0) return false
+  const ativos = await getActiveEntitlementProductIds(supabase, userId)
+  return ids.some((id) => ativos.has(id))
 }
 
 export interface PlanExercise {

@@ -5,11 +5,14 @@
 // =====================================================================
 import type { FaixaEtaria, EixoDificuldade } from '@/types/db'
 
-// Produto que dá acesso ao circuito (entitlement). Cada programa é 1 produto.
+// Produto/programa CANÔNICO (a fonte do conteúdo: circuito + aulas).
 export const CIRCUITO_PRODUCT_SLUG = 'drenagem-tailandesa'
-// Slug atual + anteriores do MESMO produto. A busca por slug usa esta lista,
-// então o app funciona antes ou depois da migração de rename rodar.
+// Slug atual + anteriores do MESMO produto canônico. Usado para localizar o
+// produto/programa e seu conteúdo (resiliente ao rename).
 export const CIRCUITO_PRODUCT_SLUGS = ['drenagem-tailandesa', 'ritual-do-tapetinho']
+// Produtos cujo entitlement LIBERA a mesma experiência (circuito + aulas).
+// Inclui SKUs vendidos à parte que dão o mesmo acesso (ex.: Pilates Hormonal).
+export const CIRCUITO_ACCESS_SLUGS = [...CIRCUITO_PRODUCT_SLUGS, 'pilates-hormonal']
 
 // Limites rígidos dos eixos.
 export const SERIES_MIN = 2
