@@ -12,7 +12,7 @@ export const CIRCUITO_PRODUCT_SLUG = 'drenagem-tailandesa'
 export const CIRCUITO_PRODUCT_SLUGS = ['drenagem-tailandesa', 'ritual-do-tapetinho']
 // Produtos cujo entitlement LIBERA a mesma experiência (circuito + aulas).
 // Inclui SKUs vendidos à parte que dão o mesmo acesso (ex.: Pilates Hormonal).
-export const CIRCUITO_ACCESS_SLUGS = [...CIRCUITO_PRODUCT_SLUGS, 'pilates-hormonal', 'pilates-hormonal-reto']
+export const CIRCUITO_ACCESS_SLUGS = [...CIRCUITO_PRODUCT_SLUGS, 'pilates-hormonal']
 
 // Limites rígidos dos eixos.
 export const SERIES_MIN = 2

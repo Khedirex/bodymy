@@ -85,9 +85,9 @@ via `supabase db push` ou colando cada uma no SQL Editor.
 
 ### Integração Hotmart (`0015_hotmart.sql`)
 
-Adiciona `products.hotmart_product_id` e o produto **"Pilates Hormonal - Reto
-de 28 Días"** (Hotmart id `8385058`, slug `pilates-hormonal-reto`), que libera
-a mesma experiência (circuito + aulas). O webhook `/api/webhooks/hotmart`
+Adiciona `products.hotmart_product_id` e vincula o **mesmo** produto
+`pilates-hormonal` (já vendido na Kiwify) ao id da Hotmart `8385058` — é o mesmo
+produto nas duas plataformas. O webhook `/api/webhooks/hotmart`
 verifica o `hottok` (`HOTMART_WEBHOOK_TOKEN`) e reaproveita o
 `processPurchaseEvent` do fluxo Kiwify — o produto é localizado por
 `hotmart_product_id` **ou** `kiwify_product_id`. Configure na Hotmart:
