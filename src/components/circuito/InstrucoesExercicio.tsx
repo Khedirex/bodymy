@@ -2,7 +2,7 @@
 // Respiração, O que sentir, Atenção). "Atenção" ganha destaque de segurança.
 // Se o texto não vier no formato rotulado, mostra como parágrafo simples.
 
-const LABELS = ['Preparação', 'Movimento', 'Respiração', 'O que sentir', 'Atenção']
+const LABELS = ['Preparación', 'Movimiento', 'Respiración', 'Qué vas a sentir', 'Atención']
 const RE = new RegExp(`^(${LABELS.join('|')}):\\s*(.*)$`)
 
 interface Bloco {
@@ -32,10 +32,10 @@ export function InstrucoesExercicio({ texto }: { texto: string }) {
   return (
     <div className="space-y-2.5">
       {blocos.map((b, i) =>
-        b.label === 'Atenção' ? (
+        b.label === 'Atención' ? (
           <div key={i} className="rounded-2xl border border-amber-200 bg-amber-50 p-3">
             <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-amber-700">
-              <span aria-hidden>⚠️</span> Atenção
+              <span aria-hidden>⚠️</span> Atención
             </p>
             <p className="mt-0.5 whitespace-pre-line text-sm text-amber-900">{b.texto}</p>
           </div>

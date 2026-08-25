@@ -18,6 +18,7 @@ import { createClient } from '@supabase/supabase-js'
 import { assertBodyMyDb } from './guard-db'
 import { PROGRAMA, RITUAL_SEMANAS } from './content/ritual-do-tapetinho'
 import { EXERCICIOS, ALONGAMENTOS, instrucoesV1 } from './content/circuito-semana1'
+import { cardapioBaseES } from './content/dieta-base'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -237,7 +238,7 @@ async function main() {
   if (dpErr) throw dpErr
 
   await db.from('diet_days').delete().eq('diet_plan_id', dietPlan.id)
-  const cardapios = cardapioBase()
+  const cardapios = cardapioBaseES()
   for (let i = 0; i < cardapios.length; i++) {
     const { error } = await db.from('diet_days').insert({
       diet_plan_id: dietPlan.id,
@@ -306,7 +307,7 @@ async function seedCircuito() {
   }
 
   // Conteúdo real da Semana 1 (v1). v2/v3/v4 ficam com instrucoes null.
-  const BILATERAIS = ['Figura quatro', 'Equilíbrio de um pé', 'Alongamento em C', 'Nuca longa']
+  const BILATERAIS = ['Figura cuatro', 'Equilibrio en un pie', 'Estiramiento en C', 'Nuca larga']
   for (const e of EXERCICIOS) {
     const ord = (e.dia - 1) * 5 + e.ordem
     const { data: ex, error: exErr } = await db
@@ -332,13 +333,13 @@ async function seedCircuito() {
   }
 
   // lados: 2 = bilateral (30s/lado); 3 = pescoço (3 direções); 1 = simples.
-  const ALONG_BILATERAIS = ['Torção deitada', 'Alongar atrás da perna', 'Quadril em quatro']
+  const ALONG_BILATERAIS = ['Torsión acostada', 'Estirar detrás de la pierna', 'Cadera en cuatro']
   const alongamentos = ALONGAMENTOS.map((a) => ({
     nome: a.nome,
     descricao: a.descricao,
     ordem: a.ordem,
     duracao_seg: 30,
-    lados: a.nome === 'Pescoço em três direções' ? 3 : ALONG_BILATERAIS.includes(a.nome) ? 2 : 1,
+    lados: a.nome === 'Cuello en tres direcciones' ? 3 : ALONG_BILATERAIS.includes(a.nome) ? 2 : 1,
   }))
   const { error: sErr } = await db.from('stretches').insert(alongamentos)
   if (sErr) throw sErr
@@ -347,64 +348,6 @@ async function seedCircuito() {
 }
 
 // Cardápio base — 7 dias de comida brasileira simples.
-function cardapioBase() {
-  const dia = (
-    cafe: string[],
-    almoco: string[],
-    lanche: string[],
-    jantar: string[],
-  ) => ({
-    cafe: { titulo: 'Café da manhã', itens: cafe },
-    almoco: { titulo: 'Almoço', itens: almoco },
-    lanche: { titulo: 'Lanche da tarde', itens: lanche },
-    jantar: { titulo: 'Jantar', itens: jantar },
-  })
-
-  return [
-    dia(
-      ['Café com leite', 'Pão integral com ovo mexido', 'Mamão'],
-      ['Arroz', 'Feijão', 'Frango grelhado', 'Salada de folhas'],
-      ['Iogurte natural', 'Banana'],
-      ['Sopa de legumes', 'Torrada integral'],
-    ),
-    dia(
-      ['Tapioca com queijo', 'Suco de laranja natural'],
-      ['Arroz integral', 'Lentilha', 'Carne moída refogada', 'Abobrinha'],
-      ['Fruta da estação', 'Castanhas'],
-      ['Omelete de legumes', 'Salada verde'],
-    ),
-    dia(
-      ['Vitamina de banana com aveia'],
-      ['Arroz', 'Feijão', 'Peixe assado', 'Cenoura e beterraba'],
-      ['Iogurte', 'Maçã'],
-      ['Wrap integral com frango e salada'],
-    ),
-    dia(
-      ['Café com leite', 'Pão integral com requeijão', 'Mexerica'],
-      ['Purê de mandioquinha', 'Frango desfiado', 'Brócolis'],
-      ['Mix de frutas'],
-      ['Sopa de abóbora com frango'],
-    ),
-    dia(
-      ['Ovos mexidos', 'Fatia de melão'],
-      ['Arroz', 'Feijão', 'Bife grelhado', 'Salada de tomate'],
-      ['Iogurte com granola'],
-      ['Panqueca de aveia com queijo branco'],
-    ),
-    dia(
-      ['Tapioca com ovo'],
-      ['Macarrão integral', 'Molho de tomate caseiro', 'Frango', 'Salada'],
-      ['Fruta', 'Punhado de castanhas'],
-      ['Caldo de legumes', 'Torrada'],
-    ),
-    dia(
-      ['Café com leite', 'Bolo caseiro de fubá (fatia pequena)', 'Fruta'],
-      ['Feijoada leve com couve', 'Arroz', 'Laranja'],
-      ['Iogurte natural'],
-      ['Salada completa com atum e ovo'],
-    ),
-  ]
-}
 
 main().catch((err) => {
   console.error('✗ Erro no seed:', err)
