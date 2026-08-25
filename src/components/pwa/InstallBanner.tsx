@@ -18,8 +18,8 @@ export function InstallBanner() {
         📲
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-ink-900">Instale o BodyMy</p>
-        <p className="text-xs text-ink-700">Abra como app, direto da tela inicial.</p>
+        <p className="text-sm font-semibold text-ink-900">Instala BodyMy</p>
+        <p className="text-xs text-ink-700">Ábrelo como app, directo desde la pantalla de inicio.</p>
       </div>
       {podeInstalarNativo && plataforma === 'android' ? (
         <button
@@ -33,12 +33,12 @@ export function InstallBanner() {
           href="/perfil#instalar"
           className="rounded-xl bg-coral-400 px-3 py-2 text-sm font-bold text-white"
         >
-          Como fazer
+          Cómo hacerlo
         </Link>
       )}
       <button
         onClick={() => setDispensado(true)}
-        aria-label="Dispensar"
+        aria-label="Descartar"
         className="px-1 text-ink-700/40"
       >
         ✕

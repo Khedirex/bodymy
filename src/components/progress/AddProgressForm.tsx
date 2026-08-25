@@ -79,7 +79,7 @@ export function AddProgressForm() {
       if (fileRef.current) fileRef.current.value = ''
       router.refresh()
     } catch {
-      setErro('Não foi possível salvar agora. Tente novamente.')
+      setErro('No fue posible guardar ahora. Inténtalo de nuevo.')
     } finally {
       setSalvando(false)
     }
@@ -88,7 +88,7 @@ export function AddProgressForm() {
   if (!aberto) {
     return (
       <button onClick={() => setAberto(true)} className="btn-secondary w-full">
-        <CameraIcon width={20} height={20} /> Registrar meu progresso
+        <CameraIcon width={20} height={20} /> Registrar mi progreso
       </button>
     )
   }
@@ -96,7 +96,7 @@ export function AddProgressForm() {
   return (
     <div className="card space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-ink-900">Novo registro</h3>
+        <h3 className="font-bold text-ink-900">Nuevo registro</h3>
         <button
           onClick={() => setAberto(false)}
           className="text-sm font-semibold text-ink-700/60"
@@ -109,12 +109,12 @@ export function AddProgressForm() {
       <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-cream-200 bg-cream-50 p-5 text-center">
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={preview} alt="Prévia" className="h-40 rounded-xl object-cover" />
+          <img src={preview} alt="Vista previa" className="h-40 rounded-xl object-cover" />
         ) : (
           <>
             <CameraIcon width={28} height={28} className="text-coral-300" />
             <span className="text-sm font-medium text-ink-700">
-              Adicionar foto (opcional e privada)
+              Agregar foto (opcional y privada)
             </span>
           </>
         )}
@@ -143,7 +143,7 @@ export function AddProgressForm() {
         </div>
         <div>
           <label className="mb-1 block text-sm font-semibold text-ink-800">
-            Quadril (cm)
+            Cadera (cm)
           </label>
           <input
             inputMode="decimal"
@@ -166,21 +166,21 @@ export function AddProgressForm() {
             className="input"
             value={peso}
             onChange={(e) => setPeso(e.target.value)}
-            placeholder="Peso em kg (opcional)"
+            placeholder="Peso en kg (opcional)"
           />
           <p className="mt-1 text-xs text-ink-700/60">
-            O peso é só mais um dado, nunca o mais importante. Foque em como você se sente.
+            El peso es solo un dato más, nunca el más importante. Enfócate en cómo te sientes.
           </p>
         </div>
       </details>
 
       <div>
-        <label className="mb-1 block text-sm font-semibold text-ink-800">Como foi?</label>
+        <label className="mb-1 block text-sm font-semibold text-ink-800">¿Cómo te fue?</label>
         <textarea
           className="input min-h-[80px] resize-none"
           value={nota}
           onChange={(e) => setNota(e.target.value)}
-          placeholder="Uma nota para você mesma (opcional)"
+          placeholder="Una nota para ti misma (opcional)"
         />
       </div>
 
@@ -191,7 +191,7 @@ export function AddProgressForm() {
       ) : null}
 
       <button onClick={salvar} disabled={salvando} className="btn-primary w-full">
-        {salvando ? 'Salvando…' : 'Salvar registro'}
+        {salvando ? 'Guardando…' : 'Guardar registro'}
       </button>
     </div>
   )

@@ -3,7 +3,7 @@ import { getProfile } from '@/lib/session'
 import { getPrimaryProgram } from '@/lib/queries'
 import { Onboarding } from './Onboarding'
 
-export const metadata = { title: 'Bem-vinda — BodyMy' }
+export const metadata = { title: 'Bienvenida — BodyMy' }
 export const dynamic = 'force-dynamic'
 
 export default async function BemVindaPage() {
@@ -15,7 +15,7 @@ export default async function BemVindaPage() {
   return (
     <Onboarding
       nome={profile.nome}
-      programaNome={primary?.program.nome ?? 'seu programa'}
+      programaNome={primary?.program.nome ?? 'tu programa'}
     />
   )
 }

@@ -13,12 +13,12 @@ export default async function ExerciciosPage() {
       <div>
         <h1 className="text-xl font-bold text-slate-900">Circuito</h1>
         <p className="mt-1 text-sm text-slate-500">
-          35 exercícios (5 por dia × 7 dias), cada um com 4 variações, mais 10 alongamentos do
-          bloco de mobilidade. Cole o <code>panda_video_id</code> de cada vídeo aqui.
+          35 ejercicios (5 por día × 7 días), cada uno con 4 variaciones, más 10 estiramientos del
+          bloque de movilidad. Pega el <code>panda_video_id</code> de cada video aquí.
         </p>
         <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-semibold text-slate-700">Vídeos preenchidos</span>
+            <span className="font-semibold text-slate-700">Videos completados</span>
             <span className="text-slate-500">
               {counts.preenchidos} de {counts.total} ({pct}%)
             </span>
@@ -32,14 +32,14 @@ export default async function ExerciciosPage() {
       {/* Exercícios por dia do ciclo */}
       {dias.map(({ dia, exercicios }) => (
         <section key={dia}>
-          <h2 className="mb-2 text-base font-bold text-slate-900">Dia {dia} do ciclo</h2>
+          <h2 className="mb-2 text-base font-bold text-slate-900">Día {dia} del ciclo</h2>
           <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
             <table className="w-full text-sm">
               <thead className="border-b border-slate-200 bg-slate-50 text-left text-slate-500">
                 <tr>
                   <th className="px-3 py-2 font-medium">#</th>
-                  <th className="px-3 py-2 font-medium">Exercício</th>
-                  <th className="px-3 py-2 font-medium">Vídeos (v1–v4)</th>
+                  <th className="px-3 py-2 font-medium">Ejercicio</th>
+                  <th className="px-3 py-2 font-medium">Videos (v1–v4)</th>
                   <th className="px-3 py-2" />
                 </tr>
               </thead>
@@ -53,7 +53,7 @@ export default async function ExerciciosPage() {
                         <Link href={`/admin/exercicios/${e.id}`} className="font-medium text-slate-900 hover:underline">
                           {e.nome}
                         </Link>
-                        {!e.ativo ? <span className="ml-2 text-xs text-slate-400">(inativo)</span> : null}
+                        {!e.ativo ? <span className="ml-2 text-xs text-slate-400">(inactivo)</span> : null}
                       </td>
                       <td className="px-3 py-2">
                         <div className="flex gap-1">
@@ -63,7 +63,7 @@ export default async function ExerciciosPage() {
                             return (
                               <span
                                 key={n}
-                                title={`v${n}${on ? ' — preenchido' : ' — vazio'}`}
+                                title={`v${n}${on ? ' — completado' : ' — vacío'}`}
                                 className={`inline-flex h-6 w-7 items-center justify-center rounded text-xs font-semibold ${
                                   on ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400'
                                 }`}
@@ -90,9 +90,9 @@ export default async function ExerciciosPage() {
 
       {/* Bloco de mobilidade — alongamentos */}
       <section>
-        <h2 className="mb-2 text-base font-bold text-slate-900">Bloco de mobilidade — 10 alongamentos</h2>
+        <h2 className="mb-2 text-base font-bold text-slate-900">Bloque de movilidad — 10 estiramientos</h2>
         <p className="mb-3 text-sm text-slate-500">
-          A mesma sequência de 10 alongamentos (30s cada) roda antes do circuito, todos os dias.
+          La misma secuencia de 10 estiramientos (30s cada uno) corre antes del circuito, todos los días.
         </p>
         <StretchesEditor stretches={stretches} />
       </section>

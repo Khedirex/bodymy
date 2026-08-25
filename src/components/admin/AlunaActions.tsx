@@ -42,13 +42,13 @@ export function AlunaActions({
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        setMsg({ tipo: 'erro', texto: data.error ? `Falhou: ${data.error}` : 'Falhou.' })
+        setMsg({ tipo: 'erro', texto: data.error ? `Falló: ${data.error}` : 'Falló.' })
         return
       }
-      setMsg({ tipo: 'ok', texto: data.mensagem ?? 'Feito.' })
+      setMsg({ tipo: 'ok', texto: data.mensagem ?? 'Hecho.' })
       router.refresh()
     } catch {
-      setMsg({ tipo: 'erro', texto: 'Erro de rede.' })
+      setMsg({ tipo: 'erro', texto: 'Error de red.' })
     } finally {
       setLoading(null)
     }
@@ -67,14 +67,14 @@ export function AlunaActions({
 
       {/* Conceder novo acesso */}
       <div className="rounded-lg border border-slate-200 bg-white p-3">
-        <p className="mb-2 text-sm font-semibold text-slate-700">Conceder novo acesso</p>
+        <p className="mb-2 text-sm font-semibold text-slate-700">Otorgar nuevo acceso</p>
         <div className="flex gap-2">
           <select
             value={selecionado}
             onChange={(e) => setSelecionado(e.target.value)}
             className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
           >
-            <option value="">Selecione um produto…</option>
+            <option value="">Selecciona un producto…</option>
             {disponiveis.map((p) => (
               <option key={p.id} value={p.id}>{p.nome}</option>
             ))}
@@ -84,11 +84,11 @@ export function AlunaActions({
             onClick={() => {
               const prod = produtos.find((p) => p.id === selecionado)
               chamar('/api/admin/grant', { alunaId, productId: selecionado },
-                `Conceder acesso a "${prod?.nome}" para ${alunaEmail}?`, 'grant')
+                `¿Otorgar acceso a "${prod?.nome}" para ${alunaEmail}?`, 'grant')
             }}
             className="whitespace-nowrap rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
           >
-            {loading === 'grant' ? '…' : 'Conceder'}
+            {loading === 'grant' ? '…' : 'Otorgar'}
           </button>
         </div>
       </div>
@@ -96,7 +96,7 @@ export function AlunaActions({
       {/* Revogar acessos existentes */}
       {entitlements.filter((e) => e.status === 'ativo').length > 0 && (
         <div className="rounded-lg border border-slate-200 bg-white p-3">
-          <p className="mb-2 text-sm font-semibold text-slate-700">Revogar acesso</p>
+          <p className="mb-2 text-sm font-semibold text-slate-700">Revocar acceso</p>
           <ul className="space-y-1.5">
             {entitlements.filter((e) => e.status === 'ativo').map((e) => (
               <li key={e.product_id} className="flex items-center justify-between text-sm">
@@ -105,11 +105,11 @@ export function AlunaActions({
                   disabled={loading === `revoke:${e.product_id}`}
                   onClick={() =>
                     chamar('/api/admin/revoke', { alunaId, productId: e.product_id },
-                      `REVOGAR o acesso de "${e.produtoNome}" de ${alunaEmail}? A aluna perde o acesso.`, `revoke:${e.product_id}`)
+                      `¿REVOCAR el acceso de "${e.produtoNome}" de ${alunaEmail}? La alumna pierde el acceso.`, `revoke:${e.product_id}`)
                   }
                   className="rounded-md border border-red-200 px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
                 >
-                  {loading === `revoke:${e.product_id}` ? '…' : 'Revogar'}
+                  {loading === `revoke:${e.product_id}` ? '…' : 'Revocar'}
                 </button>
               </li>
             ))}
@@ -122,11 +122,11 @@ export function AlunaActions({
         disabled={loading === 'resend'}
         onClick={() =>
           chamar('/api/admin/resend-welcome', { alunaId },
-            `Reenviar o e-mail de acesso para ${alunaEmail}?`, 'resend')
+            `¿Reenviar el correo de acceso a ${alunaEmail}?`, 'resend')
         }
         className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
       >
-        {loading === 'resend' ? 'Enviando…' : 'Reenviar e-mail de acesso'}
+        {loading === 'resend' ? 'Enviando…' : 'Reenviar correo de acceso'}
       </button>
     </div>
   )

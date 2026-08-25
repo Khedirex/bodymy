@@ -109,9 +109,9 @@ export function BlocoMobilidade({ stretches, sinalizador, onConcluir, onSair }: 
     return (
       <div className="rounded-3xl bg-sage-100 p-8 text-center">
         <p className="text-5xl">🌿</p>
-        <p className="mt-3 text-2xl font-extrabold text-sage-600">Maravilha, você está pronta para começar!</p>
+        <p className="mt-3 text-2xl font-extrabold text-sage-600">¡Muy bien, ya estás lista para empezar!</p>
         <button onClick={onConcluir} className="btn-primary mt-6 w-full text-lg">
-          Ir para os exercícios →
+          Ir a los ejercicios →
         </button>
       </div>
     )
@@ -128,7 +128,7 @@ export function BlocoMobilidade({ stretches, sinalizador, onConcluir, onSair }: 
         <div className="h-full rounded-full bg-coral-400 transition-all" style={{ width: `${progresso}%` }} />
       </div>
       <p className="text-sm font-bold uppercase tracking-wide opacity-80">
-        Alongamento {fase.indice} de {fase.total}
+        Estiramiento {fase.indice} de {fase.total}
       </p>
       <p className="mt-1 text-2xl font-extrabold text-ink-900">{fase.nome}</p>
       {fase.posicao ? <p className="mt-1 text-lg font-bold text-coral-600">{fase.posicao}</p> : null}
@@ -140,18 +140,18 @@ export function BlocoMobilidade({ stretches, sinalizador, onConcluir, onSair }: 
           onClick={pausado ? retomar : pausar}
           className="rounded-2xl bg-white/70 px-4 py-4 text-lg font-bold text-ink-800"
         >
-          {pausado ? '▶ Retomar' : '⏸ Pausar'}
+          {pausado ? '▶ Reanudar' : '⏸ Pausar'}
         </button>
         <button
           onClick={pularAlongamento}
           className="rounded-2xl bg-white/70 px-4 py-4 text-lg font-bold text-ink-800"
         >
-          Pular este →
+          Saltar este →
         </button>
       </div>
 
       <button onClick={onSair} className="mt-4 text-sm font-semibold text-ink-700/70">
-        Sair do bloco
+        Salir del bloque
       </button>
     </div>
   )

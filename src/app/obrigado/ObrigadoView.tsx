@@ -65,10 +65,10 @@ export function ObrigadoView({ email, produtoNome, suporteEmail }: Props) {
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-coral-400 text-3xl">
           <span aria-hidden>🎉</span>
         </div>
-        <h1 className="text-2xl font-extrabold text-ink-900">Compra confirmada!</h1>
+        <h1 className="text-2xl font-extrabold text-ink-900">¡Compra confirmada!</h1>
         <p className="mt-2 text-ink-700">
-          Que alegria ter você aqui. Seu acesso ao <strong>{produtoNome}</strong> está sendo preparado —
-          é rapidinho para entrar. 🤍
+          Qué alegría tenerte aquí. Tu acceso a <strong>{produtoNome}</strong> se está preparando —
+          es rapidísimo para entrar. 🤍
         </p>
       </header>
 
@@ -76,7 +76,7 @@ export function ObrigadoView({ email, produtoNome, suporteEmail }: Props) {
       <section className="mt-6" aria-live="polite">
         {status === 'verificando' ? (
           <div className="rounded-3xl bg-cream-100 p-5 text-center">
-            <p className="font-bold text-ink-900">Liberando seu acesso…</p>
+            <p className="font-bold text-ink-900">Liberando tu acceso…</p>
             {email ? <p className="mt-1 text-sm text-ink-700">para <strong>{email}</strong></p> : null}
             <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white">
               <div
@@ -84,33 +84,33 @@ export function ObrigadoView({ email, produtoNome, suporteEmail }: Props) {
                 style={{ width: `${progresso}%` }}
               />
             </div>
-            <p className="mt-3 text-sm text-ink-700">Isso leva só alguns segundos. Pode aguardar aqui.</p>
+            <p className="mt-3 text-sm text-ink-700">Esto toma solo unos segundos. Puedes esperar aquí.</p>
           </div>
         ) : null}
 
         {status === 'pronto' ? (
           <div className="rounded-3xl bg-sage-100 p-5 text-center">
-            <p className="font-bold text-sage-600">✓ Acesso liberado{email ? ` para ${email}` : ''}!</p>
-            <p className="mt-1 text-sm text-ink-700">Está tudo pronto. Siga os passos abaixo.</p>
+            <p className="font-bold text-sage-600">✓ ¡Acceso liberado{email ? ` para ${email}` : ''}!</p>
+            <p className="mt-1 text-sm text-ink-700">Ya está todo listo. Sigue los pasos de abajo.</p>
           </div>
         ) : null}
 
         {status === 'demorou' ? (
           <div className="rounded-3xl border-2 border-gold-300/60 bg-gold-300/10 p-5 text-center">
-            <p className="font-bold text-ink-900">Está quase lá 🤍</p>
+            <p className="font-bold text-ink-900">Ya casi está 🤍</p>
             <p className="mt-1 text-sm text-ink-700">
-              Às vezes a liberação leva um pouquinho mais. Fique tranquila — seu acesso não se perde. Você já
-              pode seguir os passos abaixo; se o código não chegar, é só falar com a gente no final da página.
+              A veces la liberación tarda un poquito más. Quédate tranquila — tu acceso no se pierde. Ya
+              puedes seguir los pasos de abajo; si el código no llega, solo escríbenos al final de la página.
             </p>
           </div>
         ) : null}
       </section>
 
       {/* Passo 1 — Como entrar */}
-      <StepCard numero={1} titulo="Entre no BodyMy">
+      <StepCard numero={1} titulo="Entra a BodyMy">
         <p className="mb-3 text-ink-700">
-          Você <strong>não precisa criar senha</strong>. Toque no botão, digite seu e-mail e nós enviamos um
-          código de 6 números. É só digitar o código no app e pronto.
+          <strong>No necesitas crear contraseña</strong>. Toca el botón, escribe tu correo y te enviamos un
+          código de 6 números. Solo escribes el código en el app y listo.
         </p>
         <Link
           href={loginHref}
@@ -120,16 +120,16 @@ export function ObrigadoView({ email, produtoNome, suporteEmail }: Props) {
             podeEntrar ? 'bg-coral-400' : 'pointer-events-none bg-coral-400/50'
           }`}
         >
-          {podeEntrar ? 'Entrar no BodyMy →' : 'Liberando acesso…'}
+          {podeEntrar ? 'Entrar a BodyMy →' : 'Liberando acceso…'}
         </Link>
       </StepCard>
 
       {/* Passo 2 — Se o e-mail demorar */}
-      <StepCard numero={2} titulo="Se o e-mail do código demorar">
+      <StepCard numero={2} titulo="Si el correo del código tarda">
         <p className="text-ink-700">
-          O e-mail com seu código pode levar alguns minutos. Se não aparecer, confira a caixa de{' '}
-          <strong>spam</strong> ou <strong>promoções</strong> — e marque como <strong>&ldquo;não é spam&rdquo;</strong>{' '}
-          para receber os próximos normalmente.
+          El correo con tu código puede tardar unos minutos. Si no aparece, revisa la carpeta de{' '}
+          <strong>spam</strong> o <strong>promociones</strong> — y márcalo como <strong>&ldquo;no es spam&rdquo;</strong>{' '}
+          para recibir los próximos normalmente.
         </p>
       </StepCard>
 
@@ -138,9 +138,9 @@ export function ObrigadoView({ email, produtoNome, suporteEmail }: Props) {
         href={`mailto:${suporteEmail}`}
         className="mt-6 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-cream-200 bg-white px-5 text-base font-bold text-ink-800"
       >
-        <span aria-hidden>✉️</span> Precisa de ajuda? Escreva para {suporteEmail}
+        <span aria-hidden>✉️</span> ¿Necesitas ayuda? Escríbenos a {suporteEmail}
       </a>
-      <p className="mt-6 pb-2 text-center text-xs text-ink-700/50">BodyMy · feito com 🤍</p>
+      <p className="mt-6 pb-2 text-center text-xs text-ink-700/50">BodyMy · hecho con 🤍</p>
     </div>
   )
 }

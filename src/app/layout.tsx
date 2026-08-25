@@ -13,7 +13,7 @@ const nunito = Nunito({
 
 export const metadata: Metadata = {
   title: 'BodyMy',
-  description: 'Sua prática de movimentos somáticos e bem-estar, no seu ritmo.',
+  description: 'Tu práctica de movimientos suaves y bienestar, a tu ritmo.',
   manifest: '/manifest.json',
   applicationName: 'BodyMy',
   appleWebApp: {
@@ -37,7 +37,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={nunito.variable}>
+    <html lang="es" className={nunito.variable}>
       <body>
         <AnalyticsProvider>{children}</AnalyticsProvider>
         <ServiceWorkerRegister />

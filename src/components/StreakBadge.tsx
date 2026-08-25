@@ -12,10 +12,10 @@ export function StreakBadge({ dias, className = '' }: { dias: number; className?
       <FlameIcon width={18} height={18} className={ativo ? 'text-coral-500' : 'text-ink-700/40'} />
       {ativo ? (
         <span>
-          {dias} {dias === 1 ? 'dia seguido' : 'dias seguidos'}
+          {dias} {dias === 1 ? 'día seguido' : 'días seguidos'}
         </span>
       ) : (
-        <span>Comece hoje</span>
+        <span>Empieza hoy</span>
       )}
     </div>
   )

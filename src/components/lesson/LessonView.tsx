@@ -43,7 +43,7 @@ export function LessonView({
       const res = await fetch(`/api/lessons/${lesson.id}/complete`, { method: 'POST' })
       const data = await res.json()
       if (!res.ok) {
-        setErro(data.error ?? 'Não foi possível concluir agora.')
+        setErro(data.error ?? 'No fue posible completarlo ahora.')
         return
       }
       setConcluida(true)
@@ -52,7 +52,7 @@ export function LessonView({
       setCelebrar(true)
       router.refresh()
     } catch {
-      setErro('Sem conexão. Tente novamente.')
+      setErro('Sin conexión. Inténtalo de nuevo.')
     } finally {
       setLoading(false)
     }
@@ -71,12 +71,12 @@ export function LessonView({
 
       <header>
         <span className="chip">
-          Semana {weekNumero} · Dia {dayNumero}
+          Semana {weekNumero} · Día {dayNumero}
         </span>
         <h1 className="mt-2 text-2xl font-extrabold leading-tight text-ink-900">
           {lesson.titulo}
         </h1>
-        <p className="mt-1 text-sm text-ink-700">{lesson.duracao_min} min · no seu ritmo</p>
+        <p className="mt-1 text-sm text-ink-700">{lesson.duracao_min} min · a tu ritmo</p>
       </header>
 
       {/* Conteúdo: vídeo (Panda) ou guia passo a passo */}
@@ -106,11 +106,11 @@ export function LessonView({
       <div className="sticky bottom-24 rounded-3xl bg-white/85 p-2 backdrop-blur">
         {concluida ? (
           <div className="flex items-center justify-center gap-2 rounded-2xl bg-sage-100 px-5 py-4 font-bold text-sage-600">
-            <CheckIcon width={20} height={20} /> Aula concluída
+            <CheckIcon width={20} height={20} /> Clase completada
           </div>
         ) : (
           <button onClick={marcarFeito} className="btn-primary w-full text-lg" disabled={loading}>
-            {loading ? 'Salvando…' : 'MARCAR COMO FEITO ✓'}
+            {loading ? 'Guardando…' : 'MARCAR COMO HECHO ✓'}
           </button>
         )}
       </div>
@@ -144,7 +144,7 @@ function BlocoCard({ bloco, numero }: { bloco: GuiaBloco; numero?: number }) {
     return (
       <div className="rounded-2xl bg-gold-300/20 p-4">
         <p className="mb-1 text-sm font-bold text-gold-500">
-          {bloco.titulo ?? 'Dica'}
+          {bloco.titulo ?? 'Consejo'}
         </p>
         <p className="whitespace-pre-line text-ink-800">{bloco.conteudo}</p>
       </div>

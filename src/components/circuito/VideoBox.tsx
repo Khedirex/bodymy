@@ -38,9 +38,9 @@ export function VideoBox({
       <span className="text-3xl" aria-hidden>
         🎬
       </span>
-      <p className="text-sm font-semibold text-ink-800">Vídeo chegando em breve</p>
+      <p className="text-sm font-semibold text-ink-800">Video disponible pronto</p>
       <p className="text-xs text-ink-700">
-        Siga pela descrição por enquanto — o vídeo será liberado logo.
+        Sigue la descripción por ahora — el video se desbloqueará pronto.
       </p>
     </div>
   )

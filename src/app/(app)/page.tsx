@@ -33,13 +33,13 @@ export default async function HomePage() {
 
   // Rótulo do "Hoje" conforme o estágio do circuito.
   const chipHoje = !config
-    ? 'Vamos começar'
-    : `Semana ${config.semana_atual} · Dia ${config.dia_atual}`
-  const tituloHoje = 'Seu treino de hoje'
+    ? 'Vamos a empezar'
+    : `Semana ${config.semana_atual} · Día ${config.dia_atual}`
+  const tituloHoje = 'Tu entrenamiento de hoy'
   // Progresso nas 4 semanas (28 dias).
   const diasFeitos = config ? (config.semana_atual - 1) * 7 + (config.dia_atual - 1) : 0
 
-  const primeiroNome = (profile.nome ?? '').split(' ')[0] || 'Olá'
+  const primeiroNome = (profile.nome ?? '').split(' ')[0] || 'Hola'
   const bloqueados = storefront.filter((s) => !s.liberado)
 
   return (
@@ -47,7 +47,7 @@ export default async function HomePage() {
       {/* Cabeçalho */}
       <header className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm text-ink-700">Oi,</p>
+          <p className="text-sm text-ink-700">Hola,</p>
           <h1 className="text-2xl font-extrabold text-ink-900">{primeiroNome} 🤍</h1>
         </div>
         <StreakBadge dias={streak.atual} />
@@ -65,23 +65,23 @@ export default async function HomePage() {
             </div>
             <h3 className="text-lg font-bold text-ink-900">{tituloHoje}</h3>
             <p className="mt-1 text-sm text-ink-700">
-              Mobilidade + 5 exercícios · ajusta-se a você
+              Movilidad + 5 ejercicios · se ajusta a ti
             </p>
             <div className="mt-4">
               <Link href="/treino" className="btn-primary w-full">
-                <PlayIcon width={20} height={20} /> Começar agora
+                <PlayIcon width={20} height={20} /> Empezar ahora
               </Link>
             </div>
             {config ? (
               <div className="mt-4">
-                <ProgressBar atual={diasFeitos} total={28} label="Seu progresso nas 4 semanas" />
+                <ProgressBar atual={diasFeitos} total={28} label="Tu progreso en las 4 semanas" />
               </div>
             ) : null}
           </div>
         ) : (
           <EmptyState
-            titulo="Seu treino aparece aqui"
-            descricao="Assim que seu acesso estiver ativo, seu circuito do dia aparece neste espaço."
+            titulo="Tu entrenamiento aparece aquí"
+            descricao="En cuanto tu acceso esté activo, tu circuito del día aparecerá en este espacio."
             icone={<LockIcon width={28} height={28} />}
           />
         )}
@@ -94,8 +94,8 @@ export default async function HomePage() {
             <BookIcon width={22} height={22} />
           </div>
           <div className="flex-1">
-            <p className="font-bold text-ink-900">Entenda a prática</p>
-            <p className="text-sm text-ink-700">Textos curtos sobre o movimento somático</p>
+            <p className="font-bold text-ink-900">Comprende la práctica</p>
+            <p className="text-sm text-ink-700">Textos cortos sobre el movimiento somático</p>
           </div>
           <ChevronRight className="text-ink-700/40" width={20} height={20} />
         </Link>
@@ -110,8 +110,8 @@ export default async function HomePage() {
           <SaladIcon width={22} height={22} />
         </div>
         <div className="flex-1">
-          <p className="font-bold text-ink-900">Cardápio de hoje</p>
-          <p className="text-sm text-ink-700">Ideias simples para a sua alimentação</p>
+          <p className="font-bold text-ink-900">Menú de hoy</p>
+          <p className="text-sm text-ink-700">Ideas simples para tu alimentación</p>
         </div>
         <ChevronRight className="text-ink-700/40" width={20} height={20} />
       </Link>
@@ -120,9 +120,9 @@ export default async function HomePage() {
       {bloqueados.length > 0 && (
         <section>
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="section-title">Descubra</h2>
+            <h2 className="section-title">Descubre</h2>
             <Link href="/descubra" className="text-sm font-semibold text-coral-600">
-              Ver tudo
+              Ver todo
             </Link>
           </div>
           <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">

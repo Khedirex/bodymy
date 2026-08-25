@@ -17,7 +17,7 @@ export default async function ExercicioEditPage({ params }: { params: { id: stri
         <span className="text-slate-800">{ex.nome}</span>
       </div>
       <p className="text-sm text-slate-500">
-        Dia {ex.dia_do_ciclo} do ciclo · posição {ex.ordem_no_dia} de 5 · exercício{' '}
+        Día {ex.dia_do_ciclo} del ciclo · posición {ex.ordem_no_dia} de 5 · ejercicio{' '}
         {ex.ordem_no_circuito} de 35
       </p>
       <ExerciseEditor exercise={ex} />

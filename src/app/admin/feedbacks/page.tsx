@@ -9,10 +9,10 @@ function fmt(dt: string) {
 
 const EIXO_LABEL: Record<string, string> = {
   descanso: 'Descanso',
-  exercicio: 'Exercício',
-  series: 'Séries',
+  exercicio: 'Ejercicio',
+  series: 'Series',
 }
-const INTENSIDADE_LABEL = ['', 'Muito leve', 'Leve', 'Moderado', 'Pouco intenso', 'Intenso', 'Muito intenso']
+const INTENSIDADE_LABEL = ['', 'Muy leve', 'Leve', 'Moderado', 'Poco intenso', 'Intenso', 'Muy intenso']
 
 export default async function FeedbacksPage({
   searchParams,
@@ -31,36 +31,36 @@ export default async function FeedbacksPage({
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-bold text-slate-900">Feedbacks das alunas</h1>
+        <h1 className="text-xl font-bold text-slate-900">Comentarios de las alumnas</h1>
         <p className="mt-1 text-sm text-slate-500">
-          O que elas escreveram ao final das sessões. {total} registro(s).
+          Lo que escribieron al final de las sesiones. {total} registro(s).
         </p>
       </div>
 
       {/* Filtros */}
       <form className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-3 text-sm">
         <label className="flex flex-col">
-          <span className="text-xs text-slate-500">Aluna (nome/email)</span>
+          <span className="text-xs text-slate-500">Alumna (nombre/correo)</span>
           <input name="q" defaultValue={searchParams.q ?? ''} className="mt-1 rounded border border-slate-200 px-2 py-1" />
         </label>
         <label className="flex flex-col">
-          <span className="text-xs text-slate-500">De</span>
+          <span className="text-xs text-slate-500">Desde</span>
           <input type="date" name="de" defaultValue={searchParams.de ?? ''} className="mt-1 rounded border border-slate-200 px-2 py-1" />
         </label>
         <label className="flex flex-col">
-          <span className="text-xs text-slate-500">Até</span>
+          <span className="text-xs text-slate-500">Hasta</span>
           <input type="date" name="ate" defaultValue={searchParams.ate ?? ''} className="mt-1 rounded border border-slate-200 px-2 py-1" />
         </label>
         <label className="flex items-center gap-1.5">
           <input type="checkbox" name="comentario" value="0" defaultChecked={!soComentario} />
-          <span className="text-slate-600">incluir sem comentário</span>
+          <span className="text-slate-600">incluir sin comentario</span>
         </label>
         <button className="rounded-md bg-slate-900 px-3 py-1.5 font-semibold text-white hover:bg-slate-700">Filtrar</button>
       </form>
 
       {rows.length === 0 ? (
         <p className="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-400">
-          Nenhum feedback com esses filtros.
+          No hay comentarios con esos filtros.
         </p>
       ) : (
         <div className="space-y-3">
@@ -75,17 +75,17 @@ export default async function FeedbacksPage({
               {r.comentario ? (
                 <p className="mt-2 whitespace-pre-line text-slate-800">{r.comentario}</p>
               ) : (
-                <p className="mt-2 text-sm italic text-slate-400">(sem comentário)</p>
+                <p className="mt-2 text-sm italic text-slate-400">(sin comentario)</p>
               )}
               <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
                 {r.intensidade_percebida ? (
                   <span className="rounded bg-slate-100 px-2 py-0.5">{INTENSIDADE_LABEL[r.intensidade_percebida]}</span>
                 ) : null}
                 {r.eixo_dificuldade ? (
-                  <span className="rounded bg-slate-100 px-2 py-0.5">dificuldade: {EIXO_LABEL[r.eixo_dificuldade] ?? r.eixo_dificuldade}</span>
+                  <span className="rounded bg-slate-100 px-2 py-0.5">dificultad: {EIXO_LABEL[r.eixo_dificuldade] ?? r.eixo_dificuldade}</span>
                 ) : null}
-                {r.ajuste_aceito ? <span className="rounded bg-emerald-50 px-2 py-0.5 text-emerald-700">ajustou</span> : null}
-                {r.data_sessao ? <span className="rounded bg-slate-100 px-2 py-0.5">sessão {r.data_sessao}</span> : null}
+                {r.ajuste_aceito ? <span className="rounded bg-emerald-50 px-2 py-0.5 text-emerald-700">ajustó</span> : null}
+                {r.data_sessao ? <span className="rounded bg-slate-100 px-2 py-0.5">sesión {r.data_sessao}</span> : null}
                 {r.email ? <span className="text-slate-400">{r.email}</span> : null}
               </div>
             </div>

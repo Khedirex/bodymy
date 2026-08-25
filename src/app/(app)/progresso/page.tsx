@@ -12,7 +12,7 @@ import { EmptyState } from '@/components/ui/states'
 import { ChartIcon } from '@/components/ui/icons'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Progresso — BodyMy' }
+export const metadata = { title: 'Progreso — BodyMy' }
 
 export default async function ProgressoPage() {
   const profile = await getProfile()
@@ -30,27 +30,27 @@ export default async function ProgressoPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-extrabold text-ink-900">Seu progresso</h1>
-        <p className="mt-1 text-ink-700">Cada dia conta. Olhe o quanto você já caminhou.</p>
+        <h1 className="text-2xl font-extrabold text-ink-900">Tu progreso</h1>
+        <p className="mt-1 text-ink-700">Cada día cuenta. Mira todo lo que ya has avanzado.</p>
       </header>
 
       {/* Streak atual + recorde */}
       <div className="flex items-center justify-between gap-3 rounded-3xl bg-white p-5 shadow-card">
         <div>
-          <p className="text-sm text-ink-700">Sequência atual</p>
+          <p className="text-sm text-ink-700">Racha actual</p>
           <p className="text-3xl font-extrabold text-coral-600">
             {streak.atual}
             <span className="ml-1 text-base font-semibold text-ink-700">
-              {streak.atual === 1 ? 'dia' : 'dias'}
+              {streak.atual === 1 ? 'día' : 'días'}
             </span>
           </p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-ink-700">Seu recorde</p>
+          <p className="text-sm text-ink-700">Tu récord</p>
           <p className="text-3xl font-extrabold text-ink-900">
             {streak.recorde}
             <span className="ml-1 text-base font-semibold text-ink-700">
-              {streak.recorde === 1 ? 'dia' : 'dias'}
+              {streak.recorde === 1 ? 'día' : 'días'}
             </span>
           </p>
         </div>
@@ -58,7 +58,7 @@ export default async function ProgressoPage() {
 
       {/* Calendário */}
       <section>
-        <h2 className="section-title mb-2">Seus dias ativos</h2>
+        <h2 className="section-title mb-2">Tus días activos</h2>
         <Calendar checkinDates={datas} hoje={hoje} />
       </section>
 
@@ -68,7 +68,7 @@ export default async function ProgressoPage() {
       {/* Linha do tempo */}
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="section-title">Linha do tempo</h2>
+          <h2 className="section-title">Línea de tiempo</h2>
           <StreakBadge dias={streak.atual} />
         </div>
 
@@ -78,8 +78,8 @@ export default async function ProgressoPage() {
 
         {entries.length === 0 ? (
           <EmptyState
-            titulo="Comece sua linha do tempo"
-            descricao="Registre uma foto ou uma medida quando quiser. É só para você acompanhar sua evolução, no seu tempo."
+            titulo="Empieza tu línea de tiempo"
+            descricao="Registra una foto o una medida cuando quieras. Es solo para que sigas tu evolución, a tu ritmo."
             icone={<ChartIcon width={28} height={28} />}
           />
         ) : (
@@ -93,7 +93,7 @@ export default async function ProgressoPage() {
                   <div className="relative mb-3 h-56 w-full overflow-hidden rounded-2xl bg-cream-100">
                     <Image
                       src={e.fotoUrl}
-                      alt={`Registro de ${formatDataBR(e.data)}`}
+                      alt={`Registro del ${formatDataBR(e.data)}`}
                       fill
                       sizes="(max-width: 448px) 100vw, 448px"
                       className="object-cover"

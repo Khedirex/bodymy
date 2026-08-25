@@ -23,8 +23,8 @@ export default async function AlunasPage({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-900">Alunas</h1>
-        <span className="text-sm text-slate-500">{total} no total</span>
+        <h1 className="text-xl font-bold text-slate-900">Alumnas</h1>
+        <span className="text-sm text-slate-500">{total} en total</span>
       </div>
 
       <form method="get" className="flex gap-2">
@@ -32,7 +32,7 @@ export default async function AlunasPage({
           type="text"
           name="q"
           defaultValue={q}
-          placeholder="Buscar por nome ou e-mail…"
+          placeholder="Buscar por nombre o correo…"
           className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
         />
         <button className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">
@@ -40,7 +40,7 @@ export default async function AlunasPage({
         </button>
         {q ? (
           <Link href="/admin/alunas" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
-            Limpar
+            Limpiar
           </Link>
         ) : null}
       </form>
@@ -49,18 +49,18 @@ export default async function AlunasPage({
         <table className="w-full text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-left text-slate-500">
             <tr>
-              <th className="px-3 py-2 font-medium">Nome</th>
-              <th className="px-3 py-2 font-medium">E-mail</th>
-              <th className="px-3 py-2 font-medium">Produtos ativos</th>
-              <th className="px-3 py-2 font-medium">Cadastro</th>
-              <th className="px-3 py-2 font-medium">Último login</th>
+              <th className="px-3 py-2 font-medium">Nombre</th>
+              <th className="px-3 py-2 font-medium">Correo</th>
+              <th className="px-3 py-2 font-medium">Productos activos</th>
+              <th className="px-3 py-2 font-medium">Registro</th>
+              <th className="px-3 py-2 font-medium">Último acceso</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-3 py-6 text-center text-slate-400">
-                  {q ? 'Nenhuma aluna encontrada para essa busca.' : 'Nenhuma aluna ainda.'}
+                  {q ? 'No se encontró ninguna alumna para esa búsqueda.' : 'Todavía no hay alumnas.'}
                 </td>
               </tr>
             ) : (
@@ -68,7 +68,7 @@ export default async function AlunasPage({
                 <tr key={a.id} className="border-b border-slate-100 hover:bg-slate-50">
                   <td className="px-3 py-2">
                     <Link href={`/admin/alunas/${a.id}`} className="font-medium text-slate-900 hover:underline">
-                      {a.nome ?? '(sem nome)'}
+                      {a.nome ?? '(sin nombre)'}
                     </Link>
                   </td>
                   <td className="px-3 py-2 text-slate-600">{a.email}</td>
@@ -96,7 +96,7 @@ export default async function AlunasPage({
               <Link href={linkPagina(page - 1)} className="rounded-md border border-slate-300 px-3 py-1.5 hover:bg-slate-50">← Anterior</Link>
             ) : null}
             {page < totalPages ? (
-              <Link href={linkPagina(page + 1)} className="rounded-md border border-slate-300 px-3 py-1.5 hover:bg-slate-50">Próxima →</Link>
+              <Link href={linkPagina(page + 1)} className="rounded-md border border-slate-300 px-3 py-1.5 hover:bg-slate-50">Siguiente →</Link>
             ) : null}
           </div>
         </div>

@@ -15,13 +15,13 @@ export function SetPassword() {
 
   async function salvar() {
     setErro(null)
-    if (senha.length < 6) return setErro('A senha precisa ter pelo menos 6 caracteres.')
-    if (senha !== confirma) return setErro('As senhas não são iguais.')
+    if (senha.length < 6) return setErro('La contraseña necesita tener al menos 6 caracteres.')
+    if (senha !== confirma) return setErro('Las contraseñas no coinciden.')
     setSalvando(true)
     const supabase = createClient()
     const { error } = await supabase.auth.updateUser({ password: senha })
     setSalvando(false)
-    if (error) return setErro('Não conseguimos salvar agora. Tente novamente.')
+    if (error) return setErro('No pudimos guardar ahora. Inténtalo de nuevo.')
     setOk(true)
     setSenha('')
     setConfirma('')
@@ -31,7 +31,7 @@ export function SetPassword() {
   if (ok) {
     return (
       <div className="rounded-2xl bg-sage-100 px-4 py-3 text-sm font-medium text-sage-600">
-        ✓ Senha salva! Da próxima vez você pode entrar com e-mail e senha.
+        ✓ ¡Contraseña guardada! La próxima vez puedes entrar con correo y contraseña.
       </div>
     )
   }
@@ -39,7 +39,7 @@ export function SetPassword() {
   if (!aberto) {
     return (
       <button onClick={() => setAberto(true)} className="btn-secondary w-full">
-        Criar uma senha para entrar mais rápido
+        Crear una contraseña para entrar más rápido
       </button>
     )
   }
@@ -47,19 +47,19 @@ export function SetPassword() {
   return (
     <div className="card space-y-3">
       <div className="flex items-center justify-between">
-        <p className="font-bold text-ink-900">Criar senha (opcional)</p>
+        <p className="font-bold text-ink-900">Crear contraseña (opcional)</p>
         <button onClick={() => setAberto(false)} className="text-sm font-semibold text-ink-700/60">Cancelar</button>
       </div>
-      <input type="password" autoComplete="new-password" className="input" placeholder="Nova senha (mín. 6)"
+      <input type="password" autoComplete="new-password" className="input" placeholder="Nueva contraseña (mín. 6)"
         value={senha} onChange={(e) => setSenha(e.target.value)} />
-      <input type="password" autoComplete="new-password" className="input" placeholder="Confirmar senha"
+      <input type="password" autoComplete="new-password" className="input" placeholder="Confirmar contraseña"
         value={confirma} onChange={(e) => setConfirma(e.target.value)} />
       {erro ? <p className="rounded-2xl bg-coral-50 px-4 py-3 text-sm font-medium text-coral-700">{erro}</p> : null}
       <button onClick={salvar} disabled={salvando} className="btn-primary w-full">
-        {salvando ? 'Salvando…' : 'Salvar senha'}
+        {salvando ? 'Guardando…' : 'Guardar contraseña'}
       </button>
       <p className="text-xs text-ink-700/60">
-        Você continua podendo entrar por código a qualquer momento. A senha é só um atalho.
+        Puedes seguir entrando con código en cualquier momento. La contraseña es solo un atajo.
       </p>
     </div>
   )

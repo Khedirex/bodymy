@@ -17,12 +17,12 @@ export function LessonReader({
   return (
     <div className="space-y-5">
       <Link href="/entenda" className="inline-flex items-center gap-1 text-sm font-semibold text-ink-700">
-        <ChevronLeft width={18} height={18} /> Entenda a prática
+        <ChevronLeft width={18} height={18} /> Entiende la práctica
       </Link>
 
       <header>
         <h1 className="text-2xl font-extrabold leading-tight text-ink-900">{titulo}</h1>
-        <p className="mt-1 text-sm text-ink-700">{duracaoMin} min de leitura</p>
+        <p className="mt-1 text-sm text-ink-700">{duracaoMin} min de lectura</p>
       </header>
 
       {conteudo?.intro ? (
@@ -52,7 +52,7 @@ function BlocoView({ bloco, numero }: { bloco: GuiaBloco; numero?: number }) {
   if (bloco.tipo === 'dica') {
     return (
       <div className="rounded-2xl bg-gold-300/20 p-4">
-        <p className="mb-1 text-sm font-bold text-gold-500">{bloco.titulo ?? 'Dica'}</p>
+        <p className="mb-1 text-sm font-bold text-gold-500">{bloco.titulo ?? 'Consejo'}</p>
         <p className="whitespace-pre-line text-ink-800">{bloco.conteudo}</p>
       </div>
     )

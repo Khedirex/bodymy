@@ -18,7 +18,7 @@ export function Onboarding({
   const [passo, setPasso] = useState<1 | 2 | 3>(1)
   const [faixa, setFaixa] = useState<FaixaEtaria | null>(null)
   const [pending, startTransition] = useTransition()
-  const primeiroNome = (nome ?? '').split(' ')[0] || 'Bem-vinda'
+  const primeiroNome = (nome ?? '').split(' ')[0] || 'Bienvenida'
 
   const [erro, setErro] = useState<string | null>(null)
 
@@ -33,14 +33,14 @@ export function Onboarding({
           body: JSON.stringify({ faixa_etaria: faixa }),
         })
         if (!res.ok) {
-          setErro('Não conseguimos salvar agora. Tente novamente.')
+          setErro('No pudimos guardar ahora. Intenta de nuevo.')
           return
         }
         analytics.onboardingCompleted()
         router.replace('/')
         router.refresh()
       } catch {
-        setErro('Sem conexão. Tente novamente.')
+        setErro('Sin conexión. Intenta de nuevo.')
       }
     })
   }
@@ -65,18 +65,18 @@ export function Onboarding({
             🎉
           </div>
           <h1 className="text-3xl font-extrabold leading-tight text-ink-900">
-            Bem-vinda, {primeiroNome}!
+            ¡Bienvenida, {primeiroNome}!
           </h1>
           <p className="mt-3 text-lg text-ink-700">
-            Seu programa está pronto:
+            Tu programa está listo:
           </p>
           <p className="mt-1 text-xl font-bold text-coral-600">{programaNome}</p>
           <p className="mt-4 text-ink-700">
-            Vamos deixar tudo do jeito que combina com a sua rotina. Leva menos de um minuto.
+            Vamos a dejar todo a la medida de tu rutina. Toma menos de un minuto.
           </p>
           <div className="mt-auto pt-8">
             <button className="btn-primary w-full" onClick={() => setPasso(2)}>
-              Começar
+              Empezar
             </button>
           </div>
         </section>
@@ -85,11 +85,11 @@ export function Onboarding({
       {passo === 2 && (
         <section className="flex flex-1 flex-col animate-fade-up">
           <h2 className="text-2xl font-extrabold text-ink-900">
-            Qual a sua faixa de idade?
+            ¿Cuál es tu rango de edad?
           </h2>
           <p className="mt-2 text-ink-700">
-            Usamos isso só para começar no ponto certo para você — um ritmo seguro e
-            confortável. O treino se ajusta a partir do que você sentir.
+            Usamos esto solo para empezar en el punto justo para ti — un ritmo seguro y
+            cómodo. El entrenamiento se ajusta según lo que sientas.
           </p>
           <div className="mt-6 space-y-3">
             {FAIXAS.map((o) => (
@@ -121,11 +121,11 @@ export function Onboarding({
       {passo === 3 && (
         <section className="flex flex-1 flex-col animate-fade-up">
           <h2 className="text-2xl font-extrabold text-ink-900">
-            Deixe o BodyMy pertinho de você
+            Deja BodyMy a un toque de distancia
           </h2>
           <p className="mt-2 text-ink-700">
-            Adicione o BodyMy à tela do seu celular para abrir como um aplicativo, com um
-            toque — sem precisar do navegador.
+            Agrega BodyMy a la pantalla de tu celular para abrirlo como una app, con un
+            toque — sin necesidad del navegador.
           </p>
           <div className="mt-6">
             <InstallInstructions />
@@ -141,7 +141,7 @@ export function Onboarding({
               onClick={finalizar}
               disabled={pending}
             >
-              {pending ? 'Preparando…' : 'Ir para o meu programa'}
+              {pending ? 'Preparando…' : 'Ir a mi programa'}
             </button>
           </div>
         </section>

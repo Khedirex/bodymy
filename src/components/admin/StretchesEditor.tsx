@@ -40,13 +40,13 @@ function StretchRow({ stretch }: { stretch: Stretch }) {
       })
       if (!res.ok) {
         const d = await res.json().catch(() => ({}))
-        setErro(d.error ?? 'Erro ao salvar')
+        setErro(d.error ?? 'Error al guardar')
         return
       }
       setOk(true)
       setTimeout(() => setOk(false), 1500)
     } catch {
-      setErro('Sem conexão')
+      setErro('Sin conexión')
     } finally {
       setSaving(false)
     }
@@ -59,7 +59,7 @@ function StretchRow({ stretch }: { stretch: Stretch }) {
         value={nome}
         onChange={(e) => setNome(e.target.value)}
         className="min-w-[8rem] flex-1 rounded border border-slate-200 px-2 py-1 text-sm"
-        placeholder="Nome"
+        placeholder="Nombre"
       />
       <input
         value={video}
@@ -79,14 +79,14 @@ function StretchRow({ stretch }: { stretch: Stretch }) {
         disabled={saving}
         className="rounded-md bg-slate-900 px-3 py-1 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-50"
       >
-        {saving ? '…' : 'Salvar'}
+        {saving ? '…' : 'Guardar'}
       </button>
       {ok ? <span className="text-xs font-semibold text-emerald-600">✓</span> : null}
       {erro ? <span className="text-xs text-rose-600">{erro}</span> : null}
       {stretch.panda_video_id ? (
-        <span className="text-xs text-emerald-600">vídeo ok</span>
+        <span className="text-xs text-emerald-600">video ok</span>
       ) : (
-        <span className="text-xs text-slate-400">sem vídeo</span>
+        <span className="text-xs text-slate-400">sin video</span>
       )}
     </div>
   )

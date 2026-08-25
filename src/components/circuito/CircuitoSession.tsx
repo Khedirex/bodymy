@@ -49,9 +49,9 @@ interface Props {
 type Fase = 'exercicios' | 'feedback' | 'oferta' | 'ajustando' | 'fim'
 
 const EIXOS: { valor: EixoDificuldade; label: string }[] = [
-  { valor: 'descanso', label: 'Tempo de descanso' },
-  { valor: 'exercicio', label: 'Dificuldade do exercício' },
-  { valor: 'series', label: 'Quantidade de séries' },
+  { valor: 'descanso', label: 'Tiempo de descanso' },
+  { valor: 'exercicio', label: 'Dificultad del ejercicio' },
+  { valor: 'series', label: 'Cantidad de series' },
 ]
 
 export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSeg, exercicios, alongou, sinalizador, aguardandoDesde = 0 }: Props) {
@@ -138,14 +138,14 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
       })
       const d = await res.json()
       if (!res.ok) {
-        setErro('Não conseguimos salvar a sessão. Tente novamente.')
+        setErro('No pudimos guardar la sesión. Inténtalo de nuevo.')
         return
       }
       setSessionId(d.session_id)
       if (d.aguardandoLiberacao > 0) setAguardandoAposSessao(d.semanaConcluida ?? d.aguardandoLiberacao - 1)
       setFase('feedback')
     } catch {
-      setErro('Sem conexão. Tente novamente.')
+      setErro('Sin conexión. Inténtalo de nuevo.')
     }
   }
 
@@ -195,8 +195,8 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-coral-200 border-t-coral-500" />
-        <p className="text-lg font-bold text-ink-900">Ajustando seu treino…</p>
-        <p className="text-sm text-ink-700">Deixando tudo do jeitinho certo para você.</p>
+        <p className="text-lg font-bold text-ink-900">Ajustando tu entrenamiento…</p>
+        <p className="text-sm text-ink-700">Dejando todo tal como te queda mejor.</p>
       </div>
     )
   }
@@ -208,29 +208,29 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
         {aguardandoAposSessao > 0 ? (
           <>
             <h1 className="text-2xl font-extrabold text-ink-900">
-              Você completou a semana {aguardandoAposSessao}!
+              ¡Completaste la semana {aguardandoAposSessao}!
             </h1>
             <p className="rounded-2xl bg-sage-100 px-4 py-3 text-ink-800">
-              Continue praticando enquanto preparamos os próximos movimentos para você. Cada dia
-              que você repete conta — sua constância não para.
+              Sigue practicando mientras preparamos los próximos movimientos para ti. Cada día
+              que repites cuenta — tu constancia no se detiene.
             </p>
           </>
         ) : completou ? (
           <>
-            <h1 className="text-2xl font-extrabold text-ink-900">Você fez o circuito de hoje!</h1>
-            <p className="text-ink-700">Chegar já é a vitória. Seu corpo agradece cada movimento.</p>
+            <h1 className="text-2xl font-extrabold text-ink-900">¡Hiciste el circuito de hoy!</h1>
+            <p className="text-ink-700">Llegar ya es la victoria. Tu cuerpo agradece cada movimiento.</p>
           </>
         ) : (
           <>
-            <h1 className="text-2xl font-extrabold text-ink-900">Obrigada por aparecer hoje</h1>
+            <h1 className="text-2xl font-extrabold text-ink-900">Gracias por aparecer hoy</h1>
             <p className="rounded-2xl bg-cream-100 px-4 py-3 text-ink-800">
-              Hoje você não completou o circuito. É importante que faça o circuito completo da
-              próxima vez — seu corpo aproveita mais quando a sequência é inteira.
+              Hoy no completaste el circuito. Es importante que hagas el circuito completo la
+              próxima vez — tu cuerpo aprovecha más cuando la secuencia está entera.
             </p>
           </>
         )}
         <button className="btn-primary w-full" onClick={() => { router.push('/'); router.refresh() }}>
-          Voltar ao início
+          Volver al inicio
         </button>
       </div>
     )
@@ -258,25 +258,25 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
     return (
       <div className="space-y-6">
         <header>
-          <h1 className="text-2xl font-extrabold text-ink-900">Como foi hoje?</h1>
-          <p className="mt-1 text-ink-700">Sua resposta ajusta o treino para você. Leva 30 segundos.</p>
+          <h1 className="text-2xl font-extrabold text-ink-900">¿Cómo te fue hoy?</h1>
+          <p className="mt-1 text-ink-700">Tu respuesta ajusta el entrenamiento para ti. Toma 30 segundos.</p>
         </header>
 
         <div>
           <label className="mb-1 block font-semibold text-ink-900">
-            Quer deixar um recado? <span className="font-normal text-ink-700">(opcional)</span>
+            ¿Quieres dejar un comentario? <span className="font-normal text-ink-700">(opcional)</span>
           </label>
           <textarea
             value={comentario}
             onChange={(e) => setComentario(e.target.value)}
             rows={3}
-            placeholder="Como você se sentiu, alguma dúvida…"
+            placeholder="Cómo te sentiste, alguna duda…"
             className="w-full rounded-2xl border-2 border-cream-200 px-4 py-3 text-ink-800"
           />
         </div>
 
         <div>
-          <p className="mb-2 font-semibold text-ink-900">O que você mais sentiu dificuldade hoje?</p>
+          <p className="mb-2 font-semibold text-ink-900">¿Qué fue lo que más se te dificultó hoy?</p>
           <div className="space-y-2">
             {EIXOS.map((o) => (
               <button
@@ -293,7 +293,7 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
         </div>
 
         <div>
-          <p className="mb-2 font-semibold text-ink-900">Como foi a intensidade do treino?</p>
+          <p className="mb-2 font-semibold text-ink-900">¿Cómo fue la intensidad del entrenamiento?</p>
           <div className="grid grid-cols-2 gap-2">
             {INTENSIDADES.map((o) => (
               <button
@@ -322,12 +322,12 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
     <div className="space-y-5">
       {aguardandoDesde > 0 ? (
         <div className="rounded-2xl bg-sage-100 px-4 py-3 text-sm text-ink-800">
-          🌱 Você concluiu a semana {aguardandoDesde}. Continue praticando enquanto preparamos os
-          próximos movimentos — cada dia conta para a sua constância.
+          🌱 Completaste la semana {aguardandoDesde}. Sigue practicando mientras preparamos los
+          próximos movimientos — cada día cuenta para tu constancia.
         </div>
       ) : null}
       <header>
-        <span className="chip">Semana {semana} · Dia {dia}</span>
+        <span className="chip">Semana {semana} · Día {dia}</span>
         <div className="mt-2 flex items-center justify-between">
           <h1 className="text-xl font-extrabold text-ink-900">{ex.nome}</h1>
           <span className="text-sm font-semibold text-ink-700">{idx + 1} de {exs.length}</span>
@@ -350,9 +350,9 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
 
       <div className="card">
         <div className="flex flex-wrap gap-3 text-sm font-semibold text-ink-800">
-          <span className="rounded-full bg-sage-100 px-3 py-1 text-sage-600">{series} séries</span>
+          <span className="rounded-full bg-sage-100 px-3 py-1 text-sage-600">{series} series</span>
           <span className="rounded-full bg-cream-200 px-3 py-1">{formatarDescanso(descanso_seg)} de descanso</span>
-          <span className="rounded-full bg-cream-200 px-3 py-1">variação v{ex.nivel}</span>
+          <span className="rounded-full bg-cream-200 px-3 py-1">variación v{ex.nivel}</span>
         </div>
         {ex.instrucoes ? (
           <div className="mt-3">
@@ -360,8 +360,8 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
           </div>
         ) : (
           <p className="mt-3 text-sm text-ink-700">
-            As instruções em texto deste movimento estão sendo preparadas. Siga pelo vídeo quando
-            estiver disponível.
+            Las instrucciones en texto de este movimiento se están preparando. Sigue el video
+            cuando esté disponible.
           </p>
         )}
       </div>
@@ -371,7 +371,7 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
           onClick={facilitar}
           className="w-full rounded-2xl border-2 border-cream-200 bg-white px-4 py-3 text-sm font-semibold text-ink-800"
         >
-          Está difícil? Faça a variação anterior
+          ¿Está difícil? Haz la variación anterior
         </button>
       ) : null}
 
@@ -393,7 +393,7 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
           onClick={iniciarGuiado}
           className="w-full rounded-2xl bg-sage-100 px-4 py-4 text-lg font-bold text-sage-600"
         >
-          ⏱ Iniciar treino guiado
+          ⏱ Iniciar entrenamiento guiado
         </button>
       )}
 
@@ -401,19 +401,19 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
 
       <div className="space-y-2">
         <button className="btn-primary w-full text-lg" onClick={() => registrar('fez')}>
-          Fiz ✓
+          Lo hice ✓
         </button>
         <button
           className="w-full rounded-2xl border-2 border-cream-200 bg-white px-4 py-3 font-semibold text-ink-800"
           onClick={() => registrar('nao_conseguiu')}
         >
-          Não consegui
+          No pude
         </button>
         <button
           className="w-full px-4 py-2 text-sm font-semibold text-ink-700"
           onClick={() => registrar('pulou')}
         >
-          Quero pular
+          Quiero saltar
         </button>
       </div>
     </div>
@@ -450,7 +450,7 @@ function OfertaAjuste({
     return (
       <div className="space-y-6 text-center">
         <div className="text-5xl" aria-hidden>🎯</div>
-        <h1 className="text-2xl font-extrabold text-ink-900">Ponto certo!</h1>
+        <h1 className="text-2xl font-extrabold text-ink-900">¡Punto justo!</h1>
         <p className="text-ink-700">{proposta.mensagem}</p>
         <button className="btn-primary w-full" onClick={onNeutro}>Finalizar</button>
       </div>
@@ -461,12 +461,12 @@ function OfertaAjuste({
     return (
       <div className="space-y-5">
         <header>
-          <h1 className="text-2xl font-extrabold text-ink-900">Vamos ajustar do seu jeito</h1>
+          <h1 className="text-2xl font-extrabold text-ink-900">Vamos a ajustar a tu manera</h1>
           <p className="mt-2 rounded-2xl bg-gold-300/20 px-4 py-3 text-sm text-ink-800">{proposta.aviso}</p>
         </header>
         <div className="space-y-4">
           <StepperField
-            label="Séries"
+            label="Series"
             valor={manualSeries}
             min={SERIES_MIN}
             max={SERIES_MAX}
@@ -475,7 +475,7 @@ function OfertaAjuste({
             formato={(n) => `${n}`}
           />
           <StepperField
-            label="Descanso entre séries"
+            label="Descanso entre series"
             valor={manualDescanso}
             min={DESCANSO_MIN}
             max={DESCANSO_MAX}
@@ -484,9 +484,9 @@ function OfertaAjuste({
             formato={(n) => formatarDescanso(n)}
           />
         </div>
-        <button className="btn-primary w-full" onClick={onManual}>Salvar meu ajuste</button>
+        <button className="btn-primary w-full" onClick={onManual}>Guardar mi ajuste</button>
         <button className="w-full px-4 py-2 text-sm font-semibold text-ink-700" onClick={onRecusar}>
-          Deixar como está
+          Dejar como está
         </button>
       </div>
     )
@@ -497,12 +497,12 @@ function OfertaAjuste({
   return (
     <div className="space-y-6 text-center">
       <div className="text-5xl" aria-hidden>{subir ? '💪' : '🌿'}</div>
-      <h1 className="text-2xl font-extrabold text-ink-900">Quer ajustar?</h1>
+      <h1 className="text-2xl font-extrabold text-ink-900">¿Quieres ajustar?</h1>
       <p className="text-ink-700">{proposta.descricao}</p>
       <div className="space-y-2">
-        <button className="btn-primary w-full" onClick={onAceitar}>Sim, ajustar</button>
+        <button className="btn-primary w-full" onClick={onAceitar}>Sí, ajustar</button>
         <button className="w-full px-4 py-2 text-sm font-semibold text-ink-700" onClick={onRecusar}>
-          Não, manter assim
+          No, mantener así
         </button>
       </div>
     </div>

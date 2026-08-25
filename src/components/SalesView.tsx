@@ -24,13 +24,13 @@ export function SalesView({ product }: { product: Product }) {
 
   const headline = sales?.headline ?? product.nome
   const bullets = sales?.bullets ?? []
-  const ctaLabel = sales?.cta_label ?? 'QUERO ESTE PROGRAMA'
+  const ctaLabel = sales?.cta_label ?? 'QUIERO ESTE PROGRAMA'
 
   return (
     <div className="space-y-6">
       {/* Selo de bloqueio */}
       <div className="inline-flex items-center gap-2 rounded-full bg-gold-300/40 px-3 py-1.5 text-sm font-bold text-gold-500">
-        <LockIcon width={16} height={16} /> Conteúdo bloqueado
+        <LockIcon width={16} height={16} /> Contenido bloqueado
       </div>
 
       <header>
@@ -88,7 +88,7 @@ export function SalesView({ product }: { product: Product }) {
           {ctaLabel}
         </button>
         <p className="text-center text-xs text-ink-700/60">
-          Você será levada ao checkout seguro. Acesso liberado logo após a compra.
+          Serás llevada al checkout seguro. Acceso desbloqueado justo después de la compra.
         </p>
       </div>
     </div>

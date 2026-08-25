@@ -16,7 +16,7 @@ export function LockedProductCard({
 }) {
   const tipoLabel =
     product.tipo === 'dieta_premium'
-      ? 'Cardápio premium'
+      ? 'Menú premium'
       : product.tipo === 'programa'
         ? 'Programa'
         : product.tipo === 'bundle'
@@ -34,7 +34,7 @@ export function LockedProductCard({
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate font-bold text-ink-900">{product.nome}</p>
-          <p className="text-sm text-sage-600">Liberado — continuar</p>
+          <p className="text-sm text-sage-600">Desbloqueado — continuar</p>
         </div>
         <ChevronRight className="text-ink-700/40" width={20} height={20} />
       </Link>
@@ -62,7 +62,7 @@ export function LockedProductCard({
         <div className="mt-3 flex items-center justify-between">
           {product.preco_exibicao ? (
             <span className="text-sm font-semibold text-ink-700">
-              a partir de {product.preco_exibicao}
+              desde {product.preco_exibicao}
             </span>
           ) : (
             <span />

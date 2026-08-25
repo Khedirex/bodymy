@@ -15,7 +15,7 @@ export function LoginForm() {
   const next = sanitizeNext(params.get('next'))
   const erroInicial =
     params.get('erro') === 'link_invalido'
-      ? 'Esse link expirou ou já foi usado. Peça um novo código abaixo.'
+      ? 'Ese enlace venció o ya fue usado. Pide un código nuevo abajo.'
       : null
 
   const [metodo, setMetodo] = useState<Metodo>('codigo')
@@ -69,7 +69,7 @@ export function LoginForm() {
     // Envia o valor COMPLETO digitado/colado (6 a 8 dígitos), sem truncar.
     const token = codigo.replace(/\D/g, '')
     if (token.length < 6) {
-      setErro('Digite o código completo (6 a 8 dígitos).')
+      setErro('Escribe el código completo (6 a 8 dígitos).')
       return
     }
     setStatus('verificando')
@@ -105,7 +105,7 @@ export function LoginForm() {
       logAuthError('signInWithPassword', error)
       setErro(
         classificarErro(error, 'senha') ??
-          'E-mail ou senha incorretos. Você pode entrar por código ou redefinir a senha.',
+          'Correo o contraseña incorrectos. Puedes entrar con código o restablecer tu contraseña.',
       )
       return
     }
@@ -115,7 +115,7 @@ export function LoginForm() {
 
   async function esqueciSenha() {
     if (!email.trim()) {
-      setErro('Digite seu e-mail acima para receber o link de redefinição.')
+      setErro('Escribe tu correo arriba para recibir el enlace de restablecimiento.')
       return
     }
     setErro(null)
@@ -130,7 +130,7 @@ export function LoginForm() {
       setErro(classificarErro(error, 'enviar'))
       return
     }
-    setAviso('Enviamos um link para redefinir sua senha. Confira seu e-mail (pode levar alguns minutos).')
+    setAviso('Te enviamos un enlace para restablecer tu contraseña. Revisa tu correo (puede tardar unos minutos).')
   }
 
   // ---------------------------------------------------------------------
@@ -141,9 +141,9 @@ export function LoginForm() {
       <form onSubmit={verificarCodigo} className="card space-y-4">
         <div className="text-center">
           <div className="mb-2 text-3xl" aria-hidden>📩</div>
-          <h2 className="text-lg font-bold text-ink-900">Digite o código</h2>
+          <h2 className="text-lg font-bold text-ink-900">Escribe el código</h2>
           <p className="mt-1 text-sm text-ink-700">
-            Enviamos um código para <strong>{emailLimpo()}</strong>. Ele tem de 6 a 8 dígitos.
+            Enviamos un código a <strong>{emailLimpo()}</strong>. Tiene de 6 a 8 dígitos.
           </p>
         </div>
         <input
@@ -170,7 +170,7 @@ export function LoginForm() {
             className="font-semibold text-ink-700/70"
             onClick={() => { setEtapa('email'); setCodigo(''); setErro(null) }}
           >
-            ← Trocar e-mail
+            ← Cambiar correo
           </button>
           <button
             type="button"
@@ -178,13 +178,13 @@ export function LoginForm() {
             onClick={() => enviarCodigo()}
             disabled={cooldown > 0 || status === 'enviando'}
           >
-            {cooldown > 0 ? `Enviar outro código em ${cooldown}s` : 'Enviar outro código'}
+            {cooldown > 0 ? `Enviar otro código en ${cooldown}s` : 'Enviar otro código'}
           </button>
         </div>
 
         <div className="rounded-2xl bg-cream-100 px-4 py-3 text-xs text-ink-700/70">
-          ⏳ O e-mail pode levar <strong>alguns minutos</strong> para chegar (o domínio é novo).
-          Confira também a caixa de spam/promoções. No e-mail também há um botão para entrar pelo link.
+          ⏳ El correo puede tardar <strong>unos minutos</strong> en llegar (el dominio es nuevo).
+          Revisa también la carpeta de spam/promociones. En el correo también hay un botón para entrar por el enlace.
         </div>
       </form>
     )
@@ -201,37 +201,37 @@ export function LoginForm() {
           onClick={() => { setMetodo('codigo'); setErro(null); setAviso(null) }}
           className={`flex-1 rounded-xl py-2.5 text-sm font-bold transition ${metodo === 'codigo' ? 'bg-white text-coral-600 shadow-card' : 'text-ink-700/60'}`}
         >
-          Código por e-mail
+          Código por correo
         </button>
         <button
           type="button"
           onClick={() => { setMetodo('senha'); setErro(null); setAviso(null) }}
           className={`flex-1 rounded-xl py-2.5 text-sm font-bold transition ${metodo === 'senha' ? 'bg-white text-coral-600 shadow-card' : 'text-ink-700/60'}`}
         >
-          Entrar com senha
+          Entrar con contraseña
         </button>
       </div>
 
       <form onSubmit={metodo === 'codigo' ? enviarCodigo : entrarComSenha} className="card space-y-4">
         <div>
-          <label htmlFor="email" className="mb-1.5 block font-semibold text-ink-800">Seu e-mail</label>
+          <label htmlFor="email" className="mb-1.5 block font-semibold text-ink-800">Tu correo</label>
           <input
             id="email"
             type="email"
             inputMode="email"
             autoComplete="email"
             required
-            placeholder="voce@email.com"
+            placeholder="tu@correo.com"
             className="input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <p className="mt-1.5 text-sm text-ink-700/70">Use o mesmo e-mail que você usou na compra.</p>
+          <p className="mt-1.5 text-sm text-ink-700/70">Usa el mismo correo que usaste en la compra.</p>
         </div>
 
         {metodo === 'senha' && (
           <div>
-            <label htmlFor="senha" className="mb-1.5 block font-semibold text-ink-800">Sua senha</label>
+            <label htmlFor="senha" className="mb-1.5 block font-semibold text-ink-800">Tu contraseña</label>
             <input
               id="senha"
               type="password"
@@ -243,7 +243,7 @@ export function LoginForm() {
               onChange={(e) => setSenha(e.target.value)}
             />
             <button type="button" onClick={esqueciSenha} className="mt-1.5 text-sm font-semibold text-coral-600">
-              Esqueci minha senha
+              Olvidé mi contraseña
             </button>
           </div>
         )}
@@ -259,8 +259,8 @@ export function LoginForm() {
 
         <p className="text-center text-sm text-ink-700/70">
           {metodo === 'codigo'
-            ? 'Enviamos um código para o seu e-mail — você digita aqui, sem sair do app.'
-            : 'Só quem já criou uma senha. Se ainda não criou, entre por código.'}
+            ? 'Enviamos un código a tu correo — lo escribes aquí, sin salir del app.'
+            : 'Solo si ya creaste una contraseña. Si todavía no, entra por código.'}
         </p>
       </form>
     </div>
@@ -283,31 +283,31 @@ function classificarErro(
 
   // Falha de rede
   if (name.includes('Retryable') || msg.includes('fetch') || msg.includes('network') || msg.includes('load failed')) {
-    return 'Sem conexão no momento. Verifique sua internet e tente novamente.'
+    return 'Sin conexión en este momento. Revisa tu internet e intenta de nuevo.'
   }
   // Limite de tentativas
   if (code.includes('rate_limit') || status === 429 || msg.includes('rate limit') || msg.includes('too many')) {
-    return 'Muitas tentativas em pouco tempo. Aguarde um minuto e tente de novo.'
+    return 'Demasiados intentos en poco tiempo. Espera un minuto e intenta de nuevo.'
   }
 
   if (contexto === 'verificar') {
     if (code === 'otp_expired' || msg.includes('expired')) {
-      return 'Esse código expirou. Toque em "Enviar outro código" para receber um novo.'
+      return 'Ese código venció. Toca en "Enviar otro código" para recibir uno nuevo.'
     }
     if (msg.includes('invalid') || code === 'otp_disabled' || status === 401 || status === 403) {
-      return 'Código incorreto. Confira todos os dígitos do e-mail (são de 6 a 8) e tente de novo.'
+      return 'Código incorrecto. Revisa todos los dígitos del correo (son de 6 a 8) e intenta de nuevo.'
     }
-    return 'Não conseguimos validar o código agora. Peça um novo e tente novamente.'
+    return 'No pudimos validar el código ahora. Pide uno nuevo e intenta de nuevo.'
   }
 
   if (contexto === 'senha') {
     if (msg.includes('email not confirmed') || code === 'email_not_confirmed') {
-      return 'Sua conta ainda não foi confirmada. Entre por código desta vez.'
+      return 'Tu cuenta todavía no fue confirmada. Entra por código esta vez.'
     }
     if (msg.includes('invalid') || status === 400) {
-      return 'E-mail ou senha incorretos. Você pode entrar por código ou redefinir a senha.'
+      return 'Correo o contraseña incorrectos. Puedes entrar con código o restablecer tu contraseña.'
     }
-    return 'Não conseguimos entrar agora. Tente novamente ou use o código por e-mail.'
+    return 'No pudimos iniciar sesión ahora. Intenta de nuevo o usa el código por correo.'
   }
 
   // contexto === 'enviar'
@@ -319,9 +319,9 @@ function classificarErro(
     msg.includes('not found') ||
     status === 422
   ) {
-    return 'Não encontramos uma compra com este e-mail. Verifique se usou o mesmo e-mail da compra.'
+    return 'No encontramos una compra con este correo. Revisa si usaste el mismo correo de la compra.'
   }
-  return 'Não conseguimos enviar o código agora. Tente novamente em instantes.'
+  return 'No pudimos enviar el código ahora. Intenta de nuevo en un momento.'
 }
 
 // Loga o erro real (aparece no console do navegador) para diagnóstico.

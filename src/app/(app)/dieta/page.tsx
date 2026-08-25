@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Dieta — BodyMy' }
 
 const DISCLAIMER =
-  'Este conteúdo é educativo e não substitui acompanhamento de nutricionista ou médico.'
+  'Este contenido es educativo y no sustituye el seguimiento de un nutricionista o médico.'
 
 export default async function DietaPage() {
   const profile = await getProfile()
@@ -35,8 +35,8 @@ export default async function DietaPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-extrabold text-ink-900">Sua alimentação</h1>
-        <p className="mt-1 text-ink-700">Ideias simples para o seu dia a dia.</p>
+        <h1 className="text-2xl font-extrabold text-ink-900">Tu alimentación</h1>
+        <p className="mt-1 text-ink-700">Ideas simples para tu día a día.</p>
       </header>
 
       {/* Disclaimer fixo de conteúdo educativo */}
@@ -51,8 +51,8 @@ export default async function DietaPage() {
         <DietMenu days={base.days} diaInicial={diaInicial} />
       ) : (
         <EmptyState
-          titulo="Cardápio em preparação"
-          descricao="Em breve você encontra aqui sugestões de refeições para cada dia."
+          titulo="Menú en preparación"
+          descricao="Muy pronto encontrarás aquí sugerencias de comidas para cada día."
           icone={<SaladIcon width={28} height={28} />}
         />
       )}
@@ -60,7 +60,7 @@ export default async function DietaPage() {
       {/* Planos premium bloqueados */}
       {premium.length > 0 && (
         <section>
-          <h2 className="section-title mb-2">Cardápios premium</h2>
+          <h2 className="section-title mb-2">Menús premium</h2>
           <div className="space-y-3">
             {premium.map((s) => (
               <LockedProductCard key={s.product.id} product={s.product} />

@@ -36,7 +36,7 @@ export function PandaPlayer({ videoId, autoPlay = false, muted = false, loop = f
   if (!host) {
     return (
       <div className="flex aspect-video w-full items-center justify-center rounded-3xl bg-cream-200 text-sm text-ink-700">
-        Vídeo indisponível — configure NEXT_PUBLIC_PANDA_PLAYER_HOST.
+        Video no disponible — configura NEXT_PUBLIC_PANDA_PLAYER_HOST.
       </div>
     )
   }
@@ -54,7 +54,7 @@ export function PandaPlayer({ videoId, autoPlay = false, muted = false, loop = f
     <div className="relative w-full overflow-hidden rounded-3xl bg-black" style={{ aspectRatio: '16 / 9' }}>
       <iframe
         src={src}
-        title="Vídeo do exercício"
+        title="Video del ejercicio"
         loading="lazy"
         allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
         allowFullScreen

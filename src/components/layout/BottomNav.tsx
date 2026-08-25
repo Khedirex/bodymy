@@ -11,11 +11,11 @@ import {
 } from '@/components/ui/icons'
 
 const ITEMS = [
-  { href: '/', label: 'Início', Icon: HomeIcon, match: (p: string) => p === '/' },
-  { href: '/treino', label: 'Treino', Icon: RouteIcon, match: (p: string) => p.startsWith('/treino') || p.startsWith('/programa') },
+  { href: '/', label: 'Inicio', Icon: HomeIcon, match: (p: string) => p === '/' },
+  { href: '/treino', label: 'Entrenamiento', Icon: RouteIcon, match: (p: string) => p.startsWith('/treino') || p.startsWith('/programa') },
   { href: '/dieta', label: 'Dieta', Icon: SaladIcon, match: (p: string) => p.startsWith('/dieta') },
-  { href: '/progresso', label: 'Progresso', Icon: ChartIcon, match: (p: string) => p.startsWith('/progresso') },
-  { href: '/descubra', label: 'Descubra', Icon: CompassIcon, match: (p: string) => p.startsWith('/descubra') || p.startsWith('/oferta') },
+  { href: '/progresso', label: 'Progreso', Icon: ChartIcon, match: (p: string) => p.startsWith('/progresso') },
+  { href: '/descubra', label: 'Descubre', Icon: CompassIcon, match: (p: string) => p.startsWith('/descubra') || p.startsWith('/oferta') },
 ]
 
 export function BottomNav() {

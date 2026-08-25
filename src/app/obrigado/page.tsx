@@ -3,7 +3,7 @@ import { CIRCUITO_PRODUCT_SLUGS } from '@/lib/training'
 import { ObrigadoView } from './ObrigadoView'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Bem-vinda ao BodyMy 🤍' }
+export const metadata = { title: 'Bienvenida a BodyMy 🤍' }
 
 // Suporte por e-mail (por enquanto). Ajuste conforme o negócio.
 const SUPORTE_EMAIL = 'contato@bodymy.com.br'
@@ -20,7 +20,7 @@ export default async function ObrigadoPage({
   const raw = ALIASES.map((k) => pick(searchParams[k])).find(Boolean)
   const email = raw && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(raw.trim()) ? raw.trim().toLowerCase() : null
 
-  let produtoNome = 'seu programa BodyMy'
+  let produtoNome = 'tu programa BodyMy'
   try {
     const admin = createAdminClient()
     const { data } = await admin

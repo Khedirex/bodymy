@@ -23,11 +23,11 @@ export default async function TreinoPage() {
     return (
       <div className="space-y-4">
         <EmptyState
-          titulo="Seu treino aparece aqui"
-          descricao="Assim que seu acesso estiver ativo, seu circuito do dia aparece neste espaço."
+          titulo="Tu entrenamiento aparece aquí"
+          descricao="En cuanto tu acceso esté activo, tu circuito del día aparecerá en este espacio."
           icone={<LockIcon width={28} height={28} />}
         />
-        <Link href="/descubra" className="btn-secondary w-full">Ver o que tem no BodyMy</Link>
+        <Link href="/descubra" className="btn-secondary w-full">Ver qué tiene BodyMy</Link>
       </div>
     )
   }

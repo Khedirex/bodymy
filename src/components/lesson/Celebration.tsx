@@ -51,11 +51,11 @@ export function Celebration({
             >
               🎉
             </motion.div>
-            <h2 className="text-2xl font-extrabold text-ink-900">Aula concluída!</h2>
+            <h2 className="text-2xl font-extrabold text-ink-900">¡Clase completada!</h2>
             <p className="mt-1 text-ink-700">
               {bateuRecorde
-                ? 'Novo recorde de constância. Que orgulho!'
-                : 'Mais um dia cuidando de você. Continue assim!'}
+                ? 'Nuevo récord de constancia. ¡Qué orgullo!'
+                : 'Un día más cuidándote. ¡Sigue así!'}
             </p>
 
             <div className="mt-4 flex justify-center">
@@ -65,7 +65,7 @@ export function Celebration({
             {proxima ? (
               <div className="mt-6 rounded-2xl bg-cream-100 p-4 text-left">
                 <p className="text-xs font-semibold uppercase tracking-wide text-ink-700/60">
-                  Próxima aula
+                  Próxima clase
                 </p>
                 <p className="mt-1 font-bold text-ink-900">{proxima.titulo}</p>
                 <Link
@@ -73,12 +73,12 @@ export function Celebration({
                   className="btn-primary mt-3 w-full"
                   onClick={onFechar}
                 >
-                  <PlayIcon width={18} height={18} /> Ir para a próxima
+                  <PlayIcon width={18} height={18} /> Ir a la siguiente
                 </Link>
               </div>
             ) : (
               <div className="mt-6 rounded-2xl bg-sage-100 p-4 text-sage-600">
-                Você chegou ao fim do programa. Que jornada! 🏆
+                Llegaste al final del programa. ¡Qué recorrido! 🏆
               </div>
             )}
 
@@ -87,7 +87,7 @@ export function Celebration({
               className="btn-secondary mt-3 w-full"
               onClick={onFechar}
             >
-              Voltar ao programa
+              Volver al programa
             </Link>
           </motion.div>
         </motion.div>

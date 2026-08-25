@@ -26,8 +26,8 @@ export function SemanaToggle({
     const novo = !liberada
     if (novo && !completo) {
       const ok = window.confirm(
-        `A Semana ${semana} tem só ${preenchidos}/${total} vídeos da variação v${semana} preenchidos. ` +
-          `As alunas verão placeholders nos que faltam. Liberar mesmo assim?`,
+        `La Semana ${semana} tiene solo ${preenchidos}/${total} videos de la variación v${semana} completados. ` +
+          `Las alumnas verán placeholders en los que faltan. ¿Desbloquear de todos modos?`,
       )
       if (!ok) return
     }
@@ -41,12 +41,12 @@ export function SemanaToggle({
       })
       if (!res.ok) {
         const d = await res.json().catch(() => ({}))
-        setErro(d.error ?? 'Erro')
+        setErro(d.error ?? 'Error')
         return
       }
       router.refresh()
     } catch {
-      setErro('Sem conexão')
+      setErro('Sin conexión')
     } finally {
       setSaving(false)
     }
@@ -64,10 +64,10 @@ export function SemanaToggle({
             : 'bg-slate-900 text-white hover:bg-slate-700'
         }`}
       >
-        {saving ? '…' : liberada ? 'Bloquear' : 'Liberar'}
+        {saving ? '…' : liberada ? 'Bloquear' : 'Desbloquear'}
       </button>
       <span className={`text-sm font-semibold ${liberada ? 'text-emerald-700' : 'text-slate-400'}`}>
-        {liberada ? 'liberada' : 'bloqueada'}
+        {liberada ? 'desbloqueada' : 'bloqueada'}
       </span>
     </div>
   )

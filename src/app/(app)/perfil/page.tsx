@@ -26,7 +26,7 @@ export default async function PerfilPage() {
         </div>
         <div>
           <h1 className="text-xl font-extrabold text-ink-900">
-            {profile.nome ?? 'Sua conta'}
+            {profile.nome ?? 'Tu cuenta'}
           </h1>
           <p className="text-sm text-ink-700">{profile.email}</p>
         </div>
@@ -34,10 +34,10 @@ export default async function PerfilPage() {
 
       {/* Acessos ativos */}
       <section>
-        <h2 className="section-title mb-2">Seus acessos</h2>
+        <h2 className="section-title mb-2">Tus accesos</h2>
         {acessos.length === 0 ? (
           <p className="rounded-2xl bg-cream-100 p-4 text-sm text-ink-700">
-            Você ainda não tem programas liberados.
+            Todavía no tienes programas liberados.
           </p>
         ) : (
           <ul className="space-y-2">
@@ -55,25 +55,25 @@ export default async function PerfilPage() {
 
       {/* Senha (atalho de login opcional) */}
       <section>
-        <h2 className="section-title mb-2">Entrar mais rápido</h2>
+        <h2 className="section-title mb-2">Entra más rápido</h2>
         <SetPassword />
       </section>
 
       {/* Instalar o app */}
       <section id="instalar">
-        <h2 className="section-title mb-2">Instalar o BodyMy</h2>
+        <h2 className="section-title mb-2">Instalar BodyMy</h2>
         <InstallInstructions />
       </section>
 
       {/* Suporte */}
       <section>
-        <h2 className="section-title mb-2">Precisa de ajuda?</h2>
+        <h2 className="section-title mb-2">¿Necesitas ayuda?</h2>
         <a href={`mailto:${SUPORTE_EMAIL}`} className="card flex items-center gap-3">
           <span className="text-2xl" aria-hidden>
             ✉️
           </span>
           <div className="flex-1">
-            <p className="font-bold text-ink-900">Falar com o suporte</p>
+            <p className="font-bold text-ink-900">Hablar con soporte</p>
             <p className="text-sm text-ink-700">{SUPORTE_EMAIL}</p>
           </div>
         </a>
@@ -81,7 +81,7 @@ export default async function PerfilPage() {
 
       <SignOutButton />
 
-      <p className="pb-4 text-center text-xs text-ink-700/50">BodyMy · feito com 🤍</p>
+      <p className="pb-4 text-center text-xs text-ink-700/50">BodyMy · hecho con 🤍</p>
     </div>
   )
 }

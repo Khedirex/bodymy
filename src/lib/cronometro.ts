@@ -6,7 +6,7 @@ import type { ExercicioTipo } from '@/types/db'
 import { PREP_SEG, TRANSICAO_SEG } from '@/lib/training'
 
 export type FaseTipo = 'prep' | 'exec' | 'exec_manual' | 'transicao' | 'descanso' | 'fim'
-export type Lado = 'direito' | 'esquerdo'
+export type Lado = 'derecho' | 'izquierdo'
 
 export interface Fase {
   tipo: FaseTipo
@@ -31,12 +31,12 @@ export interface CronometroInput {
 }
 
 const ROTULO: Record<FaseTipo, string> = {
-  prep: 'Prepare-se',
-  exec: 'Execute',
-  exec_manual: 'Execute no seu ritmo',
-  transicao: 'Troque de lado',
-  descanso: 'Descanse',
-  fim: 'Muito bem!',
+  prep: 'Prepárate',
+  exec: 'Ejecuta',
+  exec_manual: 'Ejecuta a tu ritmo',
+  transicao: 'Cambia de lado',
+  descanso: 'Descansa',
+  fim: '¡Muy bien!',
 }
 
 // Constrói a sequência de fases para um exercício, usando a config da aluna.
@@ -65,9 +65,9 @@ export function construirFases(i: CronometroInput): Fase[] {
       fases.push({ tipo: 'exec_manual', duracaoSeg: 0, serie: s, totalSeries: total, rotulo: ROTULO.exec_manual, auto: false })
     } else if (i.bilateral) {
       // tempo bilateral: direito → transição → esquerdo (conta como 1 série)
-      fases.push({ tipo: 'exec', duracaoSeg: i.tempoExecSeg, serie: s, totalSeries: total, lado: 'direito', rotulo: ROTULO.exec, auto: true })
+      fases.push({ tipo: 'exec', duracaoSeg: i.tempoExecSeg, serie: s, totalSeries: total, lado: 'derecho', rotulo: ROTULO.exec, auto: true })
       fases.push({ tipo: 'transicao', duracaoSeg: transicao, serie: s, totalSeries: total, rotulo: ROTULO.transicao, auto: true })
-      fases.push({ tipo: 'exec', duracaoSeg: i.tempoExecSeg, serie: s, totalSeries: total, lado: 'esquerdo', rotulo: ROTULO.exec, auto: true })
+      fases.push({ tipo: 'exec', duracaoSeg: i.tempoExecSeg, serie: s, totalSeries: total, lado: 'izquierdo', rotulo: ROTULO.exec, auto: true })
     } else {
       fases.push({ tipo: 'exec', duracaoSeg: i.tempoExecSeg, serie: s, totalSeries: total, rotulo: ROTULO.exec, auto: true })
     }
@@ -104,8 +104,8 @@ export interface FaseAlongamento {
 }
 
 const POSICOES: Record<number, string[]> = {
-  2: ['lado direito', 'lado esquerdo'],
-  3: ['à direita', 'à esquerda', 'à frente'],
+  2: ['lado derecho', 'lado izquierdo'],
+  3: ['a la derecha', 'a la izquierda', 'al frente'],
 }
 
 export function construirFasesAlongamento(alongamentos: AlongamentoInput[], seg: number): FaseAlongamento[] {

@@ -127,7 +127,7 @@ export function CronometroExercicio({
       {/* Progresso das séries */}
       {fase.totalSeries > 0 && fase.tipo !== 'fim' ? (
         <p className="text-sm font-bold uppercase tracking-wide opacity-80">
-          Série {fase.serie} de {fase.totalSeries}
+          Serie {fase.serie} de {fase.totalSeries}
           {fase.lado ? ` · lado ${fase.lado}` : ''}
         </p>
       ) : null}
@@ -138,12 +138,12 @@ export function CronometroExercicio({
       {/* Número grande OU botão de série concluída (ritmo dela) */}
       {fase.tipo === 'exec_manual' ? (
         <div className="mt-5">
-          <p className="text-ink-700">Faça as repetições no seu ritmo. Quando terminar a série, toque abaixo.</p>
+          <p className="text-ink-700">Haz las repeticiones a tu ritmo. Cuando termines la serie, toca abajo.</p>
           <button
             onClick={serieConcluida}
             className="mt-4 w-full rounded-2xl bg-coral-400 px-5 py-5 text-xl font-extrabold text-white"
           >
-            Série concluída ✓
+            Serie completada ✓
           </button>
         </div>
       ) : (
@@ -157,7 +157,7 @@ export function CronometroExercicio({
             onClick={pausado ? retomar : pausar}
             className="rounded-2xl bg-white/70 px-4 py-4 text-lg font-bold text-ink-800"
           >
-            {pausado ? '▶ Retomar' : '⏸ Pausar'}
+            {pausado ? '▶ Reanudar' : '⏸ Pausar'}
           </button>
         ) : (
           <span />
@@ -166,20 +166,20 @@ export function CronometroExercicio({
           onClick={voltarSerie}
           className="rounded-2xl bg-white/70 px-4 py-4 text-lg font-bold text-ink-800"
         >
-          ↺ Refazer série
+          ↺ Rehacer serie
         </button>
         {fase.tipo === 'descanso' ? (
           <button
             onClick={pularDescanso}
             className="col-span-2 rounded-2xl bg-white/70 px-4 py-3 text-base font-bold text-ink-800"
           >
-            Pular descanso →
+            Saltar descanso →
           </button>
         ) : null}
       </div>
 
       <button onClick={onCancelar} className="mt-4 text-sm font-semibold text-ink-700/70">
-        Sair do modo guiado
+        Salir del modo guiado
       </button>
     </div>
   )

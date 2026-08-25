@@ -97,9 +97,9 @@ export function direcaoPorIntensidade(nivel: number): Direcao {
 
 // Avisos dos limites de descanso (Parte 2 — obrigatórios).
 export const AVISO_DESCANSO_MAX =
-  'Um descanso muito longo esfria o corpo e compromete o progresso do treino. Por isso o máximo é 2 minutos.'
+  'Un descanso muy largo enfría el cuerpo y compromete el progreso del entrenamiento. Por eso el máximo es 2 minutos.'
 export const AVISO_DESCANSO_MIN =
-  'Um descanso muito curto não deixa o corpo se recuperar e aumenta o risco de lesão. Por isso o mínimo é 20 segundos.'
+  'Un descanso muy corto no deja que el cuerpo se recupere y aumenta el riesgo de lesión. Por eso el mínimo es 20 segundos.'
 
 // Resultado da proposta de ajuste com base no feedback final.
 export type PropostaAjuste =
@@ -133,7 +133,7 @@ export function proporAjuste(i: AjusteInput): PropostaAjuste {
   if (i.direcao === 'neutro') {
     return {
       tipo: 'neutro',
-      mensagem: 'Esse é o ponto ideal! Seu corpo está no desafio certo. Continue assim. 🤍',
+      mensagem: '¡Ese es el punto ideal! Tu cuerpo está en el desafío justo. Sigue así. 🤍',
     }
   }
   const maisDificil = i.direcao === 'avancar' // ela achou fácil → deixar mais desafiador
@@ -143,58 +143,58 @@ export function proporAjuste(i: AjusteInput): PropostaAjuste {
     if (maisDificil) {
       const novo = i.descanso_seg - DESCANSO_STEP
       if (novo < DESCANSO_MIN) {
-        return { tipo: 'manual', aviso: AVISO_DESCANSO_MIN, mensagem: 'Vamos ajustar do seu jeito, dentro do seguro.' }
+        return { tipo: 'manual', aviso: AVISO_DESCANSO_MIN, mensagem: 'Vamos a ajustarlo a tu manera, dentro de lo seguro.' }
       }
-      return { tipo: 'ajuste', eixo: 'descanso', descanso_seg: novo, descricao: `Menos descanso: ${formatarDescanso(novo)} entre as séries.` }
+      return { tipo: 'ajuste', eixo: 'descanso', descanso_seg: novo, descricao: `Menos descanso: ${formatarDescanso(novo)} entre las series.` }
     }
     const novo = i.descanso_seg + DESCANSO_STEP
     if (novo > DESCANSO_MAX) {
-      return { tipo: 'manual', aviso: AVISO_DESCANSO_MAX, mensagem: 'Vamos ajustar do seu jeito, dentro do seguro.' }
+      return { tipo: 'manual', aviso: AVISO_DESCANSO_MAX, mensagem: 'Vamos a ajustarlo a tu manera, dentro de lo seguro.' }
     }
-    return { tipo: 'ajuste', eixo: 'descanso', descanso_seg: novo, descricao: `Mais descanso: ${formatarDescanso(novo)} entre as séries.` }
+    return { tipo: 'ajuste', eixo: 'descanso', descanso_seg: novo, descricao: `Más descanso: ${formatarDescanso(novo)} entre las series.` }
   }
 
   if (i.eixo === 'series') {
     if (maisDificil) {
       const novo = i.series + 1
       if (novo > SERIES_MAX) {
-        return { tipo: 'manual', aviso: `Você já está no máximo de ${SERIES_MAX} séries.`, mensagem: 'Que tal ajustar do seu jeito?' }
+        return { tipo: 'manual', aviso: `Ya estás en el máximo de ${SERIES_MAX} series.`, mensagem: '¿Qué tal ajustarlo a tu manera?' }
       }
-      return { tipo: 'ajuste', eixo: 'series', series: novo, descricao: `Mais uma série: ${novo} no total.` }
+      return { tipo: 'ajuste', eixo: 'series', series: novo, descricao: `Una serie más: ${novo} en total.` }
     }
     const novo = i.series - 1
     if (novo < SERIES_MIN) {
-      return { tipo: 'manual', aviso: `Você já está no mínimo de ${SERIES_MIN} séries.`, mensagem: 'Que tal ajustar do seu jeito?' }
+      return { tipo: 'manual', aviso: `Ya estás en el mínimo de ${SERIES_MIN} series.`, mensagem: '¿Qué tal ajustarlo a tu manera?' }
     }
-    return { tipo: 'ajuste', eixo: 'series', series: novo, descricao: `Uma série a menos: ${novo} no total.` }
+    return { tipo: 'ajuste', eixo: 'series', series: novo, descricao: `Una serie menos: ${novo} en total.` }
   }
 
   // eixo 'exercicio' → troca a variação (limitada pela semana).
   if (i.semana <= 1) {
     return {
       tipo: 'manual',
-      aviso: 'Na primeira semana só existe a variação inicial. Podemos ajustar séries e descanso.',
-      mensagem: 'Vamos deixar do seu jeito.',
+      aviso: 'En la primera semana solo existe la variación inicial. Podemos ajustar series y descanso.',
+      mensagem: 'Vamos a dejarlo a tu manera.',
     }
   }
   if (maisDificil) {
     if (i.variacaoMax >= i.semana) {
       return {
         tipo: 'manual',
-        aviso: 'Você já está na variação mais avançada disponível nesta semana. Podemos ajustar séries e descanso.',
-        mensagem: 'Vamos deixar do seu jeito.',
+        aviso: 'Ya estás en la variación más avanzada disponible esta semana. Podemos ajustar series y descanso.',
+        mensagem: 'Vamos a dejarlo a tu manera.',
       }
     }
-    return { tipo: 'ajuste', eixo: 'exercicio', variacao_delta: 1, descricao: 'Exercícios um pouquinho mais desafiadores na próxima sessão.' }
+    return { tipo: 'ajuste', eixo: 'exercicio', variacao_delta: 1, descricao: 'Ejercicios un poquito más desafiantes en la próxima sesión.' }
   }
   if (i.variacaoMin <= 1) {
     return {
       tipo: 'manual',
-      aviso: 'Você já está na variação mais tranquila (v1). Podemos ajustar séries e descanso.',
-      mensagem: 'Vamos deixar do seu jeito.',
+      aviso: 'Ya estás en la variación más suave (v1). Podemos ajustar series y descanso.',
+      mensagem: 'Vamos a dejarlo a tu manera.',
     }
   }
-  return { tipo: 'ajuste', eixo: 'exercicio', variacao_delta: -1, descricao: 'Exercícios um pouco mais tranquilos na próxima sessão.' }
+  return { tipo: 'ajuste', eixo: 'exercicio', variacao_delta: -1, descricao: 'Ejercicios un poco más suaves en la próxima sesión.' }
 }
 
 // "40s", "1min", "1min30s", "2min"

@@ -4,10 +4,10 @@ import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from '@/components/ui/icons'
 
 const MESES = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
 ]
-const DIAS_SEMANA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']
+const DIAS_SEMANA = ['D', 'L', 'M', 'M', 'J', 'V', 'S']
 
 // Calendário mensal com os dias de check-in marcados.
 export function Calendar({
@@ -54,7 +54,7 @@ export function Calendar({
         <button
           onClick={() => mudarMes(-1)}
           className="flex h-9 w-9 items-center justify-center rounded-full bg-cream-100"
-          aria-label="Mês anterior"
+          aria-label="Mes anterior"
         >
           <ChevronLeft width={18} height={18} />
         </button>
@@ -64,7 +64,7 @@ export function Calendar({
         <button
           onClick={() => mudarMes(1)}
           className="flex h-9 w-9 items-center justify-center rounded-full bg-cream-100"
-          aria-label="Próximo mês"
+          aria-label="Mes siguiente"
         >
           <ChevronRight width={18} height={18} />
         </button>

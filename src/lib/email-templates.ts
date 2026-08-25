@@ -8,20 +8,20 @@ const INK = '#39322D'
 
 function shell(inner: string): string {
   return `<!doctype html>
-<html lang="pt-BR">
+<html lang="es">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;background:${CREAM};font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${INK};">
   <div style="max-width:520px;margin:0 auto;padding:32px 20px;">
     ${inner}
     <p style="font-size:12px;color:#9b938c;text-align:center;margin-top:20px;">
-      BodyMy · feito com 🤍 para você se mover no seu ritmo
+      BodyMy · hecho con 🤍 para que te muevas a tu ritmo
     </p>
   </div>
 </body>
 </html>`
 }
 
-function botao(magicLink: string, label = 'ACESSAR MEU PROGRAMA'): string {
+function botao(magicLink: string, label = 'ACCEDER A MI PROGRAMA'): string {
   return `<div style="text-align:center;margin:26px 0;">
     <a href="${magicLink}" style="display:inline-block;background:${CORAL};color:#fff;text-decoration:none;font-weight:bold;font-size:17px;padding:16px 28px;border-radius:16px;">
       ${label}
@@ -43,37 +43,37 @@ export function welcomeHtml({
   return shell(`
     <div style="text-align:center;margin-bottom:24px;">
       <div style="display:inline-block;width:56px;height:56px;line-height:56px;border-radius:16px;background:${CORAL};color:#fff;font-size:26px;">🤍</div>
-      <h1 style="font-size:22px;margin:14px 0 0;">Bem-vinda ao BodyMy, ${primeiroNome}!</h1>
+      <h1 style="font-size:22px;margin:14px 0 0;">¡Bienvenida a BodyMy, ${primeiroNome}!</h1>
     </div>
     <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(74,66,60,.08);">
-      <p style="font-size:16px;line-height:1.5;margin:0 0 12px;">Que alegria ter você aqui. 🌷</p>
+      <p style="font-size:16px;line-height:1.5;margin:0 0 12px;">Qué alegría tenerte aquí. 🌷</p>
       <p style="font-size:16px;line-height:1.5;margin:0 0 16px;">
-        Seu acesso ao <strong>${programaNome}</strong> já está liberado. É tudo pensado para caber na
-        sua rotina — no seu tempo, sem pressa e sem complicação.
+        Tu acceso a <strong>${programaNome}</strong> ya está activo. Todo está pensado para caber en
+        tu rutina — a tu tiempo, sin prisa y sin complicaciones.
       </p>
-      <p style="font-size:16px;line-height:1.5;margin:0 0 8px;"><strong>O que você vai encontrar:</strong></p>
+      <p style="font-size:16px;line-height:1.5;margin:0 0 8px;"><strong>Lo que vas a encontrar:</strong></p>
       <ul style="font-size:16px;line-height:1.6;margin:0 0 16px;padding-left:20px;color:${INK};">
-        <li>Uma orientação do dia, curtinha e fácil de seguir</li>
-        <li>Sugestões de cardápio para apoiar sua alimentação</li>
-        <li>Seu progresso registrado, para você ver o quanto avançou</li>
+        <li>Una guía del día, cortita y fácil de seguir</li>
+        <li>Sugerencias de menú para apoyar tu alimentación</li>
+        <li>Tu progreso registrado, para que veas cuánto avanzaste</li>
       </ul>
       <p style="font-size:16px;line-height:1.5;margin:0 0 4px;">
-        Para entrar pela primeira vez é só tocar no botão abaixo — <strong>sem senha</strong>:
+        Para entrar por primera vez solo toca el botón de abajo — <strong>sin contraseña</strong>:
       </p>
       ${botao(magicLink)}
       <div style="background:${CREAM};border-radius:14px;padding:14px 16px;margin-top:8px;">
         <p style="font-size:14px;line-height:1.6;margin:0 0 8px;color:#6b625b;">
-          📲 <strong>Dica:</strong> depois de entrar, adicione o BodyMy à tela do seu celular
-          (o app te mostra como) para abrir com um toque.
+          📲 <strong>Consejo:</strong> después de entrar, agrega BodyMy a la pantalla de tu celular
+          (la app te muestra cómo) para abrirlo con un toque.
         </p>
         <p style="font-size:14px;line-height:1.6;margin:0;color:#6b625b;">
-          🔑 <strong>Nas próximas vezes é ainda mais fácil:</strong> abra o app, digite seu e-mail e
-          você recebe um <strong>código de 6 dígitos</strong> para digitar ali mesmo — sem sair do app.
-          Se quiser, dá para criar uma senha também.
+          🔑 <strong>Las próximas veces es aún más fácil:</strong> abre la app, escribe tu correo y
+          recibes un <strong>código de 6 dígitos</strong> para escribirlo ahí mismo — sin salir de la app.
+          Si quieres, también puedes crear una contraseña.
         </p>
       </div>
       <p style="font-size:14px;line-height:1.5;color:#6b625b;margin:16px 0 0;">
-        Qualquer dúvida, é só responder este e-mail. Estamos com você. 💛
+        Cualquier duda, solo responde este correo. Estamos contigo. 💛
       </p>
     </div>
   `)

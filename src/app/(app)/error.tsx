@@ -28,7 +28,7 @@ export default function AppError({
     <div className="space-y-4 py-6">
       <ErrorState />
       <button onClick={reset} className="btn-primary w-full">
-        Tentar novamente
+        Intentar de nuevo
       </button>
     </div>
   )

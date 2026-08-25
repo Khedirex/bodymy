@@ -18,7 +18,7 @@ export function SignOutButton() {
 
   return (
     <button onClick={sair} disabled={loading} className="btn-secondary w-full">
-      {loading ? 'Saindo…' : 'Sair da conta'}
+      {loading ? 'Saliendo…' : 'Cerrar sesión'}
     </button>
   )
 }

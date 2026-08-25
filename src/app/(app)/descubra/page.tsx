@@ -6,7 +6,7 @@ import { EmptyState } from '@/components/ui/states'
 import { CompassIcon } from '@/components/ui/icons'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Descubra — BodyMy' }
+export const metadata = { title: 'Descubre — BodyMy' }
 
 export default async function DescubraPage() {
   const profile = await getProfile()
@@ -20,9 +20,9 @@ export default async function DescubraPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-extrabold text-ink-900">Descubra</h1>
+        <h1 className="text-2xl font-extrabold text-ink-900">Descubre</h1>
         <p className="mt-1 text-ink-700">
-          Tudo o que o BodyMy tem para você. Desbloqueie no seu tempo.
+          Todo lo que BodyMy tiene para ti. Desbloquea a tu ritmo.
         </p>
       </header>
 
@@ -39,7 +39,7 @@ export default async function DescubraPage() {
 
       {liberados.length > 0 && (
         <section>
-          <h2 className="section-title mb-2">Seus acessos</h2>
+          <h2 className="section-title mb-2">Tus accesos</h2>
           <div className="space-y-3">
             {liberados.map((s) => (
               <LockedProductCard key={s.product.id} product={s.product} liberado />
@@ -50,8 +50,8 @@ export default async function DescubraPage() {
 
       {storefront.length === 0 && (
         <EmptyState
-          titulo="Em breve, novidades"
-          descricao="Estamos preparando novos programas e conteúdos para você."
+          titulo="Muy pronto, novedades"
+          descricao="Estamos preparando nuevos programas y contenidos para ti."
           icone={<CompassIcon width={28} height={28} />}
         />
       )}

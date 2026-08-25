@@ -23,16 +23,16 @@ export default async function OfertaPage({ params }: { params: { slug: string } 
             <CheckIcon width={28} height={28} />
           </div>
           <h1 className="text-xl font-extrabold text-ink-900">
-            Você já tem acesso a {result.product.nome}
+            Ya tienes acceso a {result.product.nome}
           </h1>
-          <p className="mt-1 text-ink-700">Bom te ver por aqui! É só continuar.</p>
+          <p className="mt-1 text-ink-700">¡Qué bueno verte por aquí! Solo tienes que continuar.</p>
           {result.programSlug ? (
             <Link href={`/programa/${result.programSlug}`} className="btn-primary mt-4 w-full">
-              Ir para o programa
+              Ir al programa
             </Link>
           ) : (
             <Link href="/dieta" className="btn-primary mt-4 w-full">
-              Ver conteúdo
+              Ver contenido
             </Link>
           )}
         </div>

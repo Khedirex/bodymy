@@ -20,20 +20,20 @@ export default async function AdminOverview() {
   const o = await getAdminOverview()
 
   const cards = [
-    { label: 'Total de alunas', valor: o.totalAlunas },
-    { label: 'Acessos concedidos hoje', valor: o.acessosHoje },
-    { label: 'Acessos nos últimos 7 dias', valor: o.acessosSemana },
+    { label: 'Total de alumnas', valor: o.totalAlunas },
+    { label: 'Accesos otorgados hoy', valor: o.acessosHoje },
+    { label: 'Accesos en los últimos 7 días', valor: o.acessosSemana },
   ]
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-900">Visão geral</h1>
+        <h1 className="text-xl font-bold text-slate-900">Visión general</h1>
         <Link
           href="/admin/alunas"
           className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-slate-700"
         >
-          Buscar aluna →
+          Buscar alumna →
         </Link>
       </div>
 
@@ -52,17 +52,17 @@ export default async function AdminOverview() {
           <table className="w-full text-sm">
             <thead className="border-b border-slate-200 bg-slate-50 text-left text-slate-500">
               <tr>
-                <th className="px-3 py-2 font-medium">Quando</th>
-                <th className="px-3 py-2 font-medium">E-mail</th>
+                <th className="px-3 py-2 font-medium">Cuándo</th>
+                <th className="px-3 py-2 font-medium">Correo</th>
                 <th className="px-3 py-2 font-medium">event_id</th>
-                <th className="px-3 py-2 font-medium">Processado</th>
+                <th className="px-3 py-2 font-medium">Procesado</th>
               </tr>
             </thead>
             <tbody>
               {o.ultimosWebhooks.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-3 py-6 text-center text-slate-400">
-                    Nenhum webhook recebido ainda.
+                    Todavía no se recibió ningún webhook.
                   </td>
                 </tr>
               ) : (
@@ -73,9 +73,9 @@ export default async function AdminOverview() {
                     <td className="px-3 py-2 font-mono text-xs text-slate-500">{w.event_id}</td>
                     <td className="px-3 py-2">
                       {w.processed ? (
-                        <span className="rounded bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">sim</span>
+                        <span className="rounded bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">sí</span>
                       ) : (
-                        <span className="rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">não</span>
+                        <span className="rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">no</span>
                       )}
                     </td>
                   </tr>

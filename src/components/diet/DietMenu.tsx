@@ -22,7 +22,7 @@ export function DietMenu({ days, diaInicial }: { days: DietDay[]; diaInicial: nu
   if (days.length === 0) {
     return (
       <p className="rounded-2xl bg-cream-100 p-4 text-ink-700">
-        O cardápio ainda está sendo preparado. Volte em breve.
+        El menú todavía se está preparando. Vuelve pronto.
       </p>
     )
   }
@@ -37,21 +37,21 @@ export function DietMenu({ days, diaInicial }: { days: DietDay[]; diaInicial: nu
           onClick={() => setIdx((i) => Math.max(0, i - 1))}
           disabled={idx === 0}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-card disabled:opacity-30"
-          aria-label="Dia anterior"
+          aria-label="Día anterior"
         >
           <ChevronLeft width={20} height={20} />
         </button>
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-wide text-ink-700/60">
-            Cardápio
+            Menú
           </p>
-          <p className="text-lg font-bold text-ink-900">Dia {dia.numero}</p>
+          <p className="text-lg font-bold text-ink-900">Día {dia.numero}</p>
         </div>
         <button
           onClick={() => setIdx((i) => Math.min(days.length - 1, i + 1))}
           disabled={idx === days.length - 1}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-card disabled:opacity-30"
-          aria-label="Próximo dia"
+          aria-label="Día siguiente"
         >
           <ChevronRight width={20} height={20} />
         </button>

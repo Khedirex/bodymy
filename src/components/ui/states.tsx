@@ -23,13 +23,13 @@ export function EmptyState({
 }
 
 export function ErrorState({
-  descricao = 'Algo não carregou como esperado. Tente novamente em instantes.',
+  descricao = 'Algo no cargó como se esperaba. Inténtalo de nuevo en un momento.',
 }: {
   descricao?: string
 }) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 rounded-3xl bg-coral-50 px-6 py-10 text-center">
-      <h3 className="text-base font-bold text-coral-700">Ops!</h3>
+      <h3 className="text-base font-bold text-coral-700">¡Ups!</h3>
       <p className="max-w-xs text-sm text-ink-700">{descricao}</p>
     </div>
   )

@@ -27,8 +27,8 @@ export default async function EntendaPage() {
   if (!track) {
     return (
       <EmptyState
-        titulo="Material complementar"
-        descricao="Assim que seu acesso estiver ativo, os textos sobre a prática aparecem aqui."
+        titulo="Material complementario"
+        descricao="En cuanto tu acceso esté activo, los textos sobre la práctica aparecerán aquí."
         icone={<BookIcon width={28} height={28} />}
       />
     )
@@ -37,10 +37,10 @@ export default async function EntendaPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-extrabold text-ink-900">Entenda a prática</h1>
+        <h1 className="text-2xl font-extrabold text-ink-900">Comprende la práctica</h1>
         <p className="mt-1 text-ink-700">
-          Textos curtos sobre o movimento somático — o porquê por trás dos exercícios. Leia na
-          ordem que quiser, quando tiver vontade.
+          Textos cortos sobre el movimiento somático — el porqué detrás de los ejercicios. Lee en
+          el orden que quieras, cuando tengas ganas.
         </p>
       </header>
 
@@ -62,7 +62,7 @@ export default async function EntendaPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-semibold text-ink-900">{lesson.titulo}</p>
-                        <p className="truncate text-sm text-ink-700">{lesson.duracao_min} min de leitura</p>
+                        <p className="truncate text-sm text-ink-700">{lesson.duracao_min} min de lectura</p>
                       </div>
                       <ChevronRight className="text-ink-700/40" width={20} height={20} />
                     </Link>

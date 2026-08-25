@@ -14,7 +14,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </Link>
         <Link
           href="/perfil"
-          aria-label="Minha conta"
+          aria-label="Mi cuenta"
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-ink-700 shadow-card"
         >
           <UserIcon width={22} height={22} />

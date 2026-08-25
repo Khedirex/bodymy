@@ -11,7 +11,7 @@ export default function LoginPage() {
           <span aria-hidden>🤍</span>
         </div>
         <h1 className="text-2xl font-extrabold text-ink-900">BodyMy</h1>
-        <p className="mt-1 text-ink-700">Seu programa, no seu ritmo.</p>
+        <p className="mt-1 text-ink-700">Tu programa, a tu ritmo.</p>
       </div>
       <Suspense fallback={null}>
         <LoginForm />

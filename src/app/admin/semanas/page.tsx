@@ -9,11 +9,11 @@ export default async function SemanasPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-bold text-slate-900">Liberação de semanas</h1>
+        <h1 className="text-xl font-bold text-slate-900">Liberación de semanas</h1>
         <p className="mt-1 text-sm text-slate-500">
-          A Semana 1 fica sempre disponível. Libere as Semanas 2, 3 e 4 quando os vídeos daquela
-          variação (v2, v3, v4) estiverem prontos. Enquanto bloqueadas, a aluna repete a semana
-          anterior — o streak continua contando.
+          La Semana 1 siempre está disponible. Libera las Semanas 2, 3 y 4 cuando los videos de esa
+          variación (v2, v3, v4) estén listos. Mientras estén bloqueadas, la alumna repite la semana
+          anterior — la racha sigue contando.
         </p>
       </div>
 
@@ -26,17 +26,17 @@ export default async function SemanasPage() {
                 <div>
                   <h2 className="text-base font-bold text-slate-900">
                     Semana {s.semana}
-                    <span className="ml-2 text-sm font-normal text-slate-400">entra em v{s.variacao}</span>
+                    <span className="ml-2 text-sm font-normal text-slate-400">entra en v{s.variacao}</span>
                   </h2>
                   <p className="mt-0.5 text-sm text-slate-600">
-                    v{s.variacao}: <span className={completo ? 'font-semibold text-emerald-700' : 'font-semibold text-amber-700'}>{s.videosPreenchidos}/{s.videosTotal} vídeos</span>
+                    v{s.variacao}: <span className={completo ? 'font-semibold text-emerald-700' : 'font-semibold text-amber-700'}>{s.videosPreenchidos}/{s.videosTotal} videos</span>
                     {s.alunasAguardando > 0 ? (
-                      <span className="ml-3 text-slate-500">· {s.alunasAguardando} aluna(s) aguardando</span>
+                      <span className="ml-3 text-slate-500">· {s.alunasAguardando} alumna(s) esperando</span>
                     ) : null}
                   </p>
                 </div>
                 {s.semana === 1 ? (
-                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">sempre liberada</span>
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">siempre liberada</span>
                 ) : (
                   <SemanaToggle semana={s.semana} liberada={s.liberada} completo={completo} preenchidos={s.videosPreenchidos} total={s.videosTotal} />
                 )}

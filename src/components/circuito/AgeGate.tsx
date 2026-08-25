@@ -24,12 +24,12 @@ export function AgeGate() {
           body: JSON.stringify({ faixa_etaria: faixa }),
         })
         if (!res.ok) {
-          setErro('Não conseguimos salvar agora. Tente novamente.')
+          setErro('No pudimos guardar ahora. Inténtalo de nuevo.')
           return
         }
         router.refresh()
       } catch {
-        setErro('Sem conexão. Tente novamente.')
+        setErro('Sin conexión. Inténtalo de nuevo.')
       }
     })
   }
@@ -37,10 +37,10 @@ export function AgeGate() {
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="text-2xl font-extrabold text-ink-900">Seu treino, do seu jeito</h1>
+        <h1 className="text-2xl font-extrabold text-ink-900">Tu entrenamiento, a tu manera</h1>
         <p className="mt-2 text-ink-700">
-          Antes de começar, me conta a sua faixa de idade. Usamos só para começar num ritmo
-          seguro e confortável — depois o treino se ajusta ao que você sentir.
+          Antes de empezar, cuéntame tu rango de edad. Lo usamos solo para empezar en un ritmo
+          seguro y cómodo — después el entrenamiento se ajusta a lo que sientas.
         </p>
       </header>
       <div className="space-y-3">
@@ -62,7 +62,7 @@ export function AgeGate() {
         <p className="rounded-2xl bg-coral-50 px-4 py-3 text-sm font-medium text-coral-700">{erro}</p>
       ) : null}
       <button className="btn-primary w-full" disabled={!faixa || pending} onClick={salvar}>
-        {pending ? 'Preparando…' : 'Começar'}
+        {pending ? 'Preparando…' : 'Empezar'}
       </button>
     </div>
   )

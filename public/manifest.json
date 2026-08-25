@@ -1,14 +1,14 @@
 {
   "name": "BodyMy",
   "short_name": "BodyMy",
-  "description": "Seu programa de caminhada e bem-estar, no seu ritmo.",
+  "description": "Tu programa de movimiento y bienestar, a tu ritmo.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#FDFBF8",
   "theme_color": "#E8896B",
-  "lang": "pt-BR",
+  "lang": "es",
   "icons": [
     {
       "src": "/icons/icon-192.png",

@@ -17,9 +17,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               BodyMy <span className="font-medium text-slate-400">admin</span>
             </Link>
             <nav className="flex items-center gap-4 text-sm">
-              <Link href="/admin" className="text-slate-600 hover:text-slate-900">Visão geral</Link>
-              <Link href="/admin/alunas" className="text-slate-600 hover:text-slate-900">Alunas</Link>
-              <Link href="/admin/produtos" className="text-slate-600 hover:text-slate-900">Produtos</Link>
+              <Link href="/admin" className="text-slate-600 hover:text-slate-900">Visión general</Link>
+              <Link href="/admin/alunas" className="text-slate-600 hover:text-slate-900">Alumnas</Link>
+              <Link href="/admin/produtos" className="text-slate-600 hover:text-slate-900">Productos</Link>
               <Link href="/admin/exercicios" className="text-slate-600 hover:text-slate-900">Circuito</Link>
               <Link href="/admin/semanas" className="text-slate-600 hover:text-slate-900">Semanas</Link>
               <Link href="/admin/feedbacks" className="text-slate-600 hover:text-slate-900">Feedbacks</Link>

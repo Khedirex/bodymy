@@ -1,5 +1,5 @@
 import { formatInTimeZone, toZonedTime } from 'date-fns-tz'
-import { ptBR } from 'date-fns/locale'
+import { es } from 'date-fns/locale'
 
 // Todo o cálculo de datas do app usa o fuso de São Paulo — é o "dia"
 // que a usuária percebe (check-ins, streak, cardápio do dia).
@@ -15,12 +15,12 @@ export function toAppZone(date: Date): Date {
   return toZonedTime(date, APP_TZ)
 }
 
-/** Formata uma data ISO (YYYY-MM-DD) de forma amigável em pt-BR. */
+/** Formata uma data ISO (YYYY-MM-DD) de forma amigável em espanhol. */
 export function formatDataBR(iso: string, pattern = "d 'de' MMMM"): string {
   // Interpreta como data local (sem timezone) para evitar shift de dia.
   const [y, m, d] = iso.split('-').map(Number)
   const date = new Date(Date.UTC(y, m - 1, d))
-  return formatInTimeZone(date, 'UTC', pattern, { locale: ptBR })
+  return formatInTimeZone(date, 'UTC', pattern, { locale: es })
 }
 
 function isoToUTC(iso: string): number {
