@@ -80,8 +80,17 @@ produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 `0003_functions.sql` → `0004_admin.sql` → `0005_upsells_admin.sql` →
 `0006_ritual_tapetinho.sql` → `0007_circuito.sql` → `0008_semana1_e_bloqueio.sql`
 → `0009_cronometro.sql` → `0010_bloco_mobilidade.sql` → `0011_drenagem_tailandesa.sql`
-→ `0012_kiwify_drenagem.sql` → `0013_pilates_hormonal.sql`, via `supabase db push`
-ou colando cada uma no SQL Editor.
+→ `0012_kiwify_drenagem.sql` → `0013_pilates_hormonal.sql` → `0014_es_content.sql`,
+via `supabase db push` ou colando cada uma no SQL Editor.
+
+### App em espanhol (`0014_es_content.sql`)
+
+O app é **espanhol-only**. A interface foi traduzida no código; o **conteúdo**
+(28 aulas, 35 exercícios + variação v1, 10 alongamentos, cardápio base e
+produtos/sales_page) é traduzido no banco pela `0014`, que faz **UPDATE in
+place por posição** (semana/dia, dia/ordem, ordem, numero) — preserva os ids,
+então ninguém perde progresso. Regenerável: `npx tsx
+scripts/gen-es-content-migration.ts` (lê as fontes em `supabase/content/`).
 
 `0012` aponta o produto para o NOVO produto da Kiwify (novo `kiwify_product_id`
 + `kiwify_checkout_url`). O entitlement é por `product_id` interno (inalterado),
