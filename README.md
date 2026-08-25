@@ -80,8 +80,20 @@ produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 `0003_functions.sql` → `0004_admin.sql` → `0005_upsells_admin.sql` →
 `0006_ritual_tapetinho.sql` → `0007_circuito.sql` → `0008_semana1_e_bloqueio.sql`
 → `0009_cronometro.sql` → `0010_bloco_mobilidade.sql` → `0011_drenagem_tailandesa.sql`
-→ `0012_kiwify_drenagem.sql` → `0013_pilates_hormonal.sql` → `0014_es_content.sql`,
+→ `0012_kiwify_drenagem.sql` → `0013_pilates_hormonal.sql` → `0014_es_content.sql` → `0015_hotmart.sql`,
 via `supabase db push` ou colando cada uma no SQL Editor.
+
+### Integração Hotmart (`0015_hotmart.sql`)
+
+Adiciona `products.hotmart_product_id` e o produto **"Pilates Hormonal - Reto
+de 28 Días"** (Hotmart id `8385058`, slug `pilates-hormonal-reto`), que libera
+a mesma experiência (circuito + aulas). O webhook `/api/webhooks/hotmart`
+verifica o `hottok` (`HOTMART_WEBHOOK_TOKEN`) e reaproveita o
+`processPurchaseEvent` do fluxo Kiwify — o produto é localizado por
+`hotmart_product_id` **ou** `kiwify_product_id`. Configure na Hotmart:
+Ferramentas → Webhook/Postback → URL `https://SEU-DOMINIO/api/webhooks/hotmart`,
+eventos de compra aprovada/reembolso/chargeback; copie o hottok para
+`HOTMART_WEBHOOK_TOKEN` no ambiente.
 
 ### App em espanhol (`0014_es_content.sql`)
 

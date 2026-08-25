@@ -43,6 +43,7 @@ create table public.products (
   descricao text,
   tipo text not null check (tipo in ('programa','dieta_premium','bundle','extra')),
   kiwify_product_id text,
+  hotmart_product_id text,
   kiwify_checkout_url text,
   preco_exibicao text,
   sales_page jsonb,
@@ -50,6 +51,7 @@ create table public.products (
   created_at timestamptz not null default now()
 );
 create index products_kiwify_product_id_idx on public.products(kiwify_product_id);
+create index products_hotmart_product_id_idx on public.products(hotmart_product_id);
 
 -- entitlements (o que cada usuário desbloqueou)
 create table public.entitlements (

@@ -22,19 +22,19 @@ export async function processPurchaseEvent(
 ): Promise<ProcessResult> {
   const admin = createAdminClient()
 
-  // Localiza o produto pelo id da Kiwify.
-  if (!event.kiwifyProductId) {
+  // Localiza o produto pelo id da plataforma (Kiwify OU Hotmart).
+  if (!event.productId) {
     return { status: 'ignorado', detail: 'sem product_id' }
   }
   const { data: product, error: prodErr } = await admin
     .from('products')
     .select('id, nome')
-    .eq('kiwify_product_id', event.kiwifyProductId)
+    .or(`kiwify_product_id.eq.${event.productId},hotmart_product_id.eq.${event.productId}`)
     .maybeSingle()
 
   if (prodErr) throw prodErr
   if (!product) {
-    return { status: 'produto_nao_encontrado', detail: event.kiwifyProductId }
+    return { status: 'produto_nao_encontrado', detail: event.productId }
   }
 
   if (event.type === 'reembolso' || event.type === 'chargeback') {

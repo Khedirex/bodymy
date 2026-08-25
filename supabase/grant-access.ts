@@ -29,7 +29,11 @@ if (!SUPABASE_URL || !SERVICE_ROLE) {
 // --- Parse dos argumentos -------------------------------------------
 const rawArgs = process.argv.slice(2)
 const confirm = rawArgs.includes('--confirm')
-const args = rawArgs.filter((a) => a !== '--confirm')
+// Senha opcional via --senha=VALOR (extraída antes do resto p/ não colidir
+// com o slug). Sem ela, a aluna entra por código (OTP), como de costume.
+const senhaFlag = rawArgs.find((a) => a.startsWith('--senha='))
+const senha = senhaFlag ? senhaFlag.slice('--senha='.length) : null
+const args = rawArgs.filter((a) => a !== '--confirm' && !a.startsWith('--senha='))
 
 const email = args.find((a) => a.includes('@'))?.trim().toLowerCase()
 const resto = args.filter((a) => a !== args.find((x) => x.includes('@')))
@@ -37,6 +41,11 @@ const resto = args.filter((a) => a !== args.find((x) => x.includes('@')))
 // e têm espaço, então não colidem). Default: drenagem-tailandesa.
 const slug = resto.find((a) => /^[a-z0-9][a-z0-9-]*$/.test(a)) ?? 'drenagem-tailandesa'
 const nome = resto.filter((a) => a !== slug).join(' ').trim()
+
+if (senha && senha.length < 6) {
+  console.error('✗ A senha precisa ter pelo menos 6 caracteres (regra do Supabase).')
+  process.exit(1)
+}
 
 if (!email || !nome) {
   console.error('Uso: npm run grant:access -- email@x.com "Nome Completo" [slug-do-produto] --confirm')
@@ -93,19 +102,21 @@ async function main() {
     userId = existente.id
     const { error } = await db.auth.admin.updateUserById(userId, {
       email_confirm: true,
+      ...(senha ? { password: senha } : {}),
       user_metadata: { ...(existente.user_metadata ?? {}), nome },
     })
     if (error) throw error
-    console.log(`• Usuário já existia (${userId}) — e-mail confirmado garantido.`)
+    console.log(`• Usuário já existia (${userId}) — e-mail confirmado${senha ? ' + senha definida' : ''}.`)
   } else {
     const { data: created, error } = await db.auth.admin.createUser({
       email: email!,
       email_confirm: true,
+      ...(senha ? { password: senha } : {}),
       user_metadata: { nome },
     })
     if (error) throw error
     userId = created.user.id
-    console.log(`• Usuário criado (${userId}).`)
+    console.log(`• Usuário criado (${userId})${senha ? ' com senha' : ''}.`)
   }
 
   // 2) Profile (is_admin=false).

@@ -1,49 +1,38 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { serverEnv } from '@/lib/env'
-import {
-  verifyKiwifySignature,
-  normalizeKiwifyEvent,
-  type KiwifyPayload,
-} from '@/lib/kiwify'
+import { verifyHotmartToken, normalizeHotmartEvent, extractHottok, type HotmartPayload } from '@/lib/hotmart'
 import { processPurchaseEvent } from '@/lib/purchase'
 import { captureException } from '@/lib/observability'
 
-// O webhook precisa do corpo BRUTO para validar a assinatura, então
-// desativamos qualquer parsing automático e lemos como texto.
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+// Webhook da Hotmart. Verifica o hottok, garante idempotência por evento e
+// reaproveita o mesmo processPurchaseEvent do fluxo Kiwify (o produto é
+// localizado por hotmart_product_id OU kiwify_product_id).
 export async function POST(request: NextRequest) {
   const rawBody = await request.text()
 
-  // 1) Validar assinatura (query `signature` ou header).
-  const url = new URL(request.url)
-  const signature =
-    url.searchParams.get('signature') ??
-    request.headers.get('x-kiwify-signature') ??
-    null
-
-  if (!verifyKiwifySignature(rawBody, signature, serverEnv.kiwifyWebhookSecret)) {
-    return NextResponse.json({ error: 'assinatura inválida' }, { status: 401 })
-  }
-
-  let payload: KiwifyPayload
+  let payload: HotmartPayload
   try {
     payload = JSON.parse(rawBody)
   } catch {
     return NextResponse.json({ error: 'json inválido' }, { status: 400 })
   }
 
-  const event = normalizeKiwifyEvent(payload)
+  // 1) Verifica o hottok (header ou corpo).
+  const hottok = extractHottok(request.headers, payload)
+  if (!verifyHotmartToken(hottok, serverEnv.hotmartWebhookToken)) {
+    return NextResponse.json({ error: 'token inválido' }, { status: 401 })
+  }
 
-  // Log operacional (aparece nos Function Logs da Vercel). Mostra o
-  // product_id que a Kiwify enviou — use este valor no kiwify_product_id
-  // da tabela products se ainda não bater.
+  const event = normalizeHotmartEvent(payload)
+
   // eslint-disable-next-line no-console
-  console.log('[webhook:kiwify] recebido', {
+  console.log('[webhook:hotmart] recebido', {
     tipo: event.type,
-    kiwify_product_id: event.productId,
+    hotmart_product_id: event.productId,
     email: event.email,
     orderId: event.orderId,
     eventId: event.eventId,
@@ -51,44 +40,41 @@ export async function POST(request: NextRequest) {
 
   const admin = createAdminClient()
 
-  // 2) Idempotência: registra o evento; se já processado, retorna 200.
+  // 2) Idempotência (provider = 'hotmart').
   const { data: existing } = await admin
     .from('webhook_events')
     .select('id, processed')
-    .eq('provider', 'kiwify')
+    .eq('provider', 'hotmart')
     .eq('event_id', event.eventId)
     .maybeSingle()
 
   if (existing?.processed) {
     return NextResponse.json({ ok: true, duplicated: true })
   }
-
   if (!existing) {
     await admin.from('webhook_events').insert({
-      provider: 'kiwify',
+      provider: 'hotmart',
       event_id: event.eventId,
       payload: payload as unknown as Record<string, unknown>,
       processed: false,
     })
   }
 
-  // 3/4) Processa o evento (compra aprovada / reembolso / chargeback).
+  // 3) Processa (compra aprovada / reembolso / chargeback).
   try {
     const result = await processPurchaseEvent(event)
-
     // eslint-disable-next-line no-console
-    console.log('[webhook:kiwify] resultado', { status: result.status, detail: result.detail })
+    console.log('[webhook:hotmart] resultado', { status: result.status, detail: result.detail })
 
     await admin
       .from('webhook_events')
       .update({ processed: true })
-      .eq('provider', 'kiwify')
+      .eq('provider', 'hotmart')
       .eq('event_id', event.eventId)
 
     return NextResponse.json({ ok: true, ...result })
   } catch (err) {
-    // 5) Erro: loga no Sentry e retorna 500 para a Kiwify reenviar.
-    captureException(err, { webhook: 'kiwify', eventId: event.eventId })
+    captureException(err, { webhook: 'hotmart', eventId: event.eventId })
     return NextResponse.json({ error: 'erro ao processar' }, { status: 500 })
   }
 }

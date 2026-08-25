@@ -43,6 +43,7 @@ export interface Product {
   descricao: string | null
   tipo: ProductTipo
   kiwify_product_id: string | null
+  hotmart_product_id: string | null
   kiwify_checkout_url: string | null
   preco_exibicao: string | null
   sales_page: SalesPage | null

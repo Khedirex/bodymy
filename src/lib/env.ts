@@ -180,6 +180,9 @@ export const serverEnv = {
   get kiwifyWebhookSecret() {
     return required('KIWIFY_WEBHOOK_SECRET', process.env.KIWIFY_WEBHOOK_SECRET)
   },
+  get hotmartWebhookToken() {
+    return required('HOTMART_WEBHOOK_TOKEN', process.env.HOTMART_WEBHOOK_TOKEN)
+  },
   get sentryDsn() {
     return process.env.SENTRY_DSN ?? ''
   },
