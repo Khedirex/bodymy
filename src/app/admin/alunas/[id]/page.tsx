@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 function fmt(dt: string | null) {
   if (!dt) return '—'
-  return new Date(dt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+  return new Date(dt).toLocaleString('es-419', { dateStyle: 'short', timeStyle: 'short' })
 }
 
 export default async function AlunaFichaPage({ params }: { params: { id: string } }) {

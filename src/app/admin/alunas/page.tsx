@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 function fmtDate(dt: string | null) {
   if (!dt) return '—'
-  return new Date(dt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return new Date(dt).toLocaleDateString('es-419', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 export default async function AlunasPage({

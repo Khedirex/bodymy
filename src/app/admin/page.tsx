@@ -4,7 +4,7 @@ import { getAdminOverview } from '@/lib/admin-queries'
 export const dynamic = 'force-dynamic'
 
 function fmt(dt: string) {
-  return new Date(dt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+  return new Date(dt).toLocaleString('es-419', { dateStyle: 'short', timeStyle: 'short' })
 }
 
 function emailDoPayload(p: Record<string, unknown> | null): string {

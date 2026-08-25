@@ -18,7 +18,7 @@ export default function GlobalError({
   }, [error])
 
   return (
-    <html lang="pt-BR">
+    <html lang="es">
       <body
         style={{
           margin: 0,
@@ -37,9 +37,9 @@ export default function GlobalError({
           <div style={{ fontSize: 48 }} aria-hidden>
             🤍
           </div>
-          <h1 style={{ fontSize: 22 }}>Algo saiu do lugar</h1>
+          <h1 style={{ fontSize: 22 }}>Algo salió mal</h1>
           <p style={{ color: '#6b625b' }}>
-            Tivemos um probleminha por aqui. Tente novamente.
+            Tuvimos un problemita por aquí. Inténtalo de nuevo.
           </p>
           <button
             onClick={reset}
@@ -54,7 +54,7 @@ export default function GlobalError({
               fontSize: 16,
             }}
           >
-            Tentar de novo
+            Intentar de nuevo
           </button>
         </div>
       </body>

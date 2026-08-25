@@ -6,12 +6,12 @@ export default function NotFound() {
       <div className="text-5xl" aria-hidden>
         🚶‍♀️
       </div>
-      <h1 className="text-2xl font-extrabold text-ink-900">Página não encontrada</h1>
+      <h1 className="text-2xl font-extrabold text-ink-900">Página no encontrada</h1>
       <p className="text-ink-700">
-        O caminho que você procurou não existe por aqui.
+        La página que buscabas no existe por aquí.
       </p>
       <Link href="/" className="btn-primary mt-2">
-        Voltar para o início
+        Volver al inicio
       </Link>
     </div>
   )

@@ -68,7 +68,7 @@ export function CallbackHandler() {
       if (errNoFragmento) {
         // eslint-disable-next-line no-console
         console.warn('[auth/callback] erro no fragmento:', errNoFragmento)
-        return falhar('Esse link expirou ou já foi usado. Peça um novo abaixo.')
+        return falhar('Ese enlace venció o ya fue usado. Pide uno nuevo abajo.')
       }
 
       // 1) Implicit flow — tokens no fragmento.
@@ -103,7 +103,7 @@ export function CallbackHandler() {
     }
 
     function falhar(msg?: string) {
-      setErro(msg ?? 'Não foi possível concluir o acesso. Tente pedir um novo link.')
+      setErro(msg ?? 'No pudimos completar el acceso. Intenta pedir un enlace nuevo.')
       const q = new URLSearchParams({ erro: 'link_invalido' })
       // navegação relativa — nunca constrói host:porta
       setTimeout(() => router.replace(`/login?${q.toString()}`), 1200)

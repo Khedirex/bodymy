@@ -35,7 +35,7 @@ export default function ResetPasswordPage() {
       }
       const { data } = await supabase.auth.getSession()
       if (data.session) setPronto(true)
-      else setErro('Link inválido ou expirado. Peça um novo em “Esqueci minha senha”.')
+      else setErro('Enlace inválido o vencido. Pide uno nuevo en «Olvidé mi contraseña».')
     }
     prep()
   }, [])
@@ -43,13 +43,13 @@ export default function ResetPasswordPage() {
   async function salvar(e: React.FormEvent) {
     e.preventDefault()
     setErro(null)
-    if (senha.length < 6) return setErro('A senha precisa ter pelo menos 6 caracteres.')
-    if (senha !== confirma) return setErro('As senhas não são iguais.')
+    if (senha.length < 6) return setErro('La contraseña debe tener al menos 6 caracteres.')
+    if (senha !== confirma) return setErro('Las contraseñas no coinciden.')
     setSalvando(true)
     const supabase = createClient()
     const { error } = await supabase.auth.updateUser({ password: senha })
     setSalvando(false)
-    if (error) return setErro('Não conseguimos salvar a senha agora. Tente novamente.')
+    if (error) return setErro('No pudimos guardar la contraseña ahora. Inténtalo de nuevo.')
     setOk(true)
     setTimeout(() => {
       router.replace('/')
@@ -59,31 +59,31 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col justify-center px-6 py-10">
-      <h1 className="mb-4 text-center text-2xl font-extrabold text-ink-900">Criar nova senha</h1>
+      <h1 className="mb-4 text-center text-2xl font-extrabold text-ink-900">Crear nueva contraseña</h1>
 
       {ok ? (
         <div className="card text-center">
           <div className="mb-2 text-4xl" aria-hidden>✅</div>
-          <p className="font-bold text-ink-900">Senha atualizada!</p>
-          <p className="mt-1 text-sm text-ink-700">Levando você para o app…</p>
+          <p className="font-bold text-ink-900">¡Contraseña actualizada!</p>
+          <p className="mt-1 text-sm text-ink-700">Te estamos llevando a la app…</p>
         </div>
       ) : !pronto && !erro ? (
         <div className="card text-center text-ink-700">Preparando…</div>
       ) : (
         <form onSubmit={salvar} className="card space-y-4">
           <div>
-            <label className="mb-1.5 block font-semibold text-ink-800">Nova senha</label>
+            <label className="mb-1.5 block font-semibold text-ink-800">Nueva contraseña</label>
             <input type="password" autoComplete="new-password" className="input" value={senha}
-              onChange={(e) => setSenha(e.target.value)} placeholder="Pelo menos 6 caracteres" />
+              onChange={(e) => setSenha(e.target.value)} placeholder="Al menos 6 caracteres" />
           </div>
           <div>
-            <label className="mb-1.5 block font-semibold text-ink-800">Confirmar senha</label>
+            <label className="mb-1.5 block font-semibold text-ink-800">Confirmar contraseña</label>
             <input type="password" autoComplete="new-password" className="input" value={confirma}
-              onChange={(e) => setConfirma(e.target.value)} placeholder="Repita a senha" />
+              onChange={(e) => setConfirma(e.target.value)} placeholder="Repite la contraseña" />
           </div>
           {erro ? <p className="rounded-2xl bg-coral-50 px-4 py-3 text-sm font-medium text-coral-700">{erro}</p> : null}
           <button type="submit" className="btn-primary w-full" disabled={salvando || !pronto}>
-            {salvando ? 'Salvando…' : 'Salvar nova senha'}
+            {salvando ? 'Guardando…' : 'Guardar nueva contraseña'}
           </button>
         </form>
       )}
