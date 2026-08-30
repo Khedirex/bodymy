@@ -401,8 +401,22 @@ Configure na Kiwify a URL do webhook apontando para
    link e do webhook).
 4. No Supabase → Auth → URL Configuration, adicione o domínio às **Redirect
    URLs** (`https://SEU_DOMINIO/auth/callback`).
-5. Aponte o webhook da Kiwify para `https://SEU_DOMINIO/api/webhooks/kiwify`.
+5. Aponte os webhooks para `https://SEU_DOMINIO/api/webhooks/kiwify` e
+   `https://SEU_DOMINIO/api/webhooks/hotmart`.
 6. (Opcional) Sentry: configure `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`.
+
+### Domínio de produção: `app.bodymy.online`
+
+O app roda **na Vercel** (Next.js com servidor: SSR, rotas de API/webhooks,
+middleware) — **não** no `public_html` do Hostinger, que é só para o site
+institucional. Para usar o subdomínio: Vercel → Domains → adicionar
+`app.bodymy.online` e criar o **CNAME** `app` no DNS de `bodymy.online`
+apontando para o alvo que a Vercel informar. Depois, em toda config abaixo,
+troque `SEU_DOMINIO` por `app.bodymy.online`:
+- `NEXT_PUBLIC_APP_URL=https://app.bodymy.online` (Vercel) → redeploy
+- Supabase Auth: Site URL + Redirect URLs (`/auth/callback`, `/auth/reset`)
+- Kiwify: webhook + página de obrigado (`/obrigado`)
+- Hotmart: webhook (`/api/webhooks/hotmart`)
 
 ---
 
