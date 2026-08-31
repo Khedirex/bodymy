@@ -1,12 +1,37 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   NUTRI_QUESTIONARIO,
+  NUTRI_ASSISTENTE,
   type NutriCampo,
   type NutriPerfilDados,
   type NutriDietaConteudo,
 } from '@/lib/nutri-types'
+
+// Primeiro nome da lead (para personalizar as falas da assistente).
+function primeiroNome(nome: string | null): string {
+  if (!nome) return ''
+  return nome.trim().split(/\s+/)[0] ?? ''
+}
+
+// Avatar da assistente — círculo com gradiente + inicial e (opcional) o
+// pontinho verde de "en línea". Dá rosto ao chat.
+function Avatar({ size = 40, online = false }: { size?: number; online?: boolean }) {
+  return (
+    <span className="relative inline-block shrink-0" style={{ width: size, height: size }}>
+      <span
+        className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-sage-600 to-sage-400 font-extrabold text-white"
+        style={{ fontSize: size * 0.42 }}
+      >
+        {NUTRI_ASSISTENTE.inicial}
+      </span>
+      {online && (
+        <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500" />
+      )}
+    </span>
+  )
+}
 
 // Espelha NutriAcesso do servidor (sem importar server-only no client).
 interface Acesso {
@@ -31,6 +56,7 @@ interface Props {
   checkoutUrl: string | null
   produtoNome: string
   diaDoDesafio: number | null
+  nome: string | null
 }
 
 export function NutriPanel({
@@ -41,6 +67,7 @@ export function NutriPanel({
   checkoutUrl,
   produtoNome,
   diaDoDesafio,
+  nome,
 }: Props) {
   const [acesso, setAcesso] = useState<Acesso>(initialAcesso)
   const [dieta, setDieta] = useState<NutriDietaConteudo | null>(initialDieta)
@@ -68,7 +95,7 @@ export function NutriPanel({
           if (res.dieta) setDieta(res.dieta)
           setEditando(false)
           if (res.iaIndisponivel)
-            setAviso('Tu dieta se está preparando. En unos minutos estará lista aquí.')
+            setAviso(`${NUTRI_ASSISTENTE.nome} está preparando tu plan. En unos minutos estará listo aquí.`)
           else setAviso(null)
         }}
       />
@@ -78,14 +105,15 @@ export function NutriPanel({
   // view === 'app'
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-extrabold text-ink-900">Tu asistente del reto 🤍</h2>
-          {diaDoDesafio ? (
-            <p className="text-sm text-ink-700">Día {diaDoDesafio} de 28 · estoy contigo hoy</p>
-          ) : (
-            <p className="text-sm text-ink-700">Estoy contigo en tu día a día</p>
-          )}
+      <div className="flex items-center gap-3 rounded-2xl bg-white p-3 shadow-card">
+        <Avatar size={48} online />
+        <div className="min-w-0">
+          <p className="truncate font-extrabold text-ink-900">
+            {NUTRI_ASSISTENTE.nome} · {NUTRI_ASSISTENTE.titulo.toLowerCase()}
+          </p>
+          <p className="text-sm text-ink-700">
+            {diaDoDesafio ? `En línea · día ${diaDoDesafio} de 28 contigo` : 'En línea · contigo hoy'}
+          </p>
         </div>
       </div>
       <TrialBanner acesso={acesso} checkoutUrl={checkoutUrl} />
@@ -110,6 +138,8 @@ export function NutriPanel({
       <Chat
         historicoInicial={initialHistorico}
         onSinAcceso={(a) => setAcesso(a)}
+        nome={primeiroNome(nome)}
+        diaDoDesafio={diaDoDesafio}
       />
     </div>
   )
@@ -180,14 +210,19 @@ function Questionario({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl bg-gradient-to-br from-coral-500 to-coral-400 px-4 py-4 text-white">
-        <h3 className="text-lg font-extrabold">
-          {primeiraVez ? 'Activa tu acompañamiento' : 'Ajusta tus datos'}
-        </h3>
-        <p className="mt-1 text-sm text-white/90">
-          Responde unas preguntas y tu asistente te acompaña cada día: adapta tu sesión, resuelve
-          tus dudas y orienta tu alimentación como apoyo al reto.
-        </p>
+      <div className="flex items-start gap-3 rounded-2xl bg-gradient-to-br from-coral-500 to-coral-400 px-4 py-4 text-white">
+        <Avatar size={44} />
+        <div>
+          <h3 className="text-lg font-extrabold">
+            {primeiraVez
+              ? `${NUTRI_ASSISTENTE.nome} quiere conocerte`
+              : 'Ajusta tus datos'}
+          </h3>
+          <p className="mt-1 text-sm text-white/90">
+            Responde unas preguntas para que {NUTRI_ASSISTENTE.nome}, tu nutricionista, te acompañe
+            cada día: adapta tu sesión, resuelve tus dudas y orienta tu alimentación como apoyo al reto.
+          </p>
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -401,14 +436,33 @@ function DietaView({ dieta, onEditar }: { dieta: NutriDietaConteudo; onEditar: (
 function Chat({
   historicoInicial,
   onSinAcceso,
+  nome,
+  diaDoDesafio,
 }: {
   historicoInicial: Mensagem[]
   onSinAcceso: (a: Acesso) => void
+  nome: string
+  diaDoDesafio: number | null
 }) {
   const [msgs, setMsgs] = useState<Mensagem[]>(historicoInicial)
   const [texto, setTexto] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
+  const fimRef = useRef<HTMLDivElement>(null)
+
+  // Saudação proativa da assistente — a interface "fala" primeiro, sempre no
+  // topo, personalizada com o nome e o dia do desafio. É visual (não é gravada
+  // nem reenviada à IA).
+  const saudacao = useMemo(() => {
+    const ola = `¡Hola${nome ? ` ${nome}` : ''}! Soy ${NUTRI_ASSISTENTE.nome} 🤍`
+    const dia = diaDoDesafio ? ` Hoy es tu día ${diaDoDesafio} del reto.` : ''
+    return `${ola}${dia} Estoy aquí solo para ti. Cuéntame cómo te sientes hoy y en qué te ayudo 💬`
+  }, [nome, diaDoDesafio])
+
+  // Rola para a última mensagem quando chega algo novo.
+  useEffect(() => {
+    fimRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+  }, [msgs.length, enviando])
 
   async function enviar() {
     const mensagem = texto.trim()
@@ -445,51 +499,92 @@ function Chat({
   }
 
   return (
-    <section className="space-y-3">
-      <h2 className="section-title">Habla con tu asistente</h2>
-      <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto rounded-2xl bg-cream-100 p-3">
-        {msgs.length === 0 && (
-          <p className="px-2 py-6 text-center text-sm text-ink-700">
-            Escribe tu primera pregunta 🤍<br />
-            Ej.: «Hoy no dormí bien, ¿cómo hago la sesión?» o «Tengo calores, ¿qué como?»
+    <section className="overflow-hidden rounded-3xl border border-cream-200 bg-white shadow-card">
+      {/* Cabeçalho estilo mensageiro */}
+      <header className="flex items-center gap-3 border-b border-cream-200 bg-white px-4 py-3">
+        <Avatar size={40} online />
+        <div className="min-w-0">
+          <p className="truncate font-bold text-ink-900">{NUTRI_ASSISTENTE.nome}</p>
+          <p className="flex items-center gap-1 text-xs text-ink-700">
+            <span className="inline-block h-2 w-2 rounded-full bg-green-500" /> En línea
           </p>
+        </div>
+        <span className="ml-auto rounded-full bg-cream-100 px-2.5 py-1 text-[11px] font-semibold text-ink-700">
+          Chat privado
+        </span>
+      </header>
+
+      {/* Conversa */}
+      <div className="flex max-h-[52vh] flex-col gap-2.5 overflow-y-auto bg-cream-50 p-3">
+        {/* Saudação proativa: a assistente fala primeiro */}
+        <BalaoAssistente texto={saudacao} />
+
+        {msgs.map((m, i) =>
+          m.papel === 'user' ? (
+            <div
+              key={i}
+              className="max-w-[80%] self-end rounded-2xl rounded-br-md bg-coral-500 px-3.5 py-2 text-sm text-white"
+            >
+              {m.conteudo}
+            </div>
+          ) : (
+            <BalaoAssistente key={i} texto={m.conteudo} />
+          ),
         )}
-        {msgs.map((m, i) => (
-          <div
-            key={i}
-            className={`max-w-[85%] rounded-2xl px-3.5 py-2 text-sm ${
-              m.papel === 'user'
-                ? 'self-end bg-coral-500 text-white'
-                : 'self-start bg-white text-ink-900'
-            }`}
-          >
-            {m.conteudo}
-          </div>
-        ))}
+
         {enviando && (
-          <div className="self-start rounded-2xl bg-white px-3.5 py-2 text-sm text-ink-700">
-            escribiendo…
+          <div className="flex items-end gap-2 self-start">
+            <Avatar size={28} />
+            <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-white px-3.5 py-3 shadow-sm">
+              <Ponto /> <Ponto atraso={0.15} /> <Ponto atraso={0.3} />
+            </div>
           </div>
         )}
+        <div ref={fimRef} />
       </div>
-      {erro && <p className="text-sm font-semibold text-coral-500">{erro}</p>}
-      <div className="flex gap-2">
-        <input
-          value={texto}
-          onChange={(e) => setTexto(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && enviar()}
-          placeholder="Escribe tu pregunta…"
-          className="flex-1 rounded-full border border-cream-200 bg-white px-4 py-3 text-sm text-ink-900 outline-none focus:border-coral-400"
-        />
-        <button
-          onClick={enviar}
-          disabled={enviando || !texto.trim()}
-          className="rounded-full bg-coral-500 px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
-        >
-          Enviar
-        </button>
+
+      {/* Barra de envio */}
+      <div className="border-t border-cream-200 bg-white p-3">
+        {erro && <p className="mb-2 text-sm font-semibold text-coral-500">{erro}</p>}
+        <div className="flex gap-2">
+          <input
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && enviar()}
+            placeholder={`Escríbele a ${NUTRI_ASSISTENTE.nome}…`}
+            className="flex-1 rounded-full border border-cream-200 bg-cream-50 px-4 py-3 text-sm text-ink-900 outline-none focus:border-coral-400"
+          />
+          <button
+            onClick={enviar}
+            disabled={enviando || !texto.trim()}
+            className="rounded-full bg-coral-500 px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
+          >
+            Enviar
+          </button>
+        </div>
       </div>
     </section>
+  )
+}
+
+function BalaoAssistente({ texto }: { texto: string }) {
+  return (
+    <div className="flex items-end gap-2 self-start">
+      <Avatar size={28} />
+      <div className="max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-bl-md bg-white px-3.5 py-2 text-sm text-ink-900 shadow-sm">
+        {texto}
+      </div>
+    </div>
+  )
+}
+
+// Pontinho animado do "escribiendo…".
+function Ponto({ atraso = 0 }: { atraso?: number }) {
+  return (
+    <span
+      className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-ink-700/40"
+      style={{ animationDelay: `${atraso}s` }}
+    />
   )
 }
 

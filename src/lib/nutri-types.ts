@@ -1,7 +1,16 @@
 // =====================================================================
-// Tipos compartilhados do Nutricionista Online. SEM 'server-only' — são
+// Tipos compartilhados do Acompañamiento Diario. SEM 'server-only' — são
 // usados no client (formulário/render) e no servidor (n8n/acesso).
 // =====================================================================
+
+// Persona da assistente. Dá rosto e nome ao chat para a lead sentir um
+// atendimento privado e dedicado. (O disclaimer educativo da página deixa
+// claro que é um apoio, não substitui profissional.)
+export const NUTRI_ASSISTENTE = {
+  nome: 'Sofía',
+  titulo: 'Tu nutricionista',
+  inicial: 'S',
+} as const
 
 // ---- Questionário (o que a aluna responde para "montar a dieta") -----
 

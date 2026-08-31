@@ -77,6 +77,7 @@ export default async function DietaPage() {
         checkoutUrl={(nutriProduto?.kiwify_checkout_url as string) ?? null}
         produtoNome={(nutriProduto?.nome as string) ?? 'Acompañamiento Diario'}
         diaDoDesafio={contexto?.diaDoDesafio ?? null}
+        nome={profile.nome}
       />
 
       {/* Disclaimer fixo de conteúdo educativo */}

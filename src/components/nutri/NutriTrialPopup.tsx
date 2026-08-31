@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { NUTRI_ASSISTENTE } from '@/lib/nutri-types'
 
 const DISMISS_KEY = 'bodymy_nutri_popup_dismissed'
 
@@ -55,17 +56,24 @@ export function NutriTrialPopup() {
         className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <p className="text-4xl">🤍</p>
-        <h2 className="mt-3 text-xl font-extrabold text-ink-900">7 días gratis</h2>
+        <span className="relative mx-auto inline-block h-16 w-16">
+          <span className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-sage-600 to-sage-400 text-2xl font-extrabold text-white">
+            {NUTRI_ASSISTENTE.inicial}
+          </span>
+          <span className="absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-white bg-green-500" />
+        </span>
+        <h2 className="mt-3 text-xl font-extrabold text-ink-900">
+          {NUTRI_ASSISTENTE.nome} quiere acompañarte
+        </h2>
         <p className="mt-2 text-sm text-ink-700">
-          Activa tu <span className="font-semibold">asistente del reto</span>: te acompaña cada día,
-          adapta tu sesión y resuelve tus dudas por chat. Sin costo por 7 días.
+          Tu <span className="font-semibold">nutricionista</span> en un chat privado, solo para ti:
+          te acompaña cada día, adapta tu sesión y resuelve tus dudas. <span className="font-semibold">7 días gratis.</span>
         </p>
         <button
           onClick={montar}
           className="mt-5 w-full rounded-full bg-coral-500 px-6 py-3 text-sm font-bold text-white"
         >
-          Activar mi asistente gratis
+          Empezar mi chat gratis
         </button>
         <button onClick={fechar} className="mt-2 w-full py-2 text-sm font-semibold text-ink-700">
           Ahora no
