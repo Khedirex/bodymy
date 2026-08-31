@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Perfil — BodyMy' }
 
 // Suporte por e-mail (por enquanto). Ajuste conforme o negócio.
-const SUPORTE_EMAIL = 'contato@bodymy.com.br'
+const SUPORTE_EMAIL = 'soporte@bodymy.online'
 
 export default async function PerfilPage() {
   const profile = await getProfile()

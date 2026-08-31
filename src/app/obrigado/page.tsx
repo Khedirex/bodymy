@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Bienvenida a BodyMy 🤍' }
 
 // Suporte por e-mail (por enquanto). Ajuste conforme o negócio.
-const SUPORTE_EMAIL = 'contato@bodymy.com.br'
+const SUPORTE_EMAIL = 'soporte@bodymy.online'
 
 // Página pública pós-compra (Kiwify). Recebe ?email= opcional.
 export default async function ObrigadoPage({
