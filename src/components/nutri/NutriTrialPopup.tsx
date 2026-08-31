@@ -42,7 +42,7 @@ export function NutriTrialPopup() {
 
   function montar() {
     fechar()
-    router.push('/dieta')
+    router.push('/sofia')
   }
 
   if (!aberto) return null

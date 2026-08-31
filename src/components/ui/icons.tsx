@@ -52,6 +52,13 @@ export const CompassIcon = (p: IconProps) => (
   </svg>
 )
 
+export const ChatIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z" />
+    <path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01" />
+  </svg>
+)
+
 export const LockIcon = (p: IconProps) => (
   <svg {...base(p)}>
     <rect x="4" y="10" width="16" height="11" rx="2" />

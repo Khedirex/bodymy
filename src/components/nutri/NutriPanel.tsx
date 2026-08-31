@@ -447,6 +447,7 @@ function Chat({
   const [msgs, setMsgs] = useState<Mensagem[]>(historicoInicial)
   const [texto, setTexto] = useState('')
   const [enviando, setEnviando] = useState(false)
+  const [digitando, setDigitando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const fimRef = useRef<HTMLDivElement>(null)
 
@@ -462,7 +463,7 @@ function Chat({
   // Rola para a última mensagem quando chega algo novo.
   useEffect(() => {
     fimRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
-  }, [msgs.length, enviando])
+  }, [msgs.length, digitando])
 
   async function enviar() {
     const mensagem = texto.trim()
@@ -471,6 +472,14 @@ function Chat({
     setTexto('')
     setMsgs((prev) => [...prev, { papel: 'user', conteudo: mensagem }])
     setEnviando(true)
+
+    // Ritmo humano: espera 3s antes de mostrar "digitando…" e garante pelo
+    // menos +3s (mín. 6s no total) antes de exibir a resposta — mesmo que a IA
+    // responda mais rápido. Se a IA demorar mais, aguarda ela.
+    const inicio = Date.now()
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+    const timerDigitando = setTimeout(() => setDigitando(true), 3000)
+
     try {
       const res = await fetch('/api/nutri/chat', {
         method: 'POST',
@@ -490,10 +499,14 @@ function Chat({
         setErro('No pude responder ahora. Inténtalo de nuevo.')
         return
       }
+      const restante = 6000 - (Date.now() - inicio)
+      if (restante > 0) await sleep(restante)
       setMsgs((prev) => [...prev, { papel: 'assistant', conteudo: json.resposta }])
     } catch {
       setErro('Error de conexión.')
     } finally {
+      clearTimeout(timerDigitando)
+      setDigitando(false)
       setEnviando(false)
     }
   }
@@ -532,7 +545,7 @@ function Chat({
           ),
         )}
 
-        {enviando && (
+        {digitando && (
           <div className="flex items-end gap-2 self-start">
             <Avatar size={28} />
             <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-white px-3.5 py-3 shadow-sm">
