@@ -64,6 +64,7 @@ export function normalizeHotmartEvent(payload: HotmartPayload): PurchaseEvent {
   return {
     eventId,
     type,
+    provider: 'hotmart',
     productId,
     orderId,
     email: email ? email.trim().toLowerCase() : null,

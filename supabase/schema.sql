@@ -58,7 +58,7 @@ create table public.entitlements (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
   product_id uuid not null references public.products(id) on delete cascade,
-  origem text not null default 'kiwify' check (origem in ('kiwify','manual','bonus')),
+  origem text not null default 'kiwify' check (origem in ('kiwify','manual','bonus','hotmart')),
   kiwify_order_id text,
   status text not null default 'ativo' check (status in ('ativo','revogado')),
   created_at timestamptz not null default now(),

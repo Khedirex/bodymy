@@ -58,8 +58,8 @@ export async function processPurchaseEvent(
     {
       user_id: userId,
       product_id: product.id,
-      origem: 'kiwify',
-      kiwify_order_id: event.orderId,
+      origem: event.provider, // 'kiwify' | 'hotmart'
+      kiwify_order_id: event.orderId, // referência do pedido (qualquer plataforma)
       status: 'ativo',
     },
     { onConflict: 'user_id,product_id' },

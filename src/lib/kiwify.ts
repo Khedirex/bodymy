@@ -43,9 +43,12 @@ export type KiwifyEventType = 'compra_aprovada' | 'reembolso' | 'chargeback' | '
 // Forma estável de um evento de compra, usada por Kiwify E Hotmart
 // (processPurchaseEvent casa productId contra kiwify_product_id OU
 // hotmart_product_id).
+export type Provider = 'kiwify' | 'hotmart'
+
 export interface NormalizedKiwifyEvent {
   eventId: string
   type: KiwifyEventType
+  provider: Provider
   productId: string | null
   orderId: string | null
   email: string | null
@@ -93,6 +96,7 @@ export function normalizeKiwifyEvent(payload: KiwifyPayload): NormalizedKiwifyEv
   return {
     eventId,
     type: eventType,
+    provider: 'kiwify',
     productId,
     orderId,
     email: email ? email.trim().toLowerCase() : null,
