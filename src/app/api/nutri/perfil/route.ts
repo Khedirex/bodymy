@@ -3,8 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import {
   salvarPerfilEIniciarTrial,
   salvarDietaGerada,
+  getContextoProtocolo,
 } from '@/lib/nutri'
-import { gerarDietaN8n, N8nNaoConfigurado } from '@/lib/n8n'
+import { gerarPlanoN8n, N8nNaoConfigurado } from '@/lib/n8n'
 import { NUTRI_QUESTIONARIO, type NutriPerfilDados } from '@/lib/nutri-types'
 import { captureException } from '@/lib/observability'
 
@@ -66,11 +67,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true, acesso, dieta: null, bloqueado: true })
     }
 
-    // 3) Gera a dieta no n8n.
+    // 3) Gera o plano de apoio no n8n (com o contexto do protocolo).
     try {
-      const { dieta, retorno_em } = await gerarDietaN8n(user.id, dados)
-      await salvarDietaGerada(user.id, dieta, retorno_em ?? null)
-      return NextResponse.json({ ok: true, acesso, dieta })
+      const contexto = await getContextoProtocolo(supabase, user.id)
+      const { plano, retorno_em } = await gerarPlanoN8n(user.id, dados, contexto)
+      await salvarDietaGerada(user.id, plano, retorno_em ?? null)
+      return NextResponse.json({ ok: true, acesso, dieta: plano })
     } catch (err) {
       if (err instanceof N8nNaoConfigurado) {
         // Perfil salvo + trial iniciado, mas a IA ainda não está ligada.

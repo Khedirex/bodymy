@@ -5,6 +5,7 @@ import {
   getNutriPerfil,
   getDietaAtiva,
   getHistorico,
+  getContextoProtocolo,
   inserirMensagem,
 } from '@/lib/nutri'
 import { chatN8n, N8nNaoConfigurado } from '@/lib/n8n'
@@ -36,10 +37,11 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const [perfil, dietaAtiva, historico] = await Promise.all([
+    const [perfil, dietaAtiva, historico, contexto] = await Promise.all([
       getNutriPerfil(supabase, user.id),
       getDietaAtiva(supabase, user.id),
       getHistorico(supabase, user.id, 40),
+      getContextoProtocolo(supabase, user.id),
     ])
 
     // Persiste a mensagem da aluna antes de chamar a IA.
@@ -50,7 +52,8 @@ export async function POST(request: NextRequest) {
       mensagem,
       historico: historico.map((m) => ({ papel: m.papel, conteudo: m.conteudo })),
       perfil,
-      dieta: dietaAtiva?.conteudo ?? null,
+      plano: dietaAtiva?.conteudo ?? null,
+      contexto,
     })
 
     const texto = (resposta ?? '').trim() || 'No pude generar una respuesta ahora. Inténtalo de nuevo.'

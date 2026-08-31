@@ -1,21 +1,30 @@
 import 'server-only'
 import { serverEnv } from '@/lib/env'
 import { captureException } from '@/lib/observability'
-import type { NutriPerfilDados, NutriDietaConteudo } from '@/lib/nutri-types'
+import type {
+  NutriPerfilDados,
+  NutriDietaConteudo,
+  ContextoProtocolo,
+} from '@/lib/nutri-types'
 
 // =====================================================================
-// Cliente do n8n — a "IA" do Nutricionista Online vive lá (sem limite de
-// requisição da nossa parte). NUNCA é chamado do browser: só destas funções
+// Cliente do n8n — a "IA" da Asistente de Acompañamiento vive lá (sem limite
+// de requisição da nossa parte). NUNCA é chamada do browser: só destas funções
 // de servidor, depois que a rota /api/nutri/* já validou acesso/trial.
+//
+// A assistente é o acompanhamento diário do protocolo: sabe em que dia do
+// desafio a aluna está (contexto), adapta a sessão (dor/sono), fala de calores
+// e ansiedade e orienta a alimentação como APOIO ao estímulo hormonal — não
+// prescreve dieta.
 //
 // Contrato (2 webhooks no n8n, protegidos por Authorization: Bearer):
 //
-//   POST {N8N_BASE_URL}/gerar-dieta
-//     req:  { userId, perfil: NutriPerfilDados }
-//     res:  { dieta: NutriDietaConteudo, retorno_em?: string(ISO) }
+//   POST {N8N_BASE_URL}/plano
+//     req:  { userId, perfil: NutriPerfilDados, contexto: ContextoProtocolo|null }
+//     res:  { plano: NutriDietaConteudo, retorno_em?: string(ISO) }
 //
 //   POST {N8N_BASE_URL}/chat
-//     req:  { userId, mensagem, historico: {papel,conteudo}[], perfil, dieta }
+//     req:  { userId, mensagem, historico: {papel,conteudo}[], perfil, plano, contexto }
 //     res:  { resposta: string }
 //
 // Se N8N_BASE_URL/API_KEY não estiverem configurados, as funções lançam um
@@ -67,17 +76,19 @@ async function postN8n<T>(path: string, body: unknown): Promise<T> {
   }
 }
 
-export interface GerarDietaResposta {
-  dieta: NutriDietaConteudo
+export interface GerarPlanoResposta {
+  plano: NutriDietaConteudo
   retorno_em?: string
 }
 
-// Gera a dieta mensal personalizada a partir do questionário.
-export async function gerarDietaN8n(
+// Gera o plano de apoio (orientação alimentar) a partir do questionário +
+// contexto do protocolo.
+export async function gerarPlanoN8n(
   userId: string,
   perfil: NutriPerfilDados,
-): Promise<GerarDietaResposta> {
-  return postN8n<GerarDietaResposta>('/gerar-dieta', { userId, perfil })
+  contexto: ContextoProtocolo | null,
+): Promise<GerarPlanoResposta> {
+  return postN8n<GerarPlanoResposta>('/plano', { userId, perfil, contexto })
 }
 
 export interface ChatN8nResposta {
@@ -90,7 +101,8 @@ export async function chatN8n(params: {
   mensagem: string
   historico: { papel: 'user' | 'assistant'; conteudo: string }[]
   perfil: NutriPerfilDados | null
-  dieta: NutriDietaConteudo | null
+  plano: NutriDietaConteudo | null
+  contexto: ContextoProtocolo | null
 }): Promise<ChatN8nResposta> {
   return postN8n<ChatN8nResposta>('/chat', params)
 }

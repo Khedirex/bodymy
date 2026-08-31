@@ -84,30 +84,37 @@ produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 → `0016_entitlement_origem_hotmart.sql` → `0017_nutricionista.sql`,
 via `supabase db push` ou colando cada uma no SQL Editor.
 
-### Nutricionista Online / dieta IA (`0017_nutricionista.sql`)
+### Acompañamiento Diario / asistente de IA (`0017_nutricionista.sql`)
 
-Chat de nutricionista com IA (hospedada no **n8n**, sem limite de requisição da
-nossa parte) + dieta mensal personalizada com substituições, dentro da aba
-**Dieta**. Modelo de acesso:
+**Asistente de acompanhamento diário do protocolo** (IA hospedada no **n8n**,
+sem limite de requisição da nossa parte), dentro da aba **Dieta**. Ela conhece
+o **dia do desafio** em que a aluna está (contexto: semana/dia/streak), adapta
+a sessão quando há dor ou pouco sono, responde sobre sintomas (calores,
+ansiedade) e **orienta a alimentação como apoio** ao estímulo hormonal — não
+prescreve dieta (menor risco regulatório; promessa que amplifica o mecanismo
+em vez de competir com ele; encaixa em recorrência).
 
-- **Pago:** compra do upsell `nutricionista-online` (Kiwify/Hotmart) → o mesmo
+Modelo de acesso:
+
+- **Pago:** compra do upsell `acompanhamento-diario` (Kiwify/Hotmart) → o mesmo
   webhook de compra gera o `entitlement` e libera. Os ids de plataforma do
   produto começam nulos — preencha `kiwify_product_id`/`hotmart_product_id` do
   SKU do upsell quando ele existir.
-- **Trial:** quem **monta a dieta** (responde o questionário) sem ter comprado
-  ganha **7 dias grátis** com o mesmo acesso; o trial começa nesse momento e,
-  ao vencer, a aba mostra o paywall. Um pop-up "7 días gratis" convida a montar
-  a dieta ao abrir o app.
+- **Trial:** quem **ativa o acompanhamento** (responde o questionário) sem ter
+  comprado ganha **7 dias grátis** com o mesmo acesso; o trial começa nesse
+  momento e, ao vencer, a aba mostra o paywall. Um pop-up "7 días gratis"
+  convida a ativar ao abrir o app.
 
 A IA vive em 2 webhooks do n8n, protegidos por `Authorization: Bearer`
 (`N8N_API_KEY`), sob `N8N_BASE_URL`:
 
-- `POST /gerar-dieta` — req `{ userId, perfil }` → res `{ dieta, retorno_em? }`.
-- `POST /chat` — req `{ userId, mensagem, historico, perfil, dieta }` → res `{ resposta }`.
+- `POST /plano` — req `{ userId, perfil, contexto }` → res `{ plano, retorno_em? }`.
+- `POST /chat` — req `{ userId, mensagem, historico, perfil, plano, contexto }` → res `{ resposta }`.
 
-O browser nunca chama o n8n direto: fala com `/api/nutri/*`, que valida
-acesso/trial e o gate (dieta montada) antes de repassar. Formato do `dieta`
-em `src/lib/nutri-types.ts` (`NutriDietaConteudo`).
+`contexto` = `{ diaDoDesafio, semana, dia, streak }`. O browser nunca chama o
+n8n direto: fala com `/api/nutri/*`, que valida acesso/trial e o gate
+(acompanhamento ativado) antes de repassar. Formato do `plano` em
+`src/lib/nutri-types.ts` (`NutriDietaConteudo`).
 
 ### Integração Hotmart (`0015_hotmart.sql`)
 

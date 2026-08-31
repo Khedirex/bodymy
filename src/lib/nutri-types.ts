@@ -29,7 +29,18 @@ export interface NutriPerfilDados {
   restricoes?: string[]
   alergias?: string
   alimentos_evitar?: string
+  sono?: string
+  sintomas?: string[]
   rotina?: string
+}
+
+// Contexto do protocolo enviado à IA para ela "saber em que dia do desafio a
+// aluna está" e adaptar a resposta (dor, sono, adesão).
+export interface ContextoProtocolo {
+  diaDoDesafio: number // 1..28 (posição no reto de 28 dias)
+  semana: number // 1..4
+  dia: number // 1..7
+  streak: number // dias consecutivos de check-in
 }
 
 // Definição declarativa do formulário (renderizado genericamente pela UI).
@@ -100,6 +111,31 @@ export const NUTRI_QUESTIONARIO: NutriCampo[] = [
     tipo: 'text',
     obrigatorio: false,
     placeholder: 'Ej.: cebolla, pescado… (o déjalo vacío)',
+  },
+  {
+    id: 'sono',
+    label: '¿Cómo duermes últimamente?',
+    tipo: 'select',
+    obrigatorio: false,
+    opcoes: [
+      { valor: 'bien', label: 'Bien, descanso' },
+      { valor: 'regular', label: 'Regular, me despierto' },
+      { valor: 'mal', label: 'Mal, duermo poco' },
+    ],
+  },
+  {
+    id: 'sintomas',
+    label: '¿Sientes alguno de estos? (para acompañarte mejor)',
+    tipo: 'multiselect',
+    obrigatorio: false,
+    opcoes: [
+      { valor: 'calores', label: 'Calores / sofocos' },
+      { valor: 'ansiedad', label: 'Ansiedad / nervios' },
+      { valor: 'insomnio', label: 'Insomnio' },
+      { valor: 'cansancio', label: 'Cansancio' },
+      { valor: 'animo', label: 'Cambios de ánimo' },
+      { valor: 'retencion', label: 'Retención de líquidos' },
+    ],
   },
   {
     id: 'rotina',

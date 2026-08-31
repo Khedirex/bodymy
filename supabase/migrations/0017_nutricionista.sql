@@ -1,9 +1,11 @@
 -- =====================================================================
 -- 0017_nutricionista.sql
--- BodyMy — Nutricionista Online (chat de IA + dieta personalizada).
+-- BodyMy — Acompañamiento Diario (asistente de IA do protocolo + plano de apoio).
+-- A assistente conhece o dia do desafio, adapta a sessão, fala de sintomas
+-- (calores/ansiedade) e orienta a alimentação como APOIO — não prescreve dieta.
 --
--- Modelo de acesso à aba "Dieta IA":
---   1) entitlement ATIVO do produto 'nutricionista-online' (upsell pago) → acesso pago;
+-- Modelo de acesso à experiência (dentro da aba "Dieta"):
+--   1) entitlement ATIVO do produto 'acompanhamento-diario' (upsell pago) → acesso pago;
 --   2) senão, trial válido (< 7 dias a partir do MOMENTO EM QUE MONTA A DIETA) → acesso trial;
 --   3) senão → bloqueado (paywall do upsell).
 --
@@ -26,12 +28,21 @@
 -- NULL até a aluna criar o SKU do upsell; assim que existir, é só um UPDATE
 -- (o mesmo webhook de compra passa a liberar o entitlement automaticamente).
 -- ---------------------------------------------------------------------
+-- Se uma versão anterior já criou o produto com o slug antigo
+-- ('nutricionista-online'), renomeia para o slug novo ANTES do upsert (assim
+-- preserva o id e eventuais entitlements/ids de plataforma). Só quando o novo
+-- ainda não existe, evitando conflito de unique(slug).
+update public.products
+   set slug = 'acompanhamento-diario'
+ where slug = 'nutricionista-online'
+   and not exists (select 1 from public.products where slug = 'acompanhamento-diario');
+
 insert into public.products (slug, nome, tipo, descricao, ativo)
 values (
-  'nutricionista-online',
-  'Nutricionista Online',
+  'acompanhamento-diario',
+  'Acompañamiento Diario',
   'extra',
-  'Chat con nutricionista IA + dieta personalizada mensual con sustituciones.',
+  'Asistente que te acompaña cada día del reto: adapta tu sesión, responde tus dudas y orienta tu alimentación como apoyo al estímulo hormonal.',
   true
 )
 on conflict (slug) do update
@@ -118,7 +129,7 @@ notify pgrst, 'reload schema';
 -- ---------------------------------------------------------------------
 -- VERIFICAÇÃO
 -- ---------------------------------------------------------------------
-select slug, nome, tipo from public.products where slug = 'nutricionista-online';
+select slug, nome, tipo from public.products where slug = 'acompanhamento-diario';
 select table_name from information_schema.tables
  where table_schema = 'public'
    and table_name in ('nutri_perfil','nutri_trials','nutri_dietas','nutri_mensagens')

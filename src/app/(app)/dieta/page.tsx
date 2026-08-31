@@ -8,6 +8,7 @@ import {
   getDietaAtiva,
   getHistorico,
   getNutriPerfil,
+  getContextoProtocolo,
   NUTRI_PRODUCT_SLUG,
 } from '@/lib/nutri'
 import { NutriPanel } from '@/components/nutri/NutriPanel'
@@ -30,7 +31,7 @@ export default async function DietaPage() {
   const supabase = createClient()
   const admin = createAdminClient()
 
-  const [base, storefront, acesso, dietaAtiva, historico, perfil, nutriProduto] =
+  const [base, storefront, acesso, dietaAtiva, historico, perfil, contexto, nutriProduto] =
     await Promise.all([
       getBaseDiet(),
       getEsteira(profile.id),
@@ -38,6 +39,7 @@ export default async function DietaPage() {
       getDietaAtiva(supabase, profile.id),
       getHistorico(supabase, profile.id, 40),
       getNutriPerfil(supabase, profile.id),
+      getContextoProtocolo(supabase, profile.id),
       admin
         .from('products')
         .select('nome, kiwify_checkout_url')
@@ -66,14 +68,15 @@ export default async function DietaPage() {
         <p className="mt-1 text-ink-700">Ideas simples para tu día a día.</p>
       </header>
 
-      {/* Nutricionista Online (dieta IA + chat) */}
+      {/* Acompañamiento Diario (asistente do reto + plano de apoio + chat) */}
       <NutriPanel
         initialAcesso={acesso}
         initialDieta={dietaAtiva?.conteudo ?? null}
         initialHistorico={historico.map((h) => ({ papel: h.papel, conteudo: h.conteudo }))}
         initialPerfil={perfil}
         checkoutUrl={(nutriProduto?.kiwify_checkout_url as string) ?? null}
-        produtoNome={(nutriProduto?.nome as string) ?? 'Nutricionista Online'}
+        produtoNome={(nutriProduto?.nome as string) ?? 'Acompañamiento Diario'}
+        diaDoDesafio={contexto?.diaDoDesafio ?? null}
       />
 
       {/* Disclaimer fixo de conteúdo educativo */}

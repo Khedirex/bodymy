@@ -2,7 +2,13 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { userHasEntitlement } from '@/lib/entitlements'
-import type { NutriPerfilDados, NutriDietaConteudo } from '@/lib/nutri-types'
+import { getCheckinDates } from '@/lib/queries'
+import { calcularStreak } from '@/lib/streak'
+import type {
+  NutriPerfilDados,
+  NutriDietaConteudo,
+  ContextoProtocolo,
+} from '@/lib/nutri-types'
 
 // =====================================================================
 // Nutricionista Online — acesso, trial e gate.
@@ -18,7 +24,7 @@ import type { NutriPerfilDados, NutriDietaConteudo } from '@/lib/nutri-types'
 // Leitura pode usar o client autenticado (RLS dono). Escrita usa o admin.
 // =====================================================================
 
-export const NUTRI_PRODUCT_SLUG = 'nutricionista-online'
+export const NUTRI_PRODUCT_SLUG = 'acompanhamento-diario'
 export const NUTRI_TRIAL_DIAS = 7
 
 export type NutriPlano = 'pago' | 'trial' | 'expirado' | 'nenhum'
@@ -152,6 +158,33 @@ export async function salvarPerfilEIniciarTrial(
   }
 
   return getNutriAccess(admin, userId)
+}
+
+// Contexto do protocolo para a IA "saber em que dia do desafio a aluna está".
+// Depende de user_training_config (semana/dia) e dos check-ins (streak).
+export async function getContextoProtocolo(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<ContextoProtocolo | null> {
+  const { data: cfg } = await supabase
+    .from('user_training_config')
+    .select('semana_atual, dia_atual')
+    .eq('user_id', userId)
+    .maybeSingle()
+  if (!cfg) return null
+  const semana = Number(cfg.semana_atual) || 1
+  const dia = Number(cfg.dia_atual) || 1
+  const diaDoDesafio = (semana - 1) * 7 + dia
+
+  let streak = 0
+  try {
+    const datas = await getCheckinDates(userId)
+    streak = calcularStreak(datas).atual
+  } catch {
+    /* streak é best-effort */
+  }
+
+  return { diaDoDesafio, semana, dia, streak }
 }
 
 export async function getNutriPerfil(

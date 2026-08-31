@@ -55,17 +55,17 @@ export function NutriTrialPopup() {
         className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <p className="text-4xl">🥑</p>
+        <p className="text-4xl">🤍</p>
         <h2 className="mt-3 text-xl font-extrabold text-ink-900">7 días gratis</h2>
         <p className="mt-2 text-sm text-ink-700">
-          Prueba tu <span className="font-semibold">nutricionista IA</span>: arma tu dieta
-          personalizada y resuelve tus dudas por chat. Sin costo por 7 días.
+          Activa tu <span className="font-semibold">asistente del reto</span>: te acompaña cada día,
+          adapta tu sesión y resuelve tus dudas por chat. Sin costo por 7 días.
         </p>
         <button
           onClick={montar}
           className="mt-5 w-full rounded-full bg-coral-500 px-6 py-3 text-sm font-bold text-white"
         >
-          Armar mi dieta gratis
+          Activar mi asistente gratis
         </button>
         <button onClick={fechar} className="mt-2 w-full py-2 text-sm font-semibold text-ink-700">
           Ahora no
