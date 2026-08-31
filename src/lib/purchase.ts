@@ -26,16 +26,19 @@ export async function processPurchaseEvent(
   if (!event.productId) {
     return { status: 'ignorado', detail: 'sem product_id' }
   }
-  const { data: product, error: prodErr } = await admin
+  const { data: products, error: prodErr } = await admin
     .from('products')
-    .select('id, nome')
+    .select('id, nome, kiwify_product_id')
     .or(`kiwify_product_id.eq.${event.productId},hotmart_product_id.eq.${event.productId}`)
-    .maybeSingle()
 
   if (prodErr) throw prodErr
-  if (!product) {
+  if (!products || products.length === 0) {
     return { status: 'produto_nao_encontrado', detail: event.productId }
   }
+  // Se houver mais de um produto com o mesmo id (dado duplicado), prefere o
+  // canônico — o que também tem kiwify_product_id — em vez de estourar erro.
+  const product =
+    products.length === 1 ? products[0] : (products.find((p) => p.kiwify_product_id) ?? products[0])
 
   if (event.type === 'reembolso' || event.type === 'chargeback') {
     await revokeEntitlement(admin, event.email, product.id)

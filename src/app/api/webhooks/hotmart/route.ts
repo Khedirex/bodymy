@@ -75,6 +75,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, ...result })
   } catch (err) {
     captureException(err, { webhook: 'hotmart', eventId: event.eventId })
-    return NextResponse.json({ error: 'erro ao processar' }, { status: 500 })
+    // Expõe o motivo real na resposta — aparece no Histórico da Hotmart, o que
+    // facilita o diagnóstico sem precisar abrir os logs da Vercel.
+    const detail = err instanceof Error ? err.message : String(err)
+    return NextResponse.json({ error: 'erro ao processar', detail }, { status: 500 })
   }
 }
