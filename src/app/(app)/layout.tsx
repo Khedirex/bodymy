@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { BottomNav } from '@/components/layout/BottomNav'
+import { NutriTrialPopup } from '@/components/nutri/NutriTrialPopup'
 import { UserIcon } from '@/components/ui/icons'
 
 // Shell das telas autenticadas: cabeçalho fixo (com acesso permanente ao
@@ -21,6 +22,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </Link>
       </header>
       <main className="flex-1 px-4 pb-28 pt-4">{children}</main>
+      <NutriTrialPopup />
       <BottomNav />
     </div>
   )

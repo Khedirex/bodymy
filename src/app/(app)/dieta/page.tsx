@@ -1,6 +1,16 @@
 import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
 import { getBaseDiet, getEsteira } from '@/lib/queries'
+import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import {
+  getNutriAccess,
+  getDietaAtiva,
+  getHistorico,
+  getNutriPerfil,
+  NUTRI_PRODUCT_SLUG,
+} from '@/lib/nutri'
+import { NutriPanel } from '@/components/nutri/NutriPanel'
 import { DietMenu } from '@/components/diet/DietMenu'
 import { LockedProductCard } from '@/components/LockedProductCard'
 import { EmptyState } from '@/components/ui/states'
@@ -17,7 +27,24 @@ export default async function DietaPage() {
   const profile = await getProfile()
   if (!profile) redirect('/login')
 
-  const [base, storefront] = await Promise.all([getBaseDiet(), getEsteira(profile.id)])
+  const supabase = createClient()
+  const admin = createAdminClient()
+
+  const [base, storefront, acesso, dietaAtiva, historico, perfil, nutriProduto] =
+    await Promise.all([
+      getBaseDiet(),
+      getEsteira(profile.id),
+      getNutriAccess(supabase, profile.id),
+      getDietaAtiva(supabase, profile.id),
+      getHistorico(supabase, profile.id, 40),
+      getNutriPerfil(supabase, profile.id),
+      admin
+        .from('products')
+        .select('nome, kiwify_checkout_url')
+        .eq('slug', NUTRI_PRODUCT_SLUG)
+        .maybeSingle()
+        .then((r) => r.data),
+    ])
 
   // "Cardápio do dia": rotaciona pelos dias do plano conforme a data.
   const totalDias = base?.days.length ?? 7
@@ -39,6 +66,16 @@ export default async function DietaPage() {
         <p className="mt-1 text-ink-700">Ideas simples para tu día a día.</p>
       </header>
 
+      {/* Nutricionista Online (dieta IA + chat) */}
+      <NutriPanel
+        initialAcesso={acesso}
+        initialDieta={dietaAtiva?.conteudo ?? null}
+        initialHistorico={historico.map((h) => ({ papel: h.papel, conteudo: h.conteudo }))}
+        initialPerfil={perfil}
+        checkoutUrl={(nutriProduto?.kiwify_checkout_url as string) ?? null}
+        produtoNome={(nutriProduto?.nome as string) ?? 'Nutricionista Online'}
+      />
+
       {/* Disclaimer fixo de conteúdo educativo */}
       <div className="rounded-2xl border border-gold-300/50 bg-gold-300/10 px-4 py-3 text-sm text-ink-700">
         <span className="mr-1" aria-hidden>
@@ -47,15 +84,18 @@ export default async function DietaPage() {
         {DISCLAIMER}
       </div>
 
-      {base ? (
-        <DietMenu days={base.days} diaInicial={diaInicial} />
-      ) : (
-        <EmptyState
-          titulo="Menú en preparación"
-          descricao="Muy pronto encontrarás aquí sugerencias de comidas para cada día."
-          icone={<SaladIcon width={28} height={28} />}
-        />
-      )}
+      <section>
+        <h2 className="section-title mb-2">Menú base</h2>
+        {base ? (
+          <DietMenu days={base.days} diaInicial={diaInicial} />
+        ) : (
+          <EmptyState
+            titulo="Menú en preparación"
+            descricao="Muy pronto encontrarás aquí sugerencias de comidas para cada día."
+            icone={<SaladIcon width={28} height={28} />}
+          />
+        )}
+      </section>
 
       {/* Planos premium bloqueados */}
       {premium.length > 0 && (

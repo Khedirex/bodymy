@@ -80,8 +80,34 @@ produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 `0003_functions.sql` → `0004_admin.sql` → `0005_upsells_admin.sql` →
 `0006_ritual_tapetinho.sql` → `0007_circuito.sql` → `0008_semana1_e_bloqueio.sql`
 → `0009_cronometro.sql` → `0010_bloco_mobilidade.sql` → `0011_drenagem_tailandesa.sql`
-→ `0012_kiwify_drenagem.sql` → `0013_pilates_hormonal.sql` → `0014_es_content.sql` → `0015_hotmart.sql`,
+→ `0012_kiwify_drenagem.sql` → `0013_pilates_hormonal.sql` → `0014_es_content.sql` → `0015_hotmart.sql`
+→ `0016_entitlement_origem_hotmart.sql` → `0017_nutricionista.sql`,
 via `supabase db push` ou colando cada uma no SQL Editor.
+
+### Nutricionista Online / dieta IA (`0017_nutricionista.sql`)
+
+Chat de nutricionista com IA (hospedada no **n8n**, sem limite de requisição da
+nossa parte) + dieta mensal personalizada com substituições, dentro da aba
+**Dieta**. Modelo de acesso:
+
+- **Pago:** compra do upsell `nutricionista-online` (Kiwify/Hotmart) → o mesmo
+  webhook de compra gera o `entitlement` e libera. Os ids de plataforma do
+  produto começam nulos — preencha `kiwify_product_id`/`hotmart_product_id` do
+  SKU do upsell quando ele existir.
+- **Trial:** quem **monta a dieta** (responde o questionário) sem ter comprado
+  ganha **7 dias grátis** com o mesmo acesso; o trial começa nesse momento e,
+  ao vencer, a aba mostra o paywall. Um pop-up "7 días gratis" convida a montar
+  a dieta ao abrir o app.
+
+A IA vive em 2 webhooks do n8n, protegidos por `Authorization: Bearer`
+(`N8N_API_KEY`), sob `N8N_BASE_URL`:
+
+- `POST /gerar-dieta` — req `{ userId, perfil }` → res `{ dieta, retorno_em? }`.
+- `POST /chat` — req `{ userId, mensagem, historico, perfil, dieta }` → res `{ resposta }`.
+
+O browser nunca chama o n8n direto: fala com `/api/nutri/*`, que valida
+acesso/trial e o gate (dieta montada) antes de repassar. Formato do `dieta`
+em `src/lib/nutri-types.ts` (`NutriDietaConteudo`).
 
 ### Integração Hotmart (`0015_hotmart.sql`)
 

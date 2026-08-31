@@ -183,6 +183,14 @@ export const serverEnv = {
   get hotmartWebhookToken() {
     return required('HOTMART_WEBHOOK_TOKEN', process.env.HOTMART_WEBHOOK_TOKEN)
   },
+  // Nutricionista IA: base do n8n (ex.: https://SEU.n8n.cloud/webhook) e a
+  // chave enviada como Bearer para autenticar as chamadas do servidor.
+  get n8nBaseUrl() {
+    return clean(process.env.N8N_BASE_URL).replace(/\/+$/, '')
+  },
+  get n8nApiKey() {
+    return clean(process.env.N8N_API_KEY)
+  },
   get sentryDsn() {
     return process.env.SENTRY_DSN ?? ''
   },
