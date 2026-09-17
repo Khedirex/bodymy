@@ -20,6 +20,32 @@ function sanitizeUrl(raw: string | undefined): string {
   return s
 }
 
+// Um Supabase lento/fora do ar NÃO pode derrubar o site inteiro. O
+// getUser() abaixo é uma chamada de REDE: se ela travar, o middleware
+// estoura o limite da Vercel e TODAS as rotas passam a responder
+// 504 MIDDLEWARE_INVOCATION_TIMEOUT. Um travamento não lança erro, então o
+// try/catch sozinho não protege — é preciso limitar o tempo explicitamente.
+const AUTH_TIMEOUT_MS = 5000
+
+function comTimeout<T>(promessa: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(
+      () => reject(new Error(`timeout de ${ms}ms ao validar a sessão`)),
+      ms,
+    )
+    promessa.then(
+      (v) => {
+        clearTimeout(t)
+        resolve(v)
+      },
+      (e) => {
+        clearTimeout(t)
+        reject(e)
+      },
+    )
+  })
+}
+
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({ request })
 
@@ -54,7 +80,7 @@ export async function middleware(request: NextRequest) {
 
     const {
       data: { user },
-    } = await supabase.auth.getUser()
+    } = await comTimeout(Promise.resolve(supabase.auth.getUser()), AUTH_TIMEOUT_MS)
 
     if (!user && !isPublic) {
       const url = request.nextUrl.clone()
