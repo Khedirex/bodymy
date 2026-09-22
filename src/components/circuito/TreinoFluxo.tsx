@@ -7,6 +7,7 @@ import { criarSinalizador } from '@/components/circuito/sinais'
 import type { Stretch } from '@/types/db'
 
 interface Props {
+  circuito: string
   semana: number
   dia: number
   series: number
@@ -22,7 +23,7 @@ type Etapa = 'escolha' | 'aviso' | 'mobilidade' | 'circuito'
 // Fluxo do treino do dia: escolha (alongar ou ir direto) → bloco de mobilidade
 // (opcional) → circuito. O sinalizador de áudio é criado aqui e compartilhado,
 // desbloqueado no primeiro toque (exigência de gesto no mobile).
-export function TreinoFluxo({ stretches, ...circuito }: Props) {
+export function TreinoFluxo({ stretches, ...sessao }: Props) {
   const [etapa, setEtapa] = useState<Etapa>('escolha')
   const [alongou, setAlongou] = useState(false)
   // criarSinalizador() não acessa window na criação (lazy) → seguro no SSR.
@@ -40,7 +41,7 @@ export function TreinoFluxo({ stretches, ...circuito }: Props) {
   }
 
   if (etapa === 'circuito') {
-    return <CircuitoSession {...circuito} alongou={alongou} sinalizador={sinalizador} />
+    return <CircuitoSession {...sessao} alongou={alongou} sinalizador={sinalizador} />
   }
 
   if (etapa === 'mobilidade') {
@@ -65,7 +66,7 @@ export function TreinoFluxo({ stretches, ...circuito }: Props) {
   return (
     <div className="space-y-5">
       <header>
-        <span className="chip">Semana {circuito.semana} · Día {circuito.dia}</span>
+        <span className="chip">Semana {sessao.semana} · Día {sessao.dia}</span>
         <h1 className="mt-2 text-2xl font-extrabold leading-tight text-ink-900">Tu entrenamiento de hoy</h1>
         <p className="mt-1 text-ink-700">Empieza con el estiramiento para preparar el cuerpo, o ve directo a los ejercicios.</p>
       </header>

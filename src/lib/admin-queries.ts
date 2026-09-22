@@ -9,6 +9,7 @@ import type {
   Exercise,
   ExerciseVariation,
   Stretch,
+  Circuito,
 } from '@/types/db'
 
 // =====================================================================
@@ -157,10 +158,10 @@ export async function getAlunaFicha(id: string) {
         .eq('user_id', id)
         .order('data', { ascending: false })
         .limit(5),
-      admin.from('user_training_config').select('*').eq('user_id', id).maybeSingle(),
+      admin.from('user_training_config').select('*').eq('user_id', id).order('circuito'),
       admin
         .from('training_sessions')
-        .select('data, semana, dia, completa, series_usadas, descanso_usado, alongou')
+        .select('circuito, data, semana, dia, completa, series_usadas, descanso_usado, alongou')
         .eq('user_id', id)
         .order('data', { ascending: false })
         .limit(15),
@@ -173,20 +174,21 @@ export async function getAlunaFicha(id: string) {
         .limit(10),
       admin
         .from('user_exercise_variations')
-        .select('variacao_nivel, exercise:exercises(nome, ordem_no_circuito)')
+        .select('variacao_nivel, exercise:exercises(nome, ordem_no_circuito, circuito)')
         .eq('user_id', id),
       // Adesão ao alongamento (todas as sessões, não só as 15 exibidas).
       admin.from('training_sessions').select('id', { count: 'exact', head: true }).eq('user_id', id).eq('alongou', true),
       admin.from('training_sessions').select('id', { count: 'exact', head: true }).eq('user_id', id).eq('alongou', false),
     ])
 
-  const variacoesView = ((variacoes ?? []) as Array<{ variacao_nivel: number; exercise: { nome?: string; ordem_no_circuito?: number } | null }>)
+  const variacoesView = ((variacoes ?? []) as unknown as Array<{ variacao_nivel: number; exercise: { nome?: string; ordem_no_circuito?: number; circuito?: string } | null }>)
     .map((v) => ({
       nome: v.exercise?.nome ?? '?',
+      circuito: v.exercise?.circuito ?? '?',
       ordem: v.exercise?.ordem_no_circuito ?? 0,
       nivel: v.variacao_nivel,
     }))
-    .sort((a, b) => a.ordem - b.ordem)
+    .sort((a, b) => a.circuito.localeCompare(b.circuito) || a.ordem - b.ordem)
 
   const streak = calcularStreak((checkins ?? []).map((c) => c.data as string))
 
@@ -223,16 +225,18 @@ export async function getAlunaFicha(id: string) {
     progresso: (progresso ?? []) as Pick<ProgressEntry, 'data' | 'medidas' | 'peso' | 'nota' | 'foto_path'>[],
     webhooks,
     // Circuito:
-    config: (config as {
+    // Uma config por protocolo (circuito) que ela iniciou.
+    configs: (config ?? []) as Array<{
+      circuito: string
       faixa_etaria: string | null
       series: number
       descanso_seg: number
       tempo_execucao_seg: number
       semana_atual: number
       dia_atual: number
-    } | null) ?? null,
+    }>,
     alongamento: { com: comAlongamento ?? 0, sem: semAlongamento ?? 0 },
-    sessoes: (sessoes ?? []) as Array<{ data: string; semana: number; dia: number; completa: boolean; series_usadas: number | null; descanso_usado: number | null; alongou: boolean | null }>,
+    sessoes: (sessoes ?? []) as Array<{ circuito: string; data: string; semana: number; dia: number; completa: boolean; series_usadas: number | null; descanso_usado: number | null; alongou: boolean | null }>,
     comentarios: (comentarios ?? []) as Array<{ comentario: string | null; eixo_dificuldade: string | null; intensidade_percebida: number | null; created_at: string }>,
     variacoes: variacoesView,
   }
@@ -331,13 +335,22 @@ export interface ExerciseWithVariations extends Exercise {
   variacoes: ExerciseVariation[]
 }
 
-export async function getCircuitoOverview() {
+export async function getCircuitosAdmin(): Promise<Circuito[]> {
   const admin = createAdminClient()
-  const [{ data: exercises }, { data: variations }, { data: stretches }] = await Promise.all([
-    admin.from('exercises').select('*').order('ordem_no_circuito', { ascending: true }),
-    admin.from('exercise_variations').select('*').order('nivel', { ascending: true }),
-    admin.from('stretches').select('*').order('ordem', { ascending: true }),
+  const { data } = await admin.from('circuitos').select('*').order('created_at', { ascending: true })
+  return (data ?? []) as Circuito[]
+}
+
+export async function getCircuitoOverview(circuito: string) {
+  const admin = createAdminClient()
+  const [{ data: exercises }, { data: stretches }] = await Promise.all([
+    admin.from('exercises').select('*').eq('circuito', circuito).order('ordem_no_circuito', { ascending: true }),
+    admin.from('stretches').select('*').eq('circuito', circuito).order('ordem', { ascending: true }),
   ])
+  const exIds = ((exercises ?? []) as Exercise[]).map((e) => e.id)
+  const { data: variations } = exIds.length
+    ? await admin.from('exercise_variations').select('*').in('exercise_id', exIds).order('nivel', { ascending: true })
+    : { data: [] as ExerciseVariation[] }
 
   const varsByExercise = new Map<string, ExerciseVariation[]>()
   for (const v of (variations ?? []) as ExerciseVariation[]) {
@@ -398,12 +411,16 @@ export interface SemanaAdminRow {
   alunasAguardando: number
 }
 
-export async function getSemanasAdmin(): Promise<SemanaAdminRow[]> {
+export async function getSemanasAdmin(circuito: Circuito): Promise<SemanaAdminRow[]> {
   const admin = createAdminClient()
+  const { data: exs } = await admin.from('exercises').select('id').eq('circuito', circuito.slug).eq('ativo', true)
+  const exIds = (exs ?? []).map((e) => e.id as string)
   const [{ data: config }, { data: variations }, { data: aguardando }] = await Promise.all([
-    admin.from('program_weeks_config').select('semana, liberada'),
-    admin.from('exercise_variations').select('nivel, panda_video_id'),
-    admin.from('user_training_config').select('aguardando_liberacao'),
+    admin.from('program_weeks_config').select('semana, liberada').eq('circuito', circuito.slug),
+    exIds.length
+      ? admin.from('exercise_variations').select('nivel, panda_video_id').in('exercise_id', exIds)
+      : Promise.resolve({ data: [] as { nivel: number; panda_video_id: string | null }[] }),
+    admin.from('user_training_config').select('aguardando_liberacao').eq('circuito', circuito.slug),
   ])
 
   const liberadaMap = new Map<number, boolean>()
@@ -419,12 +436,12 @@ export async function getSemanasAdmin(): Promise<SemanaAdminRow[]> {
     if (a.aguardando_liberacao > 0) aguardandoPorSemana.set(a.aguardando_liberacao, (aguardandoPorSemana.get(a.aguardando_liberacao) ?? 0) + 1)
   }
 
-  return [1, 2, 3, 4].map((semana) => ({
+  return Array.from({ length: circuito.semanas }, (_, i) => i + 1).map((semana) => ({
     semana,
     liberada: semana === 1 ? true : liberadaMap.get(semana) ?? false,
     variacao: semana, // Semana N entra em vN
     videosPreenchidos: preenchidosPorNivel.get(semana) ?? 0,
-    videosTotal: 35,
+    videosTotal: exIds.length,
     alunasAguardando: aguardandoPorSemana.get(semana) ?? 0,
   }))
 }

@@ -3,8 +3,7 @@ import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
 import { createClient } from '@/lib/supabase/server'
 import { getProgramTrack } from '@/lib/queries'
-import { hasCircuitoAccess } from '@/lib/circuito'
-import { CIRCUITO_PRODUCT_SLUG } from '@/lib/training'
+import { getCircuitosDaAluna } from '@/lib/circuito'
 import { SafetyNotice } from '@/components/SafetyNotice'
 import { EmptyState } from '@/components/ui/states'
 import { BookIcon, ChevronRight } from '@/components/ui/icons'
@@ -17,12 +16,13 @@ export default async function EntendaPage() {
   const profile = await getProfile()
   if (!profile) redirect('/login')
 
-  // Acesso: qualquer SKU que libera a experiência (não só o produto canônico).
+  // Acesso: algum protocolo da aluna tem este material de leitura
+  // (circuitos.programa_slug). O entitlement já é validado pelo circuito.
   const supabase = createClient()
-  const temAcesso = await hasCircuitoAccess(supabase, profile.id)
-  // Conteúdo é sempre o do programa canônico; entitlement já validado acima.
-  const track = temAcesso
-    ? await getProgramTrack(profile.id, CIRCUITO_PRODUCT_SLUG, { skipEntitlement: true })
+  const programaSlug = (await getCircuitosDaAluna(supabase, profile.id)).find((c) => c.programa_slug)
+    ?.programa_slug
+  const track = programaSlug
+    ? await getProgramTrack(profile.id, programaSlug, { skipEntitlement: true })
     : null
   if (!track) {
     return (

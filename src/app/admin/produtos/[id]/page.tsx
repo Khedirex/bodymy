@@ -1,13 +1,13 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getProductAdmin } from '@/lib/admin-queries'
+import { getProductAdmin, getCircuitosAdmin } from '@/lib/admin-queries'
 import { ProductForm } from '@/components/admin/ProductForm'
 import { EsteiraManager } from '@/components/admin/EsteiraManager'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ProdutoEditPage({ params }: { params: { id: string } }) {
-  const data = await getProductAdmin(params.id)
+  const [data, circuitos] = await Promise.all([getProductAdmin(params.id), getCircuitosAdmin()])
   if (!data) notFound()
 
   return (
@@ -24,7 +24,7 @@ export default async function ProdutoEditPage({ params }: { params: { id: string
         <EsteiraManager productId={data.product.id} upsells={data.upsells} todos={data.todos} />
       </section>
 
-      <ProductForm product={data.product} />
+      <ProductForm product={data.product} circuitos={circuitos} />
     </div>
   )
 }

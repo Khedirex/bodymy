@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getTrainingConfig, advanceAfterCompletion } from '@/lib/circuito'
+import { getTrainingConfig, advanceAfterCompletion, resolverCircuito } from '@/lib/circuito'
 import { todayISO } from '@/lib/dates'
 import { captureException } from '@/lib/observability'
 import type { SessionExerciseStatus } from '@/types/db'
@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
   const b = (await request.json().catch(() => ({}))) as {
     exercicios?: { exercise_id: string; variacao_nivel: number; status: SessionExerciseStatus }[]
     alongou?: boolean
+    circuito?: string
   }
   const itens = b.exercicios ?? []
   if (itens.length === 0 || itens.some((e) => !e.exercise_id || !STATUS.includes(e.status))) {
@@ -31,7 +32,11 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const config = await getTrainingConfig(supabase, user.id)
+    const { atual } = await resolverCircuito(supabase, user.id, b.circuito)
+    if (!atual || (b.circuito && atual.slug !== b.circuito)) {
+      return NextResponse.json({ error: 'sem_acesso' }, { status: 403 })
+    }
+    const config = await getTrainingConfig(supabase, user.id, atual.slug)
     if (!config) return NextResponse.json({ error: 'sem_config' }, { status: 400 })
 
     const completa = itens.every((e) => e.status === 'fez')
@@ -41,6 +46,7 @@ export async function POST(request: NextRequest) {
       .from('training_sessions')
       .insert({
         user_id: user.id,
+        circuito: atual.slug,
         data: hoje,
         semana: config.semana_atual,
         dia: config.dia_atual,
@@ -72,7 +78,7 @@ export async function POST(request: NextRequest) {
           { user_id: user.id, data: hoje, tipo: 'treino' },
           { onConflict: 'user_id,data,tipo', ignoreDuplicates: true },
         )
-      avanco = await advanceAfterCompletion(supabase, user.id, config)
+      avanco = await advanceAfterCompletion(supabase, user.id, config, atual.semanas)
     }
 
     return NextResponse.json({

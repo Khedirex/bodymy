@@ -6,12 +6,14 @@ import { useRouter } from 'next/navigation'
 // Botão de liberar/bloquear uma semana. Ao liberar uma semana incompleta,
 // pede confirmação (o vídeo daquela variação ainda não está todo pronto).
 export function SemanaToggle({
+  circuito,
   semana,
   liberada,
   completo,
   preenchidos,
   total,
 }: {
+  circuito: string
   semana: number
   liberada: boolean
   completo: boolean
@@ -37,7 +39,7 @@ export function SemanaToggle({
       const res = await fetch('/api/admin/semanas', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ semana, liberada: novo }),
+        body: JSON.stringify({ circuito, semana, liberada: novo }),
       })
       if (!res.ok) {
         const d = await res.json().catch(() => ({}))

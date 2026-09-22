@@ -51,8 +51,16 @@ export function construirFases(i: CronometroInput): Fase[] {
   const fimFase = (): Fase => ({ tipo: 'fim', duracaoSeg: 0, serie: 0, totalSeries: 0, rotulo: ROTULO.fim, auto: false })
 
   if (i.tipo === 'permanencia') {
+    const seg = Math.max(1, i.permanenciaSeg || i.tempoExecSeg)
     fases.push(prepFase(1, 1))
-    fases.push({ tipo: 'exec', duracaoSeg: Math.max(1, i.permanenciaSeg || i.tempoExecSeg), serie: 1, totalSeries: 1, rotulo: ROTULO.exec, auto: true })
+    if (i.bilateral) {
+      // Permanência bilateral: segura do lado direito → troca → esquerdo.
+      fases.push({ tipo: 'exec', duracaoSeg: seg, serie: 1, totalSeries: 1, lado: 'derecho', rotulo: ROTULO.exec, auto: true })
+      fases.push({ tipo: 'transicao', duracaoSeg: transicao, serie: 1, totalSeries: 1, rotulo: ROTULO.transicao, auto: true })
+      fases.push({ tipo: 'exec', duracaoSeg: seg, serie: 1, totalSeries: 1, lado: 'izquierdo', rotulo: ROTULO.exec, auto: true })
+    } else {
+      fases.push({ tipo: 'exec', duracaoSeg: seg, serie: 1, totalSeries: 1, rotulo: ROTULO.exec, auto: true })
+    }
     fases.push(fimFase())
     return fases
   }

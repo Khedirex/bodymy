@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getTrainingConfig } from '@/lib/circuito'
+import { getTrainingConfig, getExerciseIdsDoCircuito } from '@/lib/circuito'
 import {
   proporAjuste,
   direcaoPorIntensidade,
@@ -47,14 +47,17 @@ export async function POST(request: NextRequest) {
     // Garante que a sessão é da aluna (RLS já protege; confirmamos).
     const { data: sessao } = await supabase
       .from('training_sessions')
-      .select('id')
+      .select('id, circuito')
       .eq('id', b.session_id)
       .eq('user_id', user.id)
       .maybeSingle()
     if (!sessao) return NextResponse.json({ error: 'sessao_nao_encontrada' }, { status: 404 })
 
-    const config = await getTrainingConfig(supabase, user.id)
+    // O circuito vem da própria sessão (não do client).
+    const circuito = sessao.circuito as string
+    const config = await getTrainingConfig(supabase, user.id, circuito)
     if (!config) return NextResponse.json({ error: 'sem_config' }, { status: 400 })
+    const exIds = await getExerciseIdsDoCircuito(circuito)
 
     const comentario = (b.comentario ?? '').trim().slice(0, 2000) || null
     const aplicado: Record<string, unknown> = {}
@@ -68,6 +71,7 @@ export async function POST(request: NextRequest) {
         .from('user_training_config')
         .update({ series, descanso_seg: descanso, atualizado_em: new Date().toISOString() })
         .eq('user_id', user.id)
+        .eq('circuito', circuito)
       aplicado.manual = { series, descanso_seg: descanso }
       aceito = true
     } else if (b.aceito && eixo) {
@@ -76,6 +80,7 @@ export async function POST(request: NextRequest) {
         .from('user_exercise_variations')
         .select('variacao_nivel')
         .eq('user_id', user.id)
+        .in('exercise_id', exIds.length ? exIds : ['00000000-0000-0000-0000-000000000000'])
       const niveis = (uv ?? []).map((r) => clampNivel(Math.min(r.variacao_nivel as number, config.semana_atual)))
       const entrada = nivelEntradaSemana(config.semana_atual)
       const variacaoMin = niveis.length ? Math.min(...niveis) : entrada
@@ -101,10 +106,11 @@ export async function POST(request: NextRequest) {
               atualizado_em: new Date().toISOString(),
             })
             .eq('user_id', user.id)
+            .eq('circuito', circuito)
         }
         if (proposta.variacao_delta) {
           // Aplica o delta a todos os exercícios do circuito (dentro do limite).
-          await ajustarVariacoes(supabase, user.id, proposta.variacao_delta, config.semana_atual)
+          await ajustarVariacoes(supabase, user.id, exIds, proposta.variacao_delta, config.semana_atual)
         }
         aplicado.eixo = eixo
         aplicado.mudanca = proposta.descricao
@@ -137,27 +143,28 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Sobe/desce a variação de todos os exercícios em `delta`, com upsert dos
-// que ainda não têm linha (partem da entrada da semana).
+// Sobe/desce a variação de todos os exercícios do circuito em `delta`, com
+// upsert dos que ainda não têm linha (partem da entrada da semana).
 async function ajustarVariacoes(
   supabase: ReturnType<typeof createClient>,
   userId: string,
+  exIds: string[],
   delta: number,
   semana: number,
 ) {
-  const admin = (await import('@/lib/supabase/admin')).createAdminClient()
-  const { data: allEx } = await admin.from('exercises').select('id')
+  if (exIds.length === 0) return
   const entrada = nivelEntradaSemana(semana)
   const { data: existentes } = await supabase
     .from('user_exercise_variations')
     .select('exercise_id, variacao_nivel')
     .eq('user_id', userId)
+    .in('exercise_id', exIds)
   const mapa = new Map((existentes ?? []).map((r) => [r.exercise_id as string, r.variacao_nivel as number]))
 
-  const rows = (allEx ?? []).map((e) => {
-    const atual = clampNivel(Math.min(mapa.get(e.id as string) ?? entrada, semana))
+  const rows = exIds.map((id) => {
+    const atual = clampNivel(Math.min(mapa.get(id) ?? entrada, semana))
     const novo = Math.min(semana, Math.max(1, atual + delta))
-    return { user_id: userId, exercise_id: e.id as string, variacao_nivel: novo, atualizado_em: new Date().toISOString() }
+    return { user_id: userId, exercise_id: id, variacao_nivel: novo, atualizado_em: new Date().toISOString() }
   })
   if (rows.length) {
     await supabase.from('user_exercise_variations').upsert(rows, { onConflict: 'user_id,exercise_id' })

@@ -71,7 +71,10 @@ No SQL Editor do projeto (que deve ser EXCLUSIVO do BodyMy), rode em ordem:
    trigger `is_admin` + bucket, recarrega o cache do PostgREST e imprime um
    quadro de verificação ao final. (Sem DROPs — se algo já existir, ele falha
    alto de propósito.)
-2. `supabase/storage-setup.sql` — policies do bucket `progress-photos`
+2. `supabase/migrations/0018_protocolos_por_produto.sql` e
+   `supabase/migrations/0019_conteudo_protocolos.sql` — protocolos por produto
+   (ver abaixo).
+3. `supabase/storage-setup.sql` — policies do bucket `progress-photos`
    (isolado porque criar policy em `storage.objects` pode exigir privilégio de
    owner; se falhar, dá para configurar pelo Dashboard → Storage → Policies).
 
@@ -81,8 +84,44 @@ produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 `0006_ritual_tapetinho.sql` → `0007_circuito.sql` → `0008_semana1_e_bloqueio.sql`
 → `0009_cronometro.sql` → `0010_bloco_mobilidade.sql` → `0011_drenagem_tailandesa.sql`
 → `0012_kiwify_drenagem.sql` → `0013_pilates_hormonal.sql` → `0014_es_content.sql` → `0015_hotmart.sql`
-→ `0016_entitlement_origem_hotmart.sql` → `0017_nutricionista.sql`,
+→ `0016_entitlement_origem_hotmart.sql` → `0017_nutricionista.sql`
+→ `0018_protocolos_por_produto.sql` → `0019_conteudo_protocolos.sql`,
 via `supabase db push` ou colando cada uma no SQL Editor.
+
+### Protocolos por produto (`0018` + `0019`)
+
+O app é **separado por produto**: cada produto vendável aponta para um
+**circuito** próprio (`products.circuito` → tabela `circuitos`), com catálogo
+de exercícios, bloco de mobilidade, semanas e progresso **independentes**. A
+aluna só recebe o conteúdo dos produtos que comprou.
+
+| Produto (slug) | Hotmart | Circuito | Duração |
+| --- | --- | --- | --- |
+| `descompresion-rodillas` — Protocolo Descompresión Articular (**principal**) | 8385058 | `rodillas` | 14 dias (2 semanas: v1 → v2) |
+| `suelta-la-cadera` — Suelta la Cadera | 8565517 | `cadera` | 7 dias |
+| `suelta-la-espalda-baja` — Suelta la Espalda Baja (lumbar) | 8565495 | `lumbar` | 7 dias |
+| `suelta-las-manos` — Suelta las Manos | 8565546 | `manos` | 7 dias |
+| `drenagem-tailandesa` / `pilates-hormonal` (Kiwify, legado) | — | `drenagem` | 28 dias |
+
+- **Esteira:** cada protocolo articular oferece os outros três (o de rodillas
+  oferece também o Acompañamiento Diario). Ajuste em `/admin/produtos`.
+- **Checkout:** a URL de checkout da Hotmart de cada upsell fica em branco —
+  preencha em `/admin/produtos` (campo "URL de checkout").
+- **Migração de alunas:** o id Hotmart 8385058 saiu do `pilates-hormonal`; quem
+  comprou pela Hotmart passa para `descompresion-rodillas` (mantém data do
+  pedido). Compradores da Kiwify seguem no protocolo legado.
+- **Várias compras:** `/treino?c=<circuito>` escolhe o protocolo; a Home mostra
+  um card por protocolo. A IA (n8n) recebe `contexto.protocolo` do protocolo
+  principal (o primeiro comprado).
+- **Admin:** `/admin/exercicios?c=<circuito>` (vídeos por protocolo) e
+  `/admin/semanas` (liberação por protocolo). A Semana 2 de rodillas nasce
+  liberada (o texto das duas variações já está pronto).
+- **Conteúdo** (espanhol) vive em `supabase/content/protocolos/*.ts`. Depois de
+  editar, regenere a `0019` (idempotente, preserva `panda_video_id`):
+  ```bash
+  npm run gen:protocolos-sql
+  ```
+- **Ordem de deploy:** rode `0018` e `0019` **antes** do deploy do código.
 
 ### Acompañamiento Diario / asistente de IA (`0017_nutricionista.sql`)
 
@@ -118,9 +157,9 @@ n8n direto: fala com `/api/nutri/*`, que valida acesso/trial e o gate
 
 ### Integração Hotmart (`0015_hotmart.sql`)
 
-Adiciona `products.hotmart_product_id` e vincula o **mesmo** produto
-`pilates-hormonal` (já vendido na Kiwify) ao id da Hotmart `8385058` — é o mesmo
-produto nas duas plataformas. O webhook `/api/webhooks/hotmart`
+Adiciona `products.hotmart_product_id`. (Histórico: a `0015` vinculava o id
+`8385058` ao `pilates-hormonal`; desde a `0018` ele é o produto
+`descompresion-rodillas` — ver "Protocolos por produto".) O webhook `/api/webhooks/hotmart`
 verifica o `hottok` (`HOTMART_WEBHOOK_TOKEN`) e reaproveita o
 `processPurchaseEvent` do fluxo Kiwify — o produto é localizado por
 `hotmart_product_id` **ou** `kiwify_product_id`. Configure na Hotmart:

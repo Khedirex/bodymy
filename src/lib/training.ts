@@ -5,14 +5,19 @@
 // =====================================================================
 import type { FaixaEtaria, EixoDificuldade } from '@/types/db'
 
-// Produto/programa CANÔNICO (a fonte do conteúdo: circuito + aulas).
-export const CIRCUITO_PRODUCT_SLUG = 'drenagem-tailandesa'
-// Slug atual + anteriores do MESMO produto canônico. Usado para localizar o
-// produto/programa e seu conteúdo (resiliente ao rename).
-export const CIRCUITO_PRODUCT_SLUGS = ['drenagem-tailandesa', 'ritual-do-tapetinho']
-// Produtos cujo entitlement LIBERA a mesma experiência (circuito + aulas).
-// Inclui SKUs vendidos à parte que dão o mesmo acesso (ex.: Pilates Hormonal).
-export const CIRCUITO_ACCESS_SLUGS = [...CIRCUITO_PRODUCT_SLUGS, 'pilates-hormonal']
+// =====================================================================
+// Protocolos por produto. Cada produto vendável aponta para um CIRCUITO
+// (products.circuito) com catálogo, semanas e progresso próprios. A aluna
+// só recebe o conteúdo dos circuitos dos produtos que comprou.
+// =====================================================================
+// Produto principal (porta de entrada): Descompresión Articular — rodillas.
+export const PRODUTO_PRINCIPAL_SLUG = 'descompresion-rodillas'
+export const CIRCUITO_PRINCIPAL = 'rodillas'
+// Circuito legado (Protocolo 28 Días / Pilates Hormonal, vendidos na Kiwify).
+export const CIRCUITO_LEGADO = 'drenagem'
+
+export const isCircuitoSlug = (v: unknown): v is string =>
+  typeof v === 'string' && /^[a-z0-9-]{1,40}$/.test(v)
 
 // Limites rígidos dos eixos.
 export const SERIES_MIN = 2

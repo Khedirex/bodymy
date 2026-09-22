@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { userHasEntitlement } from '@/lib/entitlements'
 import { getCheckinDates } from '@/lib/queries'
 import { calcularStreak } from '@/lib/streak'
+import { getCircuitosDaAluna, getTrainingConfig } from '@/lib/circuito'
 import type {
   NutriPerfilDados,
   NutriDietaConteudo,
@@ -161,20 +162,20 @@ export async function salvarPerfilEIniciarTrial(
 }
 
 // Contexto do protocolo para a IA "saber em que dia do desafio a aluna está".
-// Depende de user_training_config (semana/dia) e dos check-ins (streak).
+// Usa o protocolo PRINCIPAL da aluna (o primeiro comprado): progresso em
+// user_training_config (semana/dia) e check-ins (streak).
 export async function getContextoProtocolo(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<ContextoProtocolo | null> {
-  const { data: cfg } = await supabase
-    .from('user_training_config')
-    .select('semana_atual, dia_atual')
-    .eq('user_id', userId)
-    .maybeSingle()
+  const [principal] = await getCircuitosDaAluna(supabase, userId)
+  if (!principal) return null
+  const cfg = await getTrainingConfig(supabase, userId, principal.slug)
   if (!cfg) return null
   const semana = Number(cfg.semana_atual) || 1
   const dia = Number(cfg.dia_atual) || 1
   const diaDoDesafio = (semana - 1) * 7 + dia
+  const totalDias = principal.semanas * 7
 
   let streak = 0
   try {
@@ -184,7 +185,14 @@ export async function getContextoProtocolo(
     /* streak é best-effort */
   }
 
-  return { diaDoDesafio, semana, dia, streak }
+  return {
+    diaDoDesafio,
+    totalDias,
+    semana,
+    dia,
+    streak,
+    protocolo: { slug: principal.slug, nome: principal.produto.nome },
+  }
 }
 
 export async function getNutriPerfil(

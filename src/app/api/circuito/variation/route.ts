@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getTrainingConfig } from '@/lib/circuito'
+import { getTrainingConfig, resolverCircuito } from '@/lib/circuito'
 import { clampNivel, nivelEntradaSemana } from '@/lib/training'
 import { captureException } from '@/lib/observability'
 
@@ -21,13 +21,28 @@ export async function POST(request: NextRequest) {
   const b = (await request.json().catch(() => ({}))) as {
     exercise_id?: string
     direcao?: 'facilitar' | 'dificultar'
+    circuito?: string
   }
   if (!b.exercise_id || (b.direcao !== 'facilitar' && b.direcao !== 'dificultar')) {
     return NextResponse.json({ error: 'parametros_invalidos' }, { status: 400 })
   }
 
   try {
-    const config = await getTrainingConfig(supabase, user.id)
+    const { atual: circ } = await resolverCircuito(supabase, user.id, b.circuito)
+    if (!circ || (b.circuito && circ.slug !== b.circuito)) {
+      return NextResponse.json({ error: 'sem_acesso' }, { status: 403 })
+    }
+    // O exercício precisa ser do circuito da aluna.
+    const admin = createAdminClient()
+    const { data: ex } = await admin
+      .from('exercises')
+      .select('id')
+      .eq('id', b.exercise_id)
+      .eq('circuito', circ.slug)
+      .maybeSingle()
+    if (!ex) return NextResponse.json({ error: 'exercicio_invalido' }, { status: 400 })
+
+    const config = await getTrainingConfig(supabase, user.id, circ.slug)
     if (!config) return NextResponse.json({ error: 'sem_config' }, { status: 400 })
     const semana = config.semana_atual
     const entrada = nivelEntradaSemana(semana)
@@ -54,7 +69,6 @@ export async function POST(request: NextRequest) {
     if (error) throw error
 
     // Retorna a variação (com panda_video_id) via admin client.
-    const admin = createAdminClient()
     const { data: variation } = await admin
       .from('exercise_variations')
       .select('*')

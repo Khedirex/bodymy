@@ -56,6 +56,7 @@ interface Props {
   checkoutUrl: string | null
   produtoNome: string
   diaDoDesafio: number | null
+  totalDias?: number | null
   nome: string | null
 }
 
@@ -67,6 +68,7 @@ export function NutriPanel({
   checkoutUrl,
   produtoNome,
   diaDoDesafio,
+  totalDias,
   nome,
 }: Props) {
   const [acesso, setAcesso] = useState<Acesso>(initialAcesso)
@@ -112,7 +114,9 @@ export function NutriPanel({
             {NUTRI_ASSISTENTE.nome} · {NUTRI_ASSISTENTE.titulo.toLowerCase()}
           </p>
           <p className="text-sm text-ink-700">
-            {diaDoDesafio ? `En línea · día ${diaDoDesafio} de 28 contigo` : 'En línea · contigo hoy'}
+            {diaDoDesafio
+              ? `En línea · día ${diaDoDesafio}${totalDias ? ` de ${totalDias}` : ''} contigo`
+              : 'En línea · contigo hoy'}
           </p>
         </div>
       </div>

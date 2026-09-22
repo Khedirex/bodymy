@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
 import { getCheckinDates, getEsteira } from '@/lib/queries'
 import { createClient } from '@/lib/supabase/server'
-import { getTrainingConfig, hasCircuitoAccess } from '@/lib/circuito'
+import { getTrainingConfig, getCircuitosDaAluna } from '@/lib/circuito'
+import { CIRCUITO_DIAS } from '@/lib/training'
 import { calcularStreak } from '@/lib/streak'
 import { todayISO } from '@/lib/dates'
 import { StreakBadge } from '@/components/StreakBadge'
@@ -21,23 +22,32 @@ export default async function HomePage() {
   if (!profile.onboarding_completo) redirect('/bem-vinda')
 
   const supabase = createClient()
-  const [datas, storefront, temAcesso, config] = await Promise.all([
+  const [datas, storefront, circuitos] = await Promise.all([
     getCheckinDates(profile.id),
     getEsteira(profile.id),
-    hasCircuitoAccess(supabase, profile.id),
-    getTrainingConfig(supabase, profile.id),
+    getCircuitosDaAluna(supabase, profile.id),
   ])
+  // Um card por protocolo que ela possui (o principal primeiro).
+  const protocolos = await Promise.all(
+    circuitos.map(async (c) => {
+      const config = await getTrainingConfig(supabase, profile.id, c.slug)
+      const totalDias = c.semanas * CIRCUITO_DIAS
+      const diasFeitos = config ? (config.semana_atual - 1) * CIRCUITO_DIAS + (config.dia_atual - 1) : 0
+      return {
+        circuito: c,
+        chip: config ? `Día ${diasFeitos + 1} de ${totalDias}` : 'Vamos a empezar',
+        config,
+        diasFeitos,
+        totalDias,
+      }
+    }),
+  )
+  const temAcesso = protocolos.length > 0
+  // Leitura complementar (/entenda) só existe para protocolos que a têm.
+  const temLeitura = circuitos.some((c) => c.programa_slug)
 
   const hoje = todayISO()
   const streak = calcularStreak(datas, hoje)
-
-  // Rótulo do "Hoje" conforme o estágio do circuito.
-  const chipHoje = !config
-    ? 'Vamos a empezar'
-    : `Semana ${config.semana_atual} · Día ${config.dia_atual}`
-  const tituloHoje = 'Tu entrenamiento de hoy'
-  // Progresso nas 4 semanas (28 dias).
-  const diasFeitos = config ? (config.semana_atual - 1) * 7 + (config.dia_atual - 1) : 0
 
   const primeiroNome = (profile.nome ?? '').split(' ')[0] || 'Hola'
   const bloqueados = storefront.filter((s) => !s.liberado)
@@ -59,24 +69,32 @@ export default async function HomePage() {
       <section>
         <h2 className="section-title mb-2">Hoje</h2>
         {temAcesso ? (
-          <div className="card">
-            <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-coral-600">
-              <span className="chip">{chipHoje}</span>
-            </div>
-            <h3 className="text-lg font-bold text-ink-900">{tituloHoje}</h3>
-            <p className="mt-1 text-sm text-ink-700">
-              Movilidad + 5 ejercicios · se ajusta a ti
-            </p>
-            <div className="mt-4">
-              <Link href="/treino" className="btn-primary w-full">
-                <PlayIcon width={20} height={20} /> Empezar ahora
-              </Link>
-            </div>
-            {config ? (
-              <div className="mt-4">
-                <ProgressBar atual={diasFeitos} total={28} label="Tu progreso en las 4 semanas" />
+          <div className="space-y-3">
+            {protocolos.map(({ circuito, chip, config, diasFeitos, totalDias }) => (
+              <div key={circuito.slug} className="card">
+                <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-coral-600">
+                  <span className="chip">{chip}</span>
+                </div>
+                <h3 className="text-lg font-bold text-ink-900">{circuito.produto.nome}</h3>
+                <p className="mt-1 text-sm text-ink-700">
+                  Tu entrenamiento de hoy · movilidad + ejercicios que se ajustan a ti
+                </p>
+                <div className="mt-4">
+                  <Link href={`/treino?c=${circuito.slug}`} className="btn-primary w-full">
+                    <PlayIcon width={20} height={20} /> Empezar ahora
+                  </Link>
+                </div>
+                {config ? (
+                  <div className="mt-4">
+                    <ProgressBar
+                      atual={Math.min(diasFeitos, totalDias)}
+                      total={totalDias}
+                      label={`Tu progreso en el reto de ${totalDias} días`}
+                    />
+                  </div>
+                ) : null}
               </div>
-            ) : null}
+            ))}
           </div>
         ) : (
           <EmptyState
@@ -87,8 +105,8 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* Material complementar: as 28 aulas viram "Entenda a prática" */}
-      {temAcesso ? (
+      {/* Material complementar (só protocolos com leitura, ex.: o legado 28 dias) */}
+      {temLeitura ? (
         <Link href="/entenda" className="card flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cream-200 text-ink-800">
             <BookIcon width={22} height={22} />

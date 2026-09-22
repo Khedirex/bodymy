@@ -47,6 +47,7 @@ export interface Product {
   kiwify_checkout_url: string | null
   preco_exibicao: string | null
   sales_page: SalesPage | null
+  circuito: string | null // circuito (protocolo) que o produto libera
   ativo: boolean
   created_at: string
 }
@@ -193,8 +194,18 @@ export type EixoDificuldade = 'descanso' | 'exercicio' | 'series'
 
 export type ExercicioTipo = 'tempo' | 'repeticao' | 'permanencia'
 
+// Protocolo (circuito) de um produto: catálogo + semanas próprios.
+export interface Circuito {
+  slug: string
+  nome: string
+  semanas: number // 1-4 (cada semana = 7 dias; semana N entra na variação vN)
+  programa_slug: string | null // leitura complementar (/entenda), opcional
+  created_at: string
+}
+
 export interface Exercise {
   id: string
+  circuito: string
   nome: string
   descricao: string | null
   dia_do_ciclo: number // 1-7
@@ -218,6 +229,7 @@ export interface ExerciseVariation {
 
 export interface Stretch {
   id: string
+  circuito: string
   nome: string
   descricao: string | null
   panda_video_id: string | null
@@ -229,6 +241,7 @@ export interface Stretch {
 
 export interface UserTrainingConfig {
   user_id: string
+  circuito: string
   faixa_etaria: FaixaEtaria | null
   series: number // 2-6
   descanso_seg: number // 20-120
@@ -240,6 +253,7 @@ export interface UserTrainingConfig {
 }
 
 export interface ProgramWeekConfig {
+  circuito: string
   semana: number // 1-4
   liberada: boolean
   atualizado_em: string
@@ -256,6 +270,7 @@ export interface UserExerciseVariation {
 export interface TrainingSession {
   id: string
   user_id: string
+  circuito: string
   data: string
   semana: number
   dia: number

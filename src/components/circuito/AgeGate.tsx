@@ -7,7 +7,7 @@ import type { FaixaEtaria } from '@/types/db'
 
 // Coleta a faixa etária de alunas que já tinham conta antes do circuito.
 // Define o ponto de partida (séries/descanso). Aparece uma única vez.
-export function AgeGate() {
+export function AgeGate({ circuito }: { circuito: string }) {
   const router = useRouter()
   const [faixa, setFaixa] = useState<FaixaEtaria | null>(null)
   const [pending, startTransition] = useTransition()
@@ -21,7 +21,7 @@ export function AgeGate() {
         const res = await fetch('/api/circuito/config', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ faixa_etaria: faixa }),
+          body: JSON.stringify({ faixa_etaria: faixa, circuito }),
         })
         if (!res.ok) {
           setErro('No pudimos guardar ahora. Inténtalo de nuevo.')

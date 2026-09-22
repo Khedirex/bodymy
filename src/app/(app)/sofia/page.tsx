@@ -51,6 +51,7 @@ export default async function SofiaPage() {
         checkoutUrl={(nutriProduto?.kiwify_checkout_url as string) ?? null}
         produtoNome={(nutriProduto?.nome as string) ?? 'Acompañamiento Diario'}
         diaDoDesafio={contexto?.diaDoDesafio ?? null}
+        totalDias={contexto?.totalDias ?? null}
         nome={profile.nome}
       />
 

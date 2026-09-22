@@ -12,10 +12,11 @@ import type {
 // de requisição da nossa parte). NUNCA é chamada do browser: só destas funções
 // de servidor, depois que a rota /api/nutri/* já validou acesso/trial.
 //
-// A assistente é o acompanhamento diário do protocolo: sabe em que dia do
-// desafio a aluna está (contexto), adapta a sessão (dor/sono), fala de calores
-// e ansiedade e orienta a alimentação como APOIO ao estímulo hormonal — não
-// prescreve dieta.
+// A assistente é o acompanhamento diário do protocolo: sabe QUAL protocolo a
+// aluna faz (contexto.protocolo — ex.: rodillas) e em que dia do reto está
+// (contexto.diaDoDesafio de contexto.totalDias), adapta a sessão (dor/sono) e
+// orienta a alimentação como APOIO ao protocolo — não prescreve dieta.
+// ⚠️ O prompt no n8n deve usar contexto.protocolo para focar no produto certo.
 //
 // Contrato (2 webhooks no n8n, protegidos por Authorization: Bearer):
 //

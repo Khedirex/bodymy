@@ -29,6 +29,8 @@ export async function POST(request: NextRequest) {
     preco_exibicao: (b.preco_exibicao as string) ?? null,
     kiwify_product_id: (b.kiwify_product_id as string) ?? null,
     kiwify_checkout_url: (b.kiwify_checkout_url as string) ?? null,
+    hotmart_product_id: ((b.hotmart_product_id as string) ?? '').trim() || null,
+    circuito: ((b.circuito as string) ?? '').trim() || null,
     sales_page: (b.sales_page as Record<string, unknown>) ?? null,
     ativo: b.ativo !== false,
   }

@@ -14,7 +14,7 @@ export default async function AlunaFichaPage({ params }: { params: { id: string 
   const [ficha, produtos] = await Promise.all([getAlunaFicha(params.id), listProductsSimple()])
   if (!ficha) notFound()
 
-  const { profile, auth, entitlements, streak, aulasConcluidas, totalCheckins, progresso, webhooks, config, alongamento, sessoes, comentarios, variacoes } = ficha
+  const { profile, auth, entitlements, streak, aulasConcluidas, totalCheckins, progresso, webhooks, configs, alongamento, sessoes, comentarios, variacoes } = ficha
 
   return (
     <div className="space-y-6">
@@ -62,15 +62,20 @@ export default async function AlunaFichaPage({ params }: { params: { id: string 
           {/* Circuito: configuração atual */}
           <section className="rounded-lg border border-slate-200 bg-white p-4">
             <h2 className="mb-3 text-sm font-semibold text-slate-700">Circuito — configuración</h2>
-            {config ? (
-              <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                <dt className="text-slate-500">Rango de edad</dt><dd className="text-slate-800">{config.faixa_etaria ?? '—'}</dd>
-                <dt className="text-slate-500">Series</dt><dd className="text-slate-800">{config.series}</dd>
-                <dt className="text-slate-500">Descanso</dt><dd className="text-slate-800">{config.descanso_seg}s</dd>
-                <dt className="text-slate-500">Tiempo de ejecución</dt><dd className="text-slate-800">{config.tempo_execucao_seg}s</dd>
-                <dt className="text-slate-500">Etapa</dt><dd className="text-slate-800">Semana {config.semana_atual} · Día {config.dia_atual}</dd>
-                <dt className="text-slate-500">Estiramiento</dt><dd className="text-slate-800">{alongamento.com} con · {alongamento.sem} sin</dd>
-              </dl>
+            {configs.length > 0 ? (
+              <div className="space-y-3">
+                {configs.map((config) => (
+                  <dl key={config.circuito} className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                    <dt className="text-slate-500">Protocolo</dt><dd className="font-semibold text-slate-800">{config.circuito}</dd>
+                    <dt className="text-slate-500">Rango de edad</dt><dd className="text-slate-800">{config.faixa_etaria ?? '—'}</dd>
+                    <dt className="text-slate-500">Series</dt><dd className="text-slate-800">{config.series}</dd>
+                    <dt className="text-slate-500">Descanso</dt><dd className="text-slate-800">{config.descanso_seg}s</dd>
+                    <dt className="text-slate-500">Tiempo de ejecución</dt><dd className="text-slate-800">{config.tempo_execucao_seg}s</dd>
+                    <dt className="text-slate-500">Etapa</dt><dd className="text-slate-800">Semana {config.semana_atual} · Día {config.dia_atual}</dd>
+                  </dl>
+                ))}
+                <p className="text-sm text-slate-500">Estiramiento: {alongamento.com} con · {alongamento.sem} sin</p>
+              </div>
             ) : (
               <p className="text-sm text-slate-400">Todavía no inició el circuito.</p>
             )}
@@ -84,12 +89,13 @@ export default async function AlunaFichaPage({ params }: { params: { id: string 
             ) : (
               <table className="w-full text-sm">
                 <thead className="text-left text-slate-500">
-                  <tr><th className="py-1 font-medium">Fecha</th><th className="py-1 font-medium">Sem/Día</th><th className="py-1 font-medium">Series/Desc.</th><th className="py-1 font-medium">Completa</th></tr>
+                  <tr><th className="py-1 font-medium">Fecha</th><th className="py-1 font-medium">Protocolo</th><th className="py-1 font-medium">Sem/Día</th><th className="py-1 font-medium">Series/Desc.</th><th className="py-1 font-medium">Completa</th></tr>
                 </thead>
                 <tbody>
                   {sessoes.map((s, i) => (
                     <tr key={i} className="border-t border-slate-100">
                       <td className="py-1.5 text-slate-700">{s.data}</td>
+                      <td className="py-1.5 text-slate-600">{s.circuito}</td>
                       <td className="py-1.5 text-slate-600">S{s.semana}·D{s.dia}</td>
                       <td className="py-1.5 text-slate-600">{s.series_usadas ?? '—'} / {s.descanso_usado ?? '—'}s</td>
                       <td className="py-1.5">{s.completa ? <span className="text-emerald-700">sí</span> : <span className="text-slate-400">no</span>}</td>
@@ -128,7 +134,7 @@ export default async function AlunaFichaPage({ params }: { params: { id: string 
               <div className="flex flex-wrap gap-1.5">
                 {variacoes.map((v, i) => (
                   <span key={i} className="rounded bg-slate-100 px-2 py-1 text-xs text-slate-700">
-                    {v.nome}: <span className="font-semibold">v{v.nivel}</span>
+                    <span className="text-slate-400">{v.circuito} ·</span> {v.nome}: <span className="font-semibold">v{v.nivel}</span>
                   </span>
                 ))}
               </div>

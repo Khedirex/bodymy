@@ -2,8 +2,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { userHasEntitlement, getActiveEntitlementProductIds } from '@/lib/entitlements'
-import { hasCircuitoAccess } from '@/lib/circuito'
-import { CIRCUITO_PRODUCT_SLUGS } from '@/lib/training'
+import { hasProgramaViaCircuito } from '@/lib/circuito'
 import { captureException } from '@/lib/observability'
 
 // Loga um erro de leitura do Supabase com contexto rico (aparece nos
@@ -147,7 +146,7 @@ export async function getProgramTrack(
   if (!meta) return null
 
   // skipEntitlement: quem chama já validou o acesso (ex.: /entenda usa
-  // hasCircuitoAccess, que aceita qualquer SKU que libera a experiência).
+  // o circuito da aluna, que aceita qualquer SKU que libera a experiência).
   if (!opts?.skipEntitlement) {
     const supabase = createClient()
     const temAcesso = await userHasEntitlement(supabase, userId, meta.product.id)
@@ -277,12 +276,12 @@ export async function getLessonForUser(
   if (!day || !week || !program) return { hasAccess: false, ctx: null }
 
   const supabase = createClient()
-  // Aulas do programa canônico são liberadas por qualquer SKU da experiência
-  // (ex.: Pilates Hormonal). Outros programas exigem o próprio entitlement.
-  const canonico = CIRCUITO_PRODUCT_SLUGS.includes((program as Program).slug)
-  const hasAccess = canonico
-    ? await hasCircuitoAccess(supabase, userId)
-    : await userHasEntitlement(supabase, userId, (program as Program).product_id)
+  // Aulas usadas como leitura de um protocolo são liberadas por qualquer
+  // produto desse circuito (ex.: Pilates Hormonal → drenagem). Fora isso,
+  // o programa exige o próprio entitlement.
+  const hasAccess =
+    (await hasProgramaViaCircuito(supabase, userId, (program as Program).slug)) ||
+    (await userHasEntitlement(supabase, userId, (program as Program).product_id))
   if (!hasAccess) return { hasAccess: false, ctx: null }
 
   const { data: completion } = await admin

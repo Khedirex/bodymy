@@ -46,10 +46,13 @@ export interface NutriPerfilDados {
 // Contexto do protocolo enviado à IA para ela "saber em que dia do desafio a
 // aluna está" e adaptar a resposta (dor, sono, adesão).
 export interface ContextoProtocolo {
-  diaDoDesafio: number // 1..28 (posição no reto de 28 dias)
+  diaDoDesafio: number // 1..totalDias (posição no reto)
+  totalDias: number // duração do reto (ex.: 14 no protocolo de rodillas)
   semana: number // 1..4
   dia: number // 1..7
   streak: number // dias consecutivos de check-in
+  // Protocolo principal da aluna (a IA adapta o foco: rodillas, cadera…).
+  protocolo: { slug: string; nome: string } | null
 }
 
 // Definição declarativa do formulário (renderizado genericamente pela UI).

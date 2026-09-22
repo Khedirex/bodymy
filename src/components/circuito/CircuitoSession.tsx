@@ -35,6 +35,7 @@ export interface PlanExercicioUI {
 }
 
 interface Props {
+  circuito: string
   semana: number
   dia: number
   series: number
@@ -54,7 +55,7 @@ const EIXOS: { valor: EixoDificuldade; label: string }[] = [
   { valor: 'series', label: 'Cantidad de series' },
 ]
 
-export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSeg, exercicios, alongou, sinalizador, aguardandoDesde = 0 }: Props) {
+export function CircuitoSession({ circuito, semana, dia, series, descanso_seg, tempoExecSeg, exercicios, alongou, sinalizador, aguardandoDesde = 0 }: Props) {
   const router = useRouter()
   const [exs, setExs] = useState(exercicios)
   const [fase, setFase] = useState<Fase>('exercicios')
@@ -94,7 +95,7 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
       const res = await fetch('/api/circuito/variation', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ exercise_id: ex.exercise_id, direcao: 'facilitar' }),
+        body: JSON.stringify({ exercise_id: ex.exercise_id, direcao: 'facilitar', circuito }),
       })
       const d = await res.json()
       if (res.ok && !d.semLimite) {
@@ -128,6 +129,7 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
+          circuito,
           alongou,
           exercicios: exs.map((e) => ({
             exercise_id: e.exercise_id,

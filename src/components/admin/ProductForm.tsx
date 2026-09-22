@@ -11,7 +11,13 @@ const TIPOS: { v: ProductTipo; label: string }[] = [
   { v: 'extra', label: 'Extra' },
 ]
 
-export function ProductForm({ product }: { product: Product | null }) {
+export function ProductForm({
+  product,
+  circuitos = [],
+}: {
+  product: Product | null
+  circuitos?: { slug: string; nome: string }[]
+}) {
   const router = useRouter()
   const sp = (product?.sales_page ?? {}) as Partial<SalesPage>
   const [f, setF] = useState({
@@ -24,6 +30,8 @@ export function ProductForm({ product }: { product: Product | null }) {
     ativo: product?.ativo ?? true,
     kiwify_product_id: product?.kiwify_product_id ?? '',
     kiwify_checkout_url: product?.kiwify_checkout_url ?? '',
+    hotmart_product_id: product?.hotmart_product_id ?? '',
+    circuito: product?.circuito ?? '',
     headline: sp.headline ?? '',
     subheadline: sp.subheadline ?? '',
     imagem_url: sp.imagem_url ?? '',
@@ -63,6 +71,8 @@ export function ProductForm({ product }: { product: Product | null }) {
           ativo: f.ativo,
           kiwify_product_id: f.kiwify_product_id,
           kiwify_checkout_url: f.kiwify_checkout_url,
+          hotmart_product_id: f.hotmart_product_id,
+          circuito: f.circuito,
           sales_page,
         }),
       })
@@ -108,12 +118,22 @@ export function ProductForm({ product }: { product: Product | null }) {
         </fieldset>
 
         <fieldset className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">
-          <legend className="px-1 text-xs font-semibold uppercase text-slate-500">Integración Kiwify</legend>
+          <legend className="px-1 text-xs font-semibold uppercase text-slate-500">Contenido e integraciones</legend>
+          <label className="block text-sm">
+            <span className="text-slate-600">Protocolo (circuito que este producto libera)</span>
+            <select className={inputCls} value={f.circuito} onChange={(e) => set('circuito', e.target.value)}>
+              <option value="">— ninguno (extra / menú) —</option>
+              {circuitos.map((c) => (
+                <option key={c.slug} value={c.slug}>{c.nome} ({c.slug})</option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-sm"><span className="text-slate-600">hotmart_product_id (ID del producto en Hotmart)</span><input className={inputCls} value={f.hotmart_product_id} onChange={(e) => set('hotmart_product_id', e.target.value)} placeholder="8385058" /></label>
           <div className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800">
             ⚠️ El <strong>kiwify_product_id</strong> es el <strong>id del producto en el payload del webhook</strong> (el campo <code>Product.product_id</code>) — <strong>no</strong> es el código del enlace de checkout. Confírmalo en los logs del webhook.
           </div>
           <label className="block text-sm"><span className="text-slate-600">kiwify_product_id</span><input className={inputCls} value={f.kiwify_product_id} onChange={(e) => set('kiwify_product_id', e.target.value)} /></label>
-          <label className="block text-sm"><span className="text-slate-600">kiwify_checkout_url</span><input className={inputCls} value={f.kiwify_checkout_url} onChange={(e) => set('kiwify_checkout_url', e.target.value)} placeholder="https://pay.kiwify.com.br/..." /></label>
+          <label className="block text-sm"><span className="text-slate-600">URL de checkout (Hotmart o Kiwify)</span><input className={inputCls} value={f.kiwify_checkout_url} onChange={(e) => set('kiwify_checkout_url', e.target.value)} placeholder="https://pay.hotmart.com/..." /></label>
         </fieldset>
 
         <fieldset className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">

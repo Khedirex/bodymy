@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { captureException } from '@/lib/observability'
-import { isFaixa, partidaPorFaixa } from '@/lib/training'
+import { isFaixa } from '@/lib/training'
+import { getCircuitosDaAluna, ensureTrainingConfig } from '@/lib/circuito'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -55,31 +56,16 @@ export async function POST(request: NextRequest) {
       .eq('id', user.id)
     if (error) throw error
 
-    // Inicializa a config do circuito (não sobrescreve séries/descanso já
-    // ajustados — só cria se ainda não existir).
-    const { data: existing } = await supabase
-      .from('user_training_config')
-      .select('user_id')
-      .eq('user_id', user.id)
-      .maybeSingle()
-
-    if (!existing) {
-      const partida = partidaPorFaixa(faixa)
-      const { error: cfgErr } = await supabase.from('user_training_config').insert({
-        user_id: user.id,
-        faixa_etaria: faixa,
-        series: partida.series,
-        descanso_seg: partida.descanso_seg,
-        tempo_execucao_seg: partida.tempo_execucao_seg,
-      })
-      if (cfgErr) throw cfgErr
-    } else {
-      // Já existe: apenas registra a faixa (mantém ajustes atuais).
-      await supabase
-        .from('user_training_config')
-        .update({ faixa_etaria: faixa, atualizado_em: new Date().toISOString() })
-        .eq('user_id', user.id)
+    // Inicializa a config de cada protocolo que ela possui (não sobrescreve
+    // séries/descanso já ajustados — só cria o que ainda não existe).
+    const circuitos = await getCircuitosDaAluna(supabase, user.id)
+    for (const c of circuitos) {
+      await ensureTrainingConfig(supabase, user.id, c.slug, faixa)
     }
+    await supabase
+      .from('user_training_config')
+      .update({ faixa_etaria: faixa, atualizado_em: new Date().toISOString() })
+      .eq('user_id', user.id)
 
     return NextResponse.json({ ok: true })
   } catch (err) {

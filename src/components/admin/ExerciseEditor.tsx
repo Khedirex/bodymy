@@ -86,7 +86,7 @@ export function ExerciseEditor({ exercise }: { exercise: ExerciseWithVariations 
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-base font-bold text-slate-900">Variaciones (v1 fácil → v4 difícil)</h2>
+        <h2 className="text-base font-bold text-slate-900">Variaciones (vN = semana N del protocolo)</h2>
         {exercise.variacoes.map((v) => (
           <VariationRow key={v.id} variation={v} />
         ))}
