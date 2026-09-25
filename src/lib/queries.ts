@@ -400,7 +400,7 @@ export async function getEsteira(userId: string): Promise<StorefrontItem[]> {
     .eq('ativo', true)
   if (error) {
     logDbError('getEsteira.products', error, { userId })
-    throw new Error('Não foi possível carregar a vitrine agora.')
+    throw new Error('No pudimos cargar la vitrina ahora.')
   }
 
   return (products ?? [])

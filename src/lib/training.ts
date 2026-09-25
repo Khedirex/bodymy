@@ -49,10 +49,10 @@ export const TOTAL_EXERCICIOS = CIRCUITO_DIAS * EXERCICIOS_POR_DIA // 35
 
 // Faixas etárias (ordem de exibição) e o ponto de partida de cada uma.
 export const FAIXAS: { valor: FaixaEtaria; label: string }[] = [
-  { valor: '30-35', label: '30 a 35 anos' },
-  { valor: '36-40', label: '36 a 40 anos' },
-  { valor: '41-45', label: '41 a 45 anos' },
-  { valor: '46+', label: '46 anos ou mais' },
+  { valor: '30-35', label: '30 a 35 años' },
+  { valor: '36-40', label: '36 a 40 años' },
+  { valor: '41-45', label: '41 a 45 años' },
+  { valor: '46+', label: '46 años o más' },
 ]
 
 // Ponto de PARTIDA por faixa (só a entrada; depois os eixos andam sozinhos).
@@ -86,12 +86,12 @@ export const nivelEntradaSemana = (semana: number) => clampNivel(semana)
 // Escala de intensidade percebida (1-6) → direção do ajuste.
 export type Intensidade = 1 | 2 | 3 | 4 | 5 | 6
 export const INTENSIDADES: { valor: Intensidade; label: string }[] = [
-  { valor: 1, label: 'Muito leve' },
+  { valor: 1, label: 'Muy leve' },
   { valor: 2, label: 'Leve' },
   { valor: 3, label: 'Moderado' },
-  { valor: 4, label: 'Pouco intenso' },
+  { valor: 4, label: 'Poco intenso' },
   { valor: 5, label: 'Intenso' },
-  { valor: 6, label: 'Muito intenso' },
+  { valor: 6, label: 'Muy intenso' },
 ]
 
 // 1-3 → oferecer AVANÇAR; 4 → neutro; 5-6 → oferecer REDUZIR.

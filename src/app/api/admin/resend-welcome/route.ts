@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   if (!email) return NextResponse.json({ error: 'aluna_sem_email' }, { status: 400 })
 
   // Nome do programa liberado (para o corpo do e-mail).
-  let programaNome = 'seu programa'
+  let programaNome = 'tu programa'
   const { data: ents } = await admin
     .from('entitlements')
     .select('product:products(id, nome)')

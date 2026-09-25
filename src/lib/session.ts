@@ -20,7 +20,7 @@ async function lerUsuario() {
     captureException(err, { fn: 'session.lerUsuario' })
     // Propaga como erro tratável para o boundary (retry costuma resolver
     // um problema transitório), com mensagem honesta.
-    throw new Error('Não foi possível verificar sua sessão agora.')
+    throw new Error('No pudimos verificar tu sesión ahora.')
   }
 }
 

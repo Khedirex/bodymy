@@ -115,11 +115,11 @@ export async function sendWelcomeEmail(params: {
   magicLink: string
 }): Promise<EnvioResultado> {
   const { to, nome, programaNome, magicLink } = params
-  const primeiroNome = (nome ?? '').split(' ')[0] || 'tudo pronto'
+  const primeiroNome = (nome ?? '').split(' ')[0] || ''
   return enviar({
     contexto: 'boas-vindas',
     to,
-    subject: 'Seu acesso ao BodyMy está pronto 🤍',
+    subject: 'Tu acceso a BodyMy ya está listo 🤍',
     html: welcomeHtml({ primeiroNome, programaNome, magicLink }),
   })
 }

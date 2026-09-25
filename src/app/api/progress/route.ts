@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'não autenticado' }, { status: 401 })
+  if (!user) return NextResponse.json({ error: 'no_autenticado' }, { status: 401 })
 
   let body: {
     foto_path?: string | null
@@ -62,6 +62,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, streak })
   } catch (err) {
     captureException(err, { rota: 'progress_create' })
-    return NextResponse.json({ error: 'erro ao salvar progresso' }, { status: 500 })
+    return NextResponse.json({ error: 'no pudimos guardar tu progreso' }, { status: 500 })
   }
 }

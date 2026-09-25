@@ -43,7 +43,7 @@ export function welcomeHtml({
   return shell(`
     <div style="text-align:center;margin-bottom:24px;">
       <div style="display:inline-block;width:56px;height:56px;line-height:56px;border-radius:16px;background:${CORAL};color:#fff;font-size:26px;">🤍</div>
-      <h1 style="font-size:22px;margin:14px 0 0;">¡Bienvenida a BodyMy, ${primeiroNome}!</h1>
+      <h1 style="font-size:22px;margin:14px 0 0;">¡Bienvenida a BodyMy${primeiroNome ? `, ${primeiroNome}` : ''}!</h1>
     </div>
     <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(74,66,60,.08);">
       <p style="font-size:16px;line-height:1.5;margin:0 0 12px;">Qué alegría tenerte aquí. 🌷</p>

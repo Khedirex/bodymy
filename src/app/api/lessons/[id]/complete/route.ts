@@ -18,12 +18,12 @@ export async function POST(
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'não autenticado' }, { status: 401 })
+  if (!user) return NextResponse.json({ error: 'no_autenticado' }, { status: 401 })
 
   // Valida acesso no servidor (nunca confia só no front).
   const { hasAccess, ctx } = await getLessonForUser(user.id, params.id)
   if (!hasAccess || !ctx) {
-    return NextResponse.json({ error: 'sem acesso a esta aula' }, { status: 403 })
+    return NextResponse.json({ error: 'sin acceso a esta lección' }, { status: 403 })
   }
 
   const hoje = todayISO()
@@ -57,6 +57,6 @@ export async function POST(
     })
   } catch (err) {
     captureException(err, { rota: 'lesson_complete', lessonId: params.id })
-    return NextResponse.json({ error: 'erro ao concluir aula' }, { status: 500 })
+    return NextResponse.json({ error: 'no pudimos guardar esta lección' }, { status: 500 })
   }
 }
