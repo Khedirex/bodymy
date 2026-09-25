@@ -2,7 +2,13 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getActiveEntitlementProductIds } from '@/lib/entitlements'
-import { CIRCUITO_PRODUCT_SLUGS, CIRCUITO_ACCESS_SLUGS, nivelEntradaSemana, clampNivel } from '@/lib/training'
+import {
+  CIRCUITO_PRODUCT_SLUGS,
+  CIRCUITO_ACCESS_SLUGS,
+  CIRCUITO_SEMANAS,
+  nivelEntradaSemana,
+  clampNivel,
+} from '@/lib/training'
 import type {
   UserTrainingConfig,
   Exercise,
@@ -174,7 +180,7 @@ export interface AvancoResultado {
 //   reseta as variações para a entrada (vN).
 // - dia 7 e a próxima semana BLOQUEADA: NÃO avança — volta ao Dia 1 da mesma
 //   semana (continua praticando) e registra aguardando_liberacao.
-// - semana 4: volta ao dia 1 (mantém a prática consolidada).
+// - última semana do reto: volta ao dia 1 (mantém a prática consolidada).
 export async function advanceAfterCompletion(
   supabase: SupabaseClient,
   userId: string,
@@ -192,7 +198,7 @@ export async function advanceAfterCompletion(
     dia += 1
   } else {
     concluiuCiclo = true
-    if (semana < 4) {
+    if (semana < CIRCUITO_SEMANAS) {
       const liberadas = await getSemanasLiberadas(supabase)
       const prox = semana + 1
       if (liberadas.has(prox)) {
@@ -207,7 +213,7 @@ export async function advanceAfterCompletion(
         avancou = false
       }
     } else {
-      dia = 1 // semana 4 concluída → repete a consolidada
+      dia = 1 // última semana do reto concluída → repete a consolidada
       aguardando = 0
     }
   }

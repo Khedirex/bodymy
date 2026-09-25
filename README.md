@@ -81,7 +81,8 @@ produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 `0006_ritual_tapetinho.sql` → `0007_circuito.sql` → `0008_semana1_e_bloqueio.sql`
 → `0009_cronometro.sql` → `0010_bloco_mobilidade.sql` → `0011_drenagem_tailandesa.sql`
 → `0012_kiwify_drenagem.sql` → `0013_pilates_hormonal.sql` → `0014_es_content.sql` → `0015_hotmart.sql`
-→ `0016_entitlement_origem_hotmart.sql` → `0017_nutricionista.sql`,
+→ `0016_entitlement_origem_hotmart.sql` → `0017_nutricionista.sql`
+→ `0018_reto_14_dias.sql`,
 via `supabase db push` ou colando cada uma no SQL Editor.
 
 ### Acompañamiento Diario / asistente de IA (`0017_nutricionista.sql`)

@@ -1,3 +1,4 @@
+import { CIRCUITO_TOTAL_DIAS } from '@/lib/training'
 import { StreakBadge } from '@/components/StreakBadge'
 import { ProgressBar } from '@/components/ProgressBar'
 
@@ -11,9 +12,9 @@ export interface DiaSemana {
 }
 
 interface Props {
-  /** Posição no protocolo de 28 dias (1..28) — null se ainda não começou. */
+  /** Posição no reto de 14 dias (1..14) — null se ainda não começou. */
   diaDoDesafio: number | null
-  /** Dias concluídos no protocolo (para a barra de 28). */
+  /** Dias concluídos no reto (para a barra de 14). */
   diasFeitos: number
   streakAtual: number
   fezHoje: boolean
@@ -40,16 +41,16 @@ export function HomeDash({
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-ink-700/60">
-            Tu protocolo
+            Tu reto
           </p>
           <p className="text-xl font-extrabold text-ink-900">
-            {diaDoDesafio ? `Día ${diaDoDesafio} de 28` : 'Aún no empiezas'}
+            {diaDoDesafio ? `Día ${diaDoDesafio} de ${CIRCUITO_TOTAL_DIAS}` : 'Aún no empiezas'}
           </p>
         </div>
         <StreakBadge dias={streakAtual} />
       </div>
 
-      <ProgressBar atual={diasFeitos} total={28} label="Tu avance" />
+      <ProgressBar atual={diasFeitos} total={CIRCUITO_TOTAL_DIAS} label="Tu avance" />
 
       {/* Semana: 7 dias, marcados os que tiveram registro */}
       <div>

@@ -233,7 +233,7 @@ export interface UserTrainingConfig {
   series: number // 2-6
   descanso_seg: number // 20-120
   tempo_execucao_seg: number // 10-120 (execução por série nos tipo 'tempo')
-  semana_atual: number // 1-4
+  semana_atual: number // 1-2 (reto de 14 días)
   dia_atual: number // 1-7
   aguardando_liberacao: number // 0 = não aguarda; senão, a semana aguardada
   atualizado_em: string

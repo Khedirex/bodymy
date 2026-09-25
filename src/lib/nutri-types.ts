@@ -46,7 +46,7 @@ export interface NutriPerfilDados {
 // Contexto do protocolo enviado à IA para ela "saber em que dia do desafio a
 // aluna está" e adaptar a resposta (dor, sono, adesão).
 export interface ContextoProtocolo {
-  diaDoDesafio: number // 1..28 (posição no reto de 28 dias)
+  diaDoDesafio: number // 1..14 (posição no reto de 14 dias)
   semana: number // 1..4
   dia: number // 1..7
   streak: number // dias consecutivos de check-in

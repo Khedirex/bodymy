@@ -20,8 +20,10 @@ export const SERIES_MAX = 6
 export const DESCANSO_MIN = 20 // segundos
 export const DESCANSO_MAX = 120 // segundos (2 min)
 export const DESCANSO_STEP = 15 // segundos por ajuste
+// Reto de 14 dias: só dois níveis de variação (dias 1-7 = v1, dias 8-14 = v2).
+// As variações v3/v4 seguem cadastradas no catálogo, apenas sem uso no reto.
 export const NIVEL_MIN = 1
-export const NIVEL_MAX = 4
+export const NIVEL_MAX = 2
 
 // Cronômetro guiado (segundos).
 export const PREP_SEG = 5 // preparação antes de cada execução
@@ -35,8 +37,11 @@ export const clampTempoExec = (n: number) =>
 // pescoço 30s por posição), duração fixa para todas as faixas.
 export const ALONGAMENTO_SEG = 30
 export const ALONGAMENTOS = 10
-export const CIRCUITO_SEMANAS = 4
+// Reto de 14 días: o ciclo de 7 dias roda 2 vezes (semana 1 em v1, semana 2
+// em v2). Use CIRCUITO_TOTAL_DIAS em vez de escrever 14 na mão.
+export const CIRCUITO_SEMANAS = 2
 export const CIRCUITO_DIAS = 7
+export const CIRCUITO_TOTAL_DIAS = CIRCUITO_SEMANAS * CIRCUITO_DIAS // 14
 export const EXERCICIOS_POR_DIA = 5
 export const TOTAL_EXERCICIOS = CIRCUITO_DIAS * EXERCICIOS_POR_DIA // 35
 
@@ -73,7 +78,7 @@ export const clampDescanso = (n: number) => Math.min(DESCANSO_MAX, Math.max(DESC
 export const clampNivel = (n: number) => Math.min(NIVEL_MAX, Math.max(NIVEL_MIN, Math.round(n)))
 
 // Nível de entrada da variação conforme a semana (Parte 1 da spec).
-// Semana 1 → v1, Semana 2 → v2, etc. Limitado a v4.
+// Semana 1 → v1, Semana 2 → v2. Limitado a NIVEL_MAX (v2 no reto de 14 dias).
 export const nivelEntradaSemana = (semana: number) => clampNivel(semana)
 
 // Escala de intensidade percebida (1-6) → direção do ajuste.
@@ -118,7 +123,7 @@ export type PropostaAjuste =
 export interface AjusteInput {
   series: number
   descanso_seg: number
-  semana: number // 1-4 (limita a variação)
+  semana: number // 1-2 (limita a variação)
   eixo: EixoDificuldade
   direcao: Direcao
   // Estado das variações por exercício (níveis atuais) — para o eixo 'exercicio'.

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { CIRCUITO_TOTAL_DIAS } from '@/lib/training'
 import {
   NUTRI_QUESTIONARIO,
   NUTRI_ASSISTENTE,
@@ -112,7 +113,7 @@ export function NutriPanel({
             {NUTRI_ASSISTENTE.nome} · {NUTRI_ASSISTENTE.titulo.toLowerCase()}
           </p>
           <p className="text-sm text-ink-700">
-            {diaDoDesafio ? `En línea · día ${diaDoDesafio} de 28 contigo` : 'En línea · contigo hoy'}
+            {diaDoDesafio ? `En línea · día ${diaDoDesafio} de ${CIRCUITO_TOTAL_DIAS} contigo` : 'En línea · contigo hoy'}
           </p>
         </div>
       </div>
@@ -456,7 +457,7 @@ function Chat({
   // nem reenviada à IA).
   const saudacao = useMemo(() => {
     const ola = `¡Hola${nome ? ` ${nome}` : ''}! Soy ${NUTRI_ASSISTENTE.nome} 🤍`
-    const dia = diaDoDesafio ? ` Hoy es tu día ${diaDoDesafio} del reto.` : ''
+    const dia = diaDoDesafio ? ` Hoy es tu día ${diaDoDesafio} de ${CIRCUITO_TOTAL_DIAS} del reto.` : ''
     return `${ola}${dia} Estoy aquí solo para ti. Cuéntame cómo te sientes hoy y en qué te ayudo 💬`
   }, [nome, diaDoDesafio])
 
