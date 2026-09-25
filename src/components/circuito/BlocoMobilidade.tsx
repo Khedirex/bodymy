@@ -117,7 +117,25 @@ export function BlocoMobilidade({ stretches, sinalizador, onConcluir, onSair }: 
     )
   }
 
-  if (!fase) return null
+  // Sem alongamentos cadastrados, o certo é dizer isso com todas as letras e
+  // oferecer o próximo passo — nunca devolver null e deixar a tela em branco.
+  if (!fase) {
+    return (
+      <div className="rounded-3xl bg-white p-6 text-center shadow-card">
+        <p className="text-5xl">🌿</p>
+        <p className="mt-3 text-xl font-extrabold text-ink-900">
+          El estiramiento todavía no está disponible
+        </p>
+        <p className="mt-2 text-base text-ink-700">
+          Puedes empezar directamente con tus ejercicios de hoy.
+        </p>
+        <button onClick={onSair} className="btn-primary mt-6 w-full py-4 text-lg">
+          Ir a mis ejercicios →
+        </button>
+      </div>
+    )
+  }
+
   const segundos = Math.ceil(restanteMs / 1000)
   const progresso = Math.round(((fase.indice - 1) / fase.total) * 100)
 

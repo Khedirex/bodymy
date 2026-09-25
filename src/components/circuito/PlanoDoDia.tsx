@@ -55,13 +55,17 @@ export function PlanoDoDia({
           Tus movimientos de hoy
         </h1>
         <p className="mt-1 text-base text-ink-700">
-          {feitos === 0
-            ? 'Haz un paso a la vez. El siguiente se abre al terminar.'
-            : `Llevas ${feitos} de ${exercicios.length} ejercicios.`}
+          {exercicios.length === 0
+            ? 'En un momento aparece aquí tu plan.'
+            : feitos === 0
+              ? 'Haz un paso a la vez. El siguiente se abre al terminar.'
+              : `Llevas ${feitos} de ${exercicios.length} ejercicios.`}
         </p>
       </header>
 
-      {/* Alongamento — primeira linha, minimizada */}
+      {/* Alongamento — primeira linha, minimizada. Some se não houver
+          alongamentos cadastrados (melhor nada do que uma barra que abre vazia). */}
+      {stretches.length > 0 && (
       <section className="overflow-hidden rounded-3xl bg-white shadow-card">
         <button
           onClick={() => setAberto((v) => !v)}
@@ -103,9 +107,21 @@ export function PlanoDoDia({
           </div>
         )}
       </section>
+      )}
 
       {/* Exercícios */}
       <section className="space-y-3">
+        {exercicios.length === 0 && (
+          <div className="rounded-3xl bg-white p-6 text-center shadow-card">
+            <p className="text-5xl">🗓️</p>
+            <p className="mt-3 text-xl font-extrabold text-ink-900">
+              Tus ejercicios de hoy aún se están preparando
+            </p>
+            <p className="mt-2 text-base text-ink-700">
+              Vuelve en un momento. Si sigue así mañana, escríbenos y lo resolvemos.
+            </p>
+          </div>
+        )}
         {exercicios.map((e, i) => {
           const status = concluidos[e.exercise_id]
 

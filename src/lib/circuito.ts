@@ -2,6 +2,7 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getActiveEntitlementProductIds } from '@/lib/entitlements'
+import { captureException } from '@/lib/observability'
 import {
   CIRCUITO_PRODUCT_SLUGS,
   CIRCUITO_ACCESS_SLUGS,
@@ -182,7 +183,7 @@ export async function getTodayPlan(
   const dia = config.dia_atual
   const entrada = nivelEntradaSemana(semana)
 
-  const [{ data: exs }, { data: stretchRows }] = await Promise.all([
+  const [{ data: exs, error: exErr }, { data: stretchRows, error: stErr }] = await Promise.all([
     admin
       .from('exercises')
       .select('*')
@@ -197,6 +198,22 @@ export async function getTodayPlan(
       .order('ordem', { ascending: true })
       .limit(ALONGAMENTOS),
   ])
+  // Erro de consulta vira lista vazia — e a aluna vê uma tela sem nada, sem
+  // pista do motivo. Registramos para aparecer nos logs em vez de sumir.
+  if (exErr) {
+    captureException(new Error(`[circuito.getTodayPlan] exercises: ${exErr.message}`), {
+      programId,
+      dia,
+      code: exErr.code,
+    })
+  }
+  if (stErr) {
+    captureException(new Error(`[circuito.getTodayPlan] stretches: ${stErr.message}`), {
+      programId,
+      code: stErr.code,
+    })
+  }
+
   const exercises = (exs ?? []) as Exercise[]
   const stretches = (stretchRows ?? []) as Stretch[]
   const exIds = exercises.map((e) => e.id)
