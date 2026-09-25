@@ -84,7 +84,7 @@ produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 → `0016_entitlement_origem_hotmart.sql` → `0017_nutricionista.sql`
 → `0018_reto_14_dias.sql` → `0019_repara_integridade.sql`
 → `0020_nome_protocolo_descompressao.sql` → `0022_dedup_catalogo_circuito.sql`
-→ `0021_escopa_circuito_por_programa.sql`,
+→ `0021_escopa_circuito_por_programa.sql` → `0023_aulas_em_uma_semana.sql`,
 
 ⚠️ **A 0022 roda ANTES da 0021** (apesar do número): a 0021 cria uniques por
 programa e falha enquanto houver duplicatas no catálogo.
