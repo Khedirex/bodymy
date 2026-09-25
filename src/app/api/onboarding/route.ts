@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { captureException } from '@/lib/observability'
 import { isFaixa, partidaPorFaixa } from '@/lib/training'
+import { getCircuitoPrograma } from '@/lib/circuito'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -56,29 +57,37 @@ export async function POST(request: NextRequest) {
     if (error) throw error
 
     // Inicializa a config do circuito (não sobrescreve séries/descanso já
-    // ajustados — só cria se ainda não existir).
-    const { data: existing } = await supabase
-      .from('user_training_config')
-      .select('user_id')
-      .eq('user_id', user.id)
-      .maybeSingle()
-
-    if (!existing) {
-      const partida = partidaPorFaixa(faixa)
-      const { error: cfgErr } = await supabase.from('user_training_config').insert({
-        user_id: user.id,
-        faixa_etaria: faixa,
-        series: partida.series,
-        descanso_seg: partida.descanso_seg,
-        tempo_execucao_seg: partida.tempo_execucao_seg,
-      })
-      if (cfgErr) throw cfgErr
-    } else {
-      // Já existe: apenas registra a faixa (mantém ajustes atuais).
-      await supabase
+    // ajustados — só cria se ainda não existir). A config é POR PROGRAMA;
+    // se ela ainda não tem protocolo liberado, não há o que inicializar e o
+    // onboarding segue normalmente (a config nasce no primeiro acesso ao treino).
+    const programa = await getCircuitoPrograma(supabase, user.id)
+    if (programa) {
+      const { data: existing } = await supabase
         .from('user_training_config')
-        .update({ faixa_etaria: faixa, atualizado_em: new Date().toISOString() })
+        .select('user_id')
         .eq('user_id', user.id)
+        .eq('program_id', programa.id)
+        .maybeSingle()
+
+      if (!existing) {
+        const partida = partidaPorFaixa(faixa)
+        const { error: cfgErr } = await supabase.from('user_training_config').insert({
+          user_id: user.id,
+          program_id: programa.id,
+          faixa_etaria: faixa,
+          series: partida.series,
+          descanso_seg: partida.descanso_seg,
+          tempo_execucao_seg: partida.tempo_execucao_seg,
+        })
+        if (cfgErr) throw cfgErr
+      } else {
+        // Já existe: apenas registra a faixa (mantém ajustes atuais).
+        await supabase
+          .from('user_training_config')
+          .update({ faixa_etaria: faixa, atualizado_em: new Date().toISOString() })
+          .eq('user_id', user.id)
+          .eq('program_id', programa.id)
+      }
     }
 
     return NextResponse.json({ ok: true })

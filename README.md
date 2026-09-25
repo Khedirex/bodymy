@@ -83,7 +83,7 @@ produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 → `0012_kiwify_drenagem.sql` → `0013_pilates_hormonal.sql` → `0014_es_content.sql` → `0015_hotmart.sql`
 → `0016_entitlement_origem_hotmart.sql` → `0017_nutricionista.sql`
 → `0018_reto_14_dias.sql` → `0019_repara_integridade.sql`
-→ `0020_nome_protocolo_descompressao.sql`,
+→ `0020_nome_protocolo_descompressao.sql` → `0021_escopa_circuito_por_programa.sql`,
 via `supabase db push` ou colando cada uma no SQL Editor.
 
 ### Acompañamiento Diario / asistente de IA (`0017_nutricionista.sql`)

@@ -157,7 +157,7 @@ export async function getAlunaFicha(id: string) {
         .eq('user_id', id)
         .order('data', { ascending: false })
         .limit(5),
-      admin.from('user_training_config').select('*').eq('user_id', id).maybeSingle(),
+      admin.from('user_training_config').select('*').eq('user_id', id).limit(1).maybeSingle(),
       admin
         .from('training_sessions')
         .select('data, semana, dia, completa, series_usadas, descanso_usado, alongou')
@@ -327,17 +327,51 @@ export async function getProductAdmin(id: string): Promise<{
 }
 
 // --- Circuito: gestão de exercícios/variações/alongamentos -----------
+// Programa cujo circuito o admin está gerenciando. Hoje existe um só; quando
+// houver mais de um protocolo isto vira um seletor na tela.
+export async function getProgramaCircuito(): Promise<
+  { id: string; nome: string; duracao_semanas: number } | null
+> {
+  const admin = createAdminClient()
+  const { data: exs } = await admin.from('exercises').select('program_id').limit(500)
+  const ids = Array.from(new Set((exs ?? []).map((e) => e.program_id as string))).filter(Boolean)
+  if (ids.length === 0) return null
+  const { data } = await admin
+    .from('programs')
+    .select('id, nome, duracao_semanas')
+    .in('id', ids)
+    .order('ordem_exibicao', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+  return (data as { id: string; nome: string; duracao_semanas: number }) ?? null
+}
+
 export interface ExerciseWithVariations extends Exercise {
   variacoes: ExerciseVariation[]
 }
 
 export async function getCircuitoOverview() {
   const admin = createAdminClient()
-  const [{ data: exercises }, { data: variations }, { data: stretches }] = await Promise.all([
-    admin.from('exercises').select('*').order('ordem_no_circuito', { ascending: true }),
-    admin.from('exercise_variations').select('*').order('nivel', { ascending: true }),
-    admin.from('stretches').select('*').order('ordem', { ascending: true }),
+  const programa = await getProgramaCircuito()
+  // Sem programa com circuito, as consultas abaixo devolvem vazio e a função
+  // segue pelo caminho normal (nada de retorno antecipado com shape diferente).
+  const programId = programa?.id ?? '00000000-0000-0000-0000-000000000000'
+
+  const [{ data: exercises }, { data: stretches }] = await Promise.all([
+    admin.from('exercises').select('*').eq('program_id', programId).order('ordem_no_circuito', { ascending: true }),
+    admin.from('stretches').select('*').eq('program_id', programId).order('ordem', { ascending: true }),
   ])
+
+  // Variações apenas dos exercícios DESTE programa — senão os contadores
+  // somariam o catálogo de outro protocolo.
+  const idsDoPrograma = ((exercises ?? []) as Exercise[]).map((e) => e.id)
+  const { data: variations } = idsDoPrograma.length
+    ? await admin
+        .from('exercise_variations')
+        .select('*')
+        .in('exercise_id', idsDoPrograma)
+        .order('nivel', { ascending: true })
+    : { data: [] as ExerciseVariation[] }
 
   const varsByExercise = new Map<string, ExerciseVariation[]>()
   for (const v of (variations ?? []) as ExerciseVariation[]) {
@@ -400,10 +434,21 @@ export interface SemanaAdminRow {
 
 export async function getSemanasAdmin(): Promise<SemanaAdminRow[]> {
   const admin = createAdminClient()
+  const programa = await getProgramaCircuito()
+  if (!programa) return []
+
+  const { data: exsPrograma } = await admin
+    .from('exercises')
+    .select('id')
+    .eq('program_id', programa.id)
+  const exIds = (exsPrograma ?? []).map((e) => e.id as string)
+
   const [{ data: config }, { data: variations }, { data: aguardando }] = await Promise.all([
-    admin.from('program_weeks_config').select('semana, liberada'),
-    admin.from('exercise_variations').select('nivel, panda_video_id'),
-    admin.from('user_training_config').select('aguardando_liberacao'),
+    admin.from('program_weeks_config').select('semana, liberada').eq('program_id', programa.id),
+    exIds.length
+      ? admin.from('exercise_variations').select('nivel, panda_video_id').in('exercise_id', exIds)
+      : Promise.resolve({ data: [] as { nivel: number; panda_video_id: string | null }[] }),
+    admin.from('user_training_config').select('aguardando_liberacao').eq('program_id', programa.id),
   ])
 
   const liberadaMap = new Map<number, boolean>()
@@ -419,12 +464,14 @@ export async function getSemanasAdmin(): Promise<SemanaAdminRow[]> {
     if (a.aguardando_liberacao > 0) aguardandoPorSemana.set(a.aguardando_liberacao, (aguardandoPorSemana.get(a.aguardando_liberacao) ?? 0) + 1)
   }
 
-  return [1, 2, 3, 4].map((semana) => ({
+  // As semanas e o total de vídeos vêm do PROGRAMA, não de números fixos.
+  const semanas = Math.max(1, Number(programa.duracao_semanas) || 1)
+  return Array.from({ length: semanas }, (_, i) => i + 1).map((semana) => ({
     semana,
     liberada: semana === 1 ? true : liberadaMap.get(semana) ?? false,
     variacao: semana, // Semana N entra em vN
     videosPreenchidos: preenchidosPorNivel.get(semana) ?? 0,
-    videosTotal: 35,
+    videosTotal: exIds.length,
     alunasAguardando: aguardandoPorSemana.get(semana) ?? 0,
   }))
 }

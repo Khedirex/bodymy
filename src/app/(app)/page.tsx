@@ -8,7 +8,7 @@ import {
   getEntitledPrograms,
 } from '@/lib/queries'
 import { createClient } from '@/lib/supabase/server'
-import { getTrainingConfig, hasCircuitoAccess } from '@/lib/circuito'
+import { getTrainingConfig, getCircuitoPrograma } from '@/lib/circuito'
 import { CIRCUITO_ACCESS_SLUGS } from '@/lib/training'
 import { NUTRI_PRODUCT_SLUG } from '@/lib/nutri'
 import { SOFIA_ATIVA } from '@/lib/flags'
@@ -39,11 +39,14 @@ export default async function HomePage() {
   if (!profile.onboarding_completo) redirect('/bem-vinda')
 
   const supabase = createClient()
-  const [datas, storefront, temAcesso, config, acessos, programas] = await Promise.all([
+  // O protocolo dela define catálogo, duração e progresso.
+  const programa = await getCircuitoPrograma(supabase, profile.id)
+  const temAcesso = programa !== null
+
+  const [datas, storefront, config, acessos, programas] = await Promise.all([
     getCheckinDates(profile.id),
     getEsteira(profile.id),
-    hasCircuitoAccess(supabase, profile.id),
-    getTrainingConfig(supabase, profile.id),
+    programa ? getTrainingConfig(supabase, profile.id, programa.id) : Promise.resolve(null),
     getMyAccesses(profile.id),
     getEntitledPrograms(profile.id),
   ])
@@ -138,6 +141,7 @@ export default async function HomePage() {
         <HomeDash
           diaDoDesafio={diaDoDesafio}
           diasFeitos={diasFeitos}
+          totalDias={programa?.totalDias ?? 0}
           streakAtual={streak.atual}
           fezHoje={streak.fezHoje}
           semana={semana}

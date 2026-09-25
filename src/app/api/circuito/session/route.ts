@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getTrainingConfig, advanceAfterCompletion } from '@/lib/circuito'
+import { getTrainingConfig, advanceAfterCompletion, getCircuitoPrograma } from '@/lib/circuito'
 import { todayISO } from '@/lib/dates'
 import { captureException } from '@/lib/observability'
 import type { SessionExerciseStatus } from '@/types/db'
@@ -31,7 +31,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const config = await getTrainingConfig(supabase, user.id)
+    const programa = await getCircuitoPrograma(supabase, user.id)
+    if (!programa) return NextResponse.json({ error: 'sem_acesso' }, { status: 403 })
+
+    const config = await getTrainingConfig(supabase, user.id, programa.id)
     if (!config) return NextResponse.json({ error: 'sem_config' }, { status: 400 })
 
     const completa = itens.every((e) => e.status === 'fez')
@@ -41,6 +44,7 @@ export async function POST(request: NextRequest) {
       .from('training_sessions')
       .insert({
         user_id: user.id,
+        program_id: programa.id,
         data: hoje,
         semana: config.semana_atual,
         dia: config.dia_atual,
@@ -72,7 +76,7 @@ export async function POST(request: NextRequest) {
           { user_id: user.id, data: hoje, tipo: 'treino' },
           { onConflict: 'user_id,data,tipo', ignoreDuplicates: true },
         )
-      avanco = await advanceAfterCompletion(supabase, user.id, config)
+      avanco = await advanceAfterCompletion(supabase, user.id, config, programa)
     }
 
     return NextResponse.json({

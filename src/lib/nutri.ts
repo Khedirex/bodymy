@@ -2,6 +2,7 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { userHasEntitlement } from '@/lib/entitlements'
+import { getCircuitoPrograma } from '@/lib/circuito'
 import { getCheckinDates } from '@/lib/queries'
 import { calcularStreak } from '@/lib/streak'
 import type {
@@ -166,10 +167,14 @@ export async function getContextoProtocolo(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<ContextoProtocolo | null> {
+  // A config é por programa; pega a do protocolo que ela acessa.
+  const programa = await getCircuitoPrograma(supabase, userId)
+  if (!programa) return null
   const { data: cfg } = await supabase
     .from('user_training_config')
     .select('semana_atual, dia_atual')
     .eq('user_id', userId)
+    .eq('program_id', programa.id)
     .maybeSingle()
   if (!cfg) return null
   const semana = Number(cfg.semana_atual) || 1

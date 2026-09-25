@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getTrainingConfig } from '@/lib/circuito'
+import { getTrainingConfig, getCircuitoPrograma } from '@/lib/circuito'
 import {
   proporAjuste,
   direcaoPorIntensidade,
@@ -53,7 +53,9 @@ export async function POST(request: NextRequest) {
       .maybeSingle()
     if (!sessao) return NextResponse.json({ error: 'sessao_nao_encontrada' }, { status: 404 })
 
-    const config = await getTrainingConfig(supabase, user.id)
+    const programa = await getCircuitoPrograma(supabase, user.id)
+    if (!programa) return NextResponse.json({ error: 'sem_acesso' }, { status: 403 })
+    const config = await getTrainingConfig(supabase, user.id, programa.id)
     if (!config) return NextResponse.json({ error: 'sem_config' }, { status: 400 })
 
     const comentario = (b.comentario ?? '').trim().slice(0, 2000) || null
@@ -68,6 +70,7 @@ export async function POST(request: NextRequest) {
         .from('user_training_config')
         .update({ series, descanso_seg: descanso, atualizado_em: new Date().toISOString() })
         .eq('user_id', user.id)
+        .eq('program_id', programa.id)
       aplicado.manual = { series, descanso_seg: descanso }
       aceito = true
     } else if (b.aceito && eixo) {
@@ -101,10 +104,11 @@ export async function POST(request: NextRequest) {
               atualizado_em: new Date().toISOString(),
             })
             .eq('user_id', user.id)
+            .eq('program_id', programa.id)
         }
         if (proposta.variacao_delta) {
           // Aplica o delta a todos os exercícios do circuito (dentro do limite).
-          await ajustarVariacoes(supabase, user.id, proposta.variacao_delta, config.semana_atual)
+          await ajustarVariacoes(supabase, user.id, proposta.variacao_delta, config.semana_atual, programa.id)
         }
         aplicado.eixo = eixo
         aplicado.mudanca = proposta.descricao
@@ -144,9 +148,11 @@ async function ajustarVariacoes(
   userId: string,
   delta: number,
   semana: number,
+  programId: string,
 ) {
   const admin = (await import('@/lib/supabase/admin')).createAdminClient()
-  const { data: allEx } = await admin.from('exercises').select('id')
+  // Só os exercícios DESTE programa — senão o ajuste vazaria para outro protocolo.
+  const { data: allEx } = await admin.from('exercises').select('id').eq('program_id', programId)
   const entrada = nivelEntradaSemana(semana)
   const { data: existentes } = await supabase
     .from('user_exercise_variations')

@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getTrainingConfig } from '@/lib/circuito'
+import { getTrainingConfig, getCircuitoPrograma } from '@/lib/circuito'
 import { clampNivel, nivelEntradaSemana } from '@/lib/training'
 import { captureException } from '@/lib/observability'
 
@@ -27,7 +27,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const config = await getTrainingConfig(supabase, user.id)
+    const programa = await getCircuitoPrograma(supabase, user.id)
+    if (!programa) return NextResponse.json({ error: 'sem_acesso' }, { status: 403 })
+    const config = await getTrainingConfig(supabase, user.id, programa.id)
     if (!config) return NextResponse.json({ error: 'sem_config' }, { status: 400 })
     const semana = config.semana_atual
     const entrada = nivelEntradaSemana(semana)

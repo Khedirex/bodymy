@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { captureException } from '@/lib/observability'
 import { isFaixa, partidaPorFaixa } from '@/lib/training'
+import { getCircuitoPrograma } from '@/lib/circuito'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -21,10 +22,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // A config é POR PROGRAMA: sem protocolo liberado não há o que configurar.
+    const programa = await getCircuitoPrograma(supabase, user.id)
+    if (!programa) return NextResponse.json({ erro: 'sem_acesso' }, { status: 403 })
+
     const { data: existing } = await supabase
       .from('user_training_config')
       .select('user_id')
       .eq('user_id', user.id)
+      .eq('program_id', programa.id)
       .maybeSingle()
 
     if (existing) {
@@ -32,12 +38,14 @@ export async function POST(request: NextRequest) {
         .from('user_training_config')
         .update({ faixa_etaria: body.faixa_etaria, atualizado_em: new Date().toISOString() })
         .eq('user_id', user.id)
+        .eq('program_id', programa.id)
       return NextResponse.json({ ok: true })
     }
 
     const partida = partidaPorFaixa(body.faixa_etaria)
     const { error } = await supabase.from('user_training_config').insert({
       user_id: user.id,
+      program_id: programa.id,
       faixa_etaria: body.faixa_etaria,
       series: partida.series,
       descanso_seg: partida.descanso_seg,

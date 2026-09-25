@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getProfile } from '@/lib/session'
 import { createClient } from '@/lib/supabase/server'
-import { getTrainingConfig, hasCircuitoAccess, getTodayPlan, syncLiberacao } from '@/lib/circuito'
+import { getTrainingConfig, getCircuitoPrograma, getTodayPlan, syncLiberacao } from '@/lib/circuito'
 import { AgeGate } from '@/components/circuito/AgeGate'
 import { TreinoFluxo } from '@/components/circuito/TreinoFluxo'
 import { EmptyState } from '@/components/ui/states'
@@ -18,8 +18,9 @@ export default async function TreinoPage() {
   const supabase = createClient()
 
   // Acesso ao circuito é por entitlement (mesmo produto). Sem acesso → vitrine.
-  const temAcesso = await hasCircuitoAccess(supabase, profile.id)
-  if (!temAcesso) {
+  // Qual protocolo ela acessa (catálogo, semanas e progresso vêm daqui).
+  const programa = await getCircuitoPrograma(supabase, profile.id)
+  if (!programa) {
     return (
       <div className="space-y-4">
         <EmptyState
@@ -33,13 +34,13 @@ export default async function TreinoPage() {
   }
 
   // Sem config → coleta a faixa etária uma única vez (age gate).
-  let config = await getTrainingConfig(supabase, profile.id)
+  let config = await getTrainingConfig(supabase, profile.id, programa.id)
   if (!config) return <AgeGate />
 
   // "Avança no próximo acesso": se aguardava uma liberação que já aconteceu.
-  config = await syncLiberacao(supabase, profile.id, config)
+  config = await syncLiberacao(supabase, profile.id, config, programa)
 
-  const plan = await getTodayPlan(supabase, profile.id, config)
+  const plan = await getTodayPlan(supabase, profile.id, config, programa.id)
   // Concluiu a semana e ainda aguarda a próxima ser liberada.
   const aguardando = config.aguardando_liberacao > 0 ? config.semana_atual : 0
 
