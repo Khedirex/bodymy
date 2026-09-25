@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { NUTRI_ASSISTENTE } from '@/lib/nutri-types'
+import { SOFIA_ATIVA } from '@/lib/flags'
 
 const DISMISS_KEY = 'bodymy_nutri_popup_dismissed'
 
@@ -14,6 +15,7 @@ export function NutriTrialPopup() {
   const [aberto, setAberto] = useState(false)
 
   useEffect(() => {
+    if (!SOFIA_ATIVA) return
     try {
       if (localStorage.getItem(DISMISS_KEY)) return
     } catch {

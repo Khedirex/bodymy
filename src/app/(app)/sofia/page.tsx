@@ -11,6 +11,9 @@ import {
   NUTRI_PRODUCT_SLUG,
 } from '@/lib/nutri'
 import { NutriPanel } from '@/components/nutri/NutriPanel'
+import { EmptyState } from '@/components/ui/states'
+import { ChatIcon } from '@/components/ui/icons'
+import { SOFIA_ATIVA } from '@/lib/flags'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Sofía — BodyMy' }
@@ -23,6 +26,18 @@ const DISCLAIMER =
 export default async function SofiaPage() {
   const profile = await getProfile()
   if (!profile) redirect('/login')
+
+  // Standby: sem o n8n configurado o chat não responde. Em vez de expor um
+  // beco sem saída (links diretos, histórico, PWA), avisamos que vem aí.
+  if (!SOFIA_ATIVA) {
+    return (
+      <EmptyState
+        titulo="Muy pronto 🤍"
+        descricao="Tu acompañamiento diario está en preparación. Te avisaremos en cuanto esté listo."
+        icone={<ChatIcon width={28} height={28} />}
+      />
+    )
+  }
 
   const supabase = createClient()
   const admin = createAdminClient()

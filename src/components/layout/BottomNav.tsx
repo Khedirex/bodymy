@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { SOFIA_ATIVA } from '@/lib/flags'
 import {
   HomeIcon,
   RouteIcon,
@@ -18,7 +19,7 @@ const ITEMS = [
   { href: '/sofia', label: 'Sofía', Icon: ChatIcon, match: (p: string) => p.startsWith('/sofia') },
   { href: '/progresso', label: 'Progreso', Icon: ChartIcon, match: (p: string) => p.startsWith('/progresso') },
   { href: '/descubra', label: 'Descubre', Icon: CompassIcon, match: (p: string) => p.startsWith('/descubra') || p.startsWith('/oferta') },
-]
+].filter((i) => SOFIA_ATIVA || i.href !== '/sofia')
 
 export function BottomNav() {
   const pathname = usePathname()

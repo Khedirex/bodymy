@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getTrainingConfig, hasCircuitoAccess } from '@/lib/circuito'
 import { CIRCUITO_ACCESS_SLUGS } from '@/lib/training'
 import { NUTRI_PRODUCT_SLUG } from '@/lib/nutri'
+import { SOFIA_ATIVA } from '@/lib/flags'
 import { calcularStreak } from '@/lib/streak'
 import { todayISO, addDaysISO } from '@/lib/dates'
 import { HomeDash, type DiaSemana } from '@/components/home/HomeDash'
@@ -91,12 +92,16 @@ export default async function HomePage() {
   // Atalhos exibidos lado a lado. "Comprende la práctica" só para quem tem
   // acesso ao conteúdo do reto.
   const atalhos = [
-    {
-      href: '/sofia',
-      label: 'Sofía',
-      cor: 'bg-sage-100 text-sage-600',
-      icone: <ChatIcon width={22} height={22} />,
-    },
+    ...(SOFIA_ATIVA
+      ? [
+          {
+            href: '/sofia',
+            label: 'Sofía',
+            cor: 'bg-sage-100 text-sage-600',
+            icone: <ChatIcon width={22} height={22} />,
+          },
+        ]
+      : []),
     ...(temAcesso
       ? [
           {
