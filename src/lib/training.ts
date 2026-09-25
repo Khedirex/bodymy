@@ -33,10 +33,12 @@ export const TEMPO_EXEC_MAX = 120
 export const clampTempoExec = (n: number) =>
   Math.min(TEMPO_EXEC_MAX, Math.max(TEMPO_EXEC_MIN, Math.round(n)))
 
-// Bloco de mobilidade: 10 alongamentos, 30s cada (bilaterais 30s/lado,
-// pescoço 30s por posição), duração fixa para todas as faixas.
+// Bloco de mobilidade: 5 alongamentos (os 5 primeiros por `ordem`), 30s cada
+// (bilaterais 30s/lado, pescoço 30s por posição), duração fixa para todas as
+// faixas. O catálogo pode ter mais — quem escolhe quais entram é a `ordem`,
+// editável no admin.
 export const ALONGAMENTO_SEG = 30
-export const ALONGAMENTOS = 10
+export const ALONGAMENTOS = 5
 // Reto de 14 días: o ciclo de 7 dias roda 2 vezes (semana 1 em v1, semana 2
 // em v2). Use CIRCUITO_TOTAL_DIAS em vez de escrever 14 na mão.
 export const CIRCUITO_SEMANAS = 2

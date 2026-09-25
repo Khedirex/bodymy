@@ -6,6 +6,7 @@ import {
   CIRCUITO_PRODUCT_SLUGS,
   CIRCUITO_ACCESS_SLUGS,
   CIRCUITO_SEMANAS,
+  ALONGAMENTOS,
   nivelEntradaSemana,
   clampNivel,
 } from '@/lib/training'
@@ -105,7 +106,7 @@ export async function getTodayPlan(
       .eq('dia_do_ciclo', dia)
       .eq('ativo', true)
       .order('ordem_no_dia', { ascending: true }),
-    admin.from('stretches').select('*').order('ordem', { ascending: true }),
+    admin.from('stretches').select('*').order('ordem', { ascending: true }).limit(ALONGAMENTOS),
   ])
   const exercises = (exs ?? []) as Exercise[]
   const stretches = (stretchRows ?? []) as Stretch[]
