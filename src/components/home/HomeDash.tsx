@@ -1,0 +1,108 @@
+import { StreakBadge } from '@/components/StreakBadge'
+import { ProgressBar } from '@/components/ProgressBar'
+
+// Letras dos dias da semana em espanhol (X = miércoles, para não repetir M).
+const LETRAS = ['D', 'L', 'M', 'X', 'J', 'V', 'S']
+
+export interface DiaSemana {
+  data: string // ISO (YYYY-MM-DD)
+  fez: boolean
+  ehHoje: boolean
+}
+
+interface Props {
+  /** Posição no protocolo de 28 dias (1..28) — null se ainda não começou. */
+  diaDoDesafio: number | null
+  /** Dias concluídos no protocolo (para a barra de 28). */
+  diasFeitos: number
+  streakAtual: number
+  fezHoje: boolean
+  /** Últimos 7 dias, do mais antigo ao de hoje. */
+  semana: DiaSemana[]
+  /** Dias da semana sem registro (hoje não conta como perdido). */
+  perdidos: number
+}
+
+// Resumo do momento da aluna: onde ela está no protocolo, a constância e o
+// que ficou para trás nos últimos 7 dias. Tudo vem de dados reais
+// (user_training_config + check-ins) — nada estimado.
+export function HomeDash({
+  diaDoDesafio,
+  diasFeitos,
+  streakAtual,
+  fezHoje,
+  semana,
+  perdidos,
+}: Props) {
+  return (
+    <section className="card space-y-4">
+      {/* Linha de topo: onde ela está + constância */}
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-700/60">
+            Tu protocolo
+          </p>
+          <p className="text-xl font-extrabold text-ink-900">
+            {diaDoDesafio ? `Día ${diaDoDesafio} de 28` : 'Aún no empiezas'}
+          </p>
+        </div>
+        <StreakBadge dias={streakAtual} />
+      </div>
+
+      <ProgressBar atual={diasFeitos} total={28} label="Tu avance" />
+
+      {/* Semana: 7 dias, marcados os que tiveram registro */}
+      <div>
+        <p className="mb-2 text-sm font-semibold text-ink-900">Tus últimos 7 días</p>
+        <ul className="flex items-center justify-between gap-1">
+          {semana.map((d) => {
+            const dia = new Date(`${d.data}T12:00:00Z`).getUTCDay()
+            return (
+              <li key={d.data} className="flex flex-1 flex-col items-center gap-1">
+                <span
+                  className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${
+                    d.fez
+                      ? 'bg-coral-500 text-white'
+                      : d.ehHoje
+                        ? 'border-2 border-dashed border-coral-400 text-coral-500'
+                        : 'bg-cream-200 text-ink-700/40'
+                  }`}
+                  aria-label={`${d.data}${d.fez ? ' — registrado' : ' — sin registro'}`}
+                >
+                  {d.fez ? '✓' : LETRAS[dia]}
+                </span>
+                <span className="text-[10px] font-medium text-ink-700/50">
+                  {d.ehHoje ? 'hoy' : LETRAS[dia]}
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+
+      {/* O que ficou para trás / o que falta hoje */}
+      <div className="rounded-2xl bg-cream-100 px-3.5 py-2.5 text-sm">
+        {!fezHoje ? (
+          <p className="text-ink-900">
+            <span className="font-bold">Hoy todavía no registras nada.</span>{' '}
+            {perdidos > 0
+              ? `Y te faltaron ${perdidos} ${perdidos === 1 ? 'día' : 'días'} esta semana — retomar hoy corta la racha de faltas.`
+              : 'Un movimiento corto ya cuenta.'}
+          </p>
+        ) : perdidos > 0 ? (
+          <p className="text-ink-900">
+            Hoy ya está hecho ✓ — esta semana te faltaron{' '}
+            <span className="font-bold">
+              {perdidos} {perdidos === 1 ? 'día' : 'días'}
+            </span>
+            .
+          </p>
+        ) : (
+          <p className="font-semibold text-sage-600">
+            ¡Semana completa! No te faltó ningún día 🤍
+          </p>
+        )}
+      </div>
+    </section>
+  )
+}
