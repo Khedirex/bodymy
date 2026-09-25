@@ -119,13 +119,23 @@ update public.products
        descricao = replace(replace(coalesce(descricao, ''), '28', '14'), 'Protocolo', 'Reto')
  where slug in ('drenagem-tailandesa', 'ritual-do-tapetinho', 'pilates-hormonal')
    and (nome like '%28%' or nome like '%Protocolo%'
-        or coalesce(descricao, '') like '%28%' or coalesce(descricao, '') like '%Protocolo%');
+        or coalesce(descricao, '') like '%28%' or coalesce(descricao, '') like '%Protocolo%')
+   -- Não mexe em nomes já definidos pela 0020 (senão o "Protocolo" do nome
+   -- final viraria "Reto" numa reexecução desta migration).
+   and nome not ilike '%reto 14%';
 
+-- Duração: sempre 2 semanas no reto, independente do nome.
+update public.programs
+   set duracao_semanas = 2
+ where duracao_semanas <> 2;
+
+-- Nome/descrição: só o replace textual, e nunca sobre um nome já definido
+-- pela 0020 (senão "Protocolo ... — Reto 14 días" viraria "Reto ... ").
 update public.programs
    set nome = replace(replace(nome, '28', '14'), 'Protocolo', 'Reto'),
-       descricao = replace(replace(coalesce(descricao, ''), '28', '14'), 'Protocolo', 'Reto'),
-       duracao_semanas = 2
- where nome like '%28%' or nome like '%Protocolo%' or duracao_semanas <> 2;
+       descricao = replace(replace(coalesce(descricao, ''), '28', '14'), 'Protocolo', 'Reto')
+ where (nome like '%28%' or nome like '%Protocolo%')
+   and nome not ilike '%reto 14%';
 
 notify pgrst, 'reload schema';
 
