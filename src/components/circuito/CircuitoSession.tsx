@@ -44,6 +44,22 @@ interface Props {
   alongou: boolean // fez o bloco de mobilidade nesta sessão
   sinalizador: Sinalizador
   aguardandoDesde?: number // semana concluída aguardando liberação (0 = não)
+  /** Abre direto neste exercício (posição no array). */
+  indiceInicial?: number
+  /** Status já registrados na sessão (vindos da agenda do dia). */
+  statusesIniciais?: Record<string, SessionExerciseStatus>
+  /**
+   * Um exercício por vez: ao concluir, devolve o controle para a agenda em
+   * vez de emendar no próximo. O último conclui a sessão normalmente.
+   */
+  umPorVez?: boolean
+  onExercicioConcluido?: (exerciseId: string, status: SessionExerciseStatus) => void
+  /**
+   * Avisa a agenda quando a lista muda (ex.: a aluna facilitou a variação).
+   * Sem isso a mudança se perderia ao voltar para a agenda, e a sessão seria
+   * gravada com o nível antigo.
+   */
+  onExerciciosAlterados?: (lista: PlanExercicioUI[]) => void
 }
 
 type Fase = 'exercicios' | 'feedback' | 'oferta' | 'ajustando' | 'fim'
@@ -54,13 +70,28 @@ const EIXOS: { valor: EixoDificuldade; label: string }[] = [
   { valor: 'series', label: 'Cantidad de series' },
 ]
 
-export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSeg, exercicios, alongou, sinalizador, aguardandoDesde = 0 }: Props) {
+export function CircuitoSession({
+  semana,
+  dia,
+  series,
+  descanso_seg,
+  tempoExecSeg,
+  exercicios,
+  alongou,
+  sinalizador,
+  aguardandoDesde = 0,
+  indiceInicial = 0,
+  statusesIniciais,
+  umPorVez = false,
+  onExercicioConcluido,
+  onExerciciosAlterados,
+}: Props) {
   const router = useRouter()
   const [exs, setExs] = useState(exercicios)
   const [fase, setFase] = useState<Fase>('exercicios')
-  const [idx, setIdx] = useState(0)
+  const [idx, setIdx] = useState(indiceInicial)
   const [guiado, setGuiado] = useState(false) // cronômetro guiado ativo
-  const [statuses, setStatuses] = useState<Record<string, SessionExerciseStatus>>({})
+  const [statuses, setStatuses] = useState<Record<string, SessionExerciseStatus>>(statusesIniciais ?? {})
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [erro, setErro] = useState<string | null>(null)
   // Preenchido pela resposta da sessão: concluiu a semana mas a próxima está
@@ -98,13 +129,13 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
       })
       const d = await res.json()
       if (res.ok && !d.semLimite) {
-        setExs((prev) =>
-          prev.map((e, i) =>
-            i === idx
-              ? { ...e, nivel: d.nivel, videoId: d.variation?.panda_video_id ?? null, podeFacilitar: d.podeFacilitar }
-              : e,
-          ),
+        const novo = exs.map((e, i) =>
+          i === idx
+            ? { ...e, nivel: d.nivel, videoId: d.variation?.panda_video_id ?? null, podeFacilitar: d.podeFacilitar }
+            : e,
         )
+        setExs(novo)
+        onExerciciosAlterados?.(novo)
       }
     } catch {
       /* silencioso: manter a variação atual */
@@ -114,6 +145,19 @@ export function CircuitoSession({ semana, dia, series, descanso_seg, tempoExecSe
   function registrar(status: SessionExerciseStatus) {
     const novo = { ...statuses, [ex.exercise_id]: status }
     setStatuses(novo)
+
+    if (umPorVez) {
+      // Se ainda falta algum exercício, volta para a agenda do dia; o último
+      // fecha a sessão (grava tudo e segue para o feedback).
+      const faltam = exs.some((e) => !novo[e.exercise_id])
+      if (faltam) {
+        onExercicioConcluido?.(ex.exercise_id, status)
+      } else {
+        finalizarExercicios(novo)
+      }
+      return
+    }
+
     if (idx < exs.length - 1) {
       setIdx(idx + 1)
     } else {
