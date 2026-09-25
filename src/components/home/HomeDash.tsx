@@ -2,8 +2,8 @@ import { CIRCUITO_TOTAL_DIAS } from '@/lib/training'
 import { StreakBadge } from '@/components/StreakBadge'
 import { ProgressBar } from '@/components/ProgressBar'
 
-// Letras dos dias da semana em espanhol (X = miércoles, para não repetir M).
-const LETRAS = ['D', 'L', 'M', 'X', 'J', 'V', 'S']
+// Abreviações dos dias em espanhol (índice = getUTCDay(), 0 = domingo).
+const DIAS_ES = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb']
 
 export interface DiaSemana {
   data: string // ISO (YYYY-MM-DD)
@@ -57,7 +57,9 @@ export function HomeDash({
         <p className="mb-2 text-sm font-semibold text-ink-900">Tus últimos 7 días</p>
         <ul className="flex items-center justify-between gap-1">
           {semana.map((d) => {
-            const dia = new Date(`${d.data}T12:00:00Z`).getUTCDay()
+            const data = new Date(`${d.data}T12:00:00Z`)
+            const diaSemana = data.getUTCDay()
+            const diaMes = data.getUTCDate()
             return (
               <li key={d.data} className="flex flex-1 flex-col items-center gap-1">
                 <span
@@ -68,12 +70,12 @@ export function HomeDash({
                         ? 'border-2 border-dashed border-coral-400 text-coral-500'
                         : 'bg-cream-200 text-ink-700/40'
                   }`}
-                  aria-label={`${d.data}${d.fez ? ' — registrado' : ' — sin registro'}`}
+                  aria-label={`${DIAS_ES[diaSemana]} ${diaMes}${d.fez ? ' — registrado' : ' — sin registro'}`}
                 >
-                  {d.fez ? '✓' : LETRAS[dia]}
+                  {d.fez ? '✓' : diaMes}
                 </span>
                 <span className="text-[10px] font-medium text-ink-700/50">
-                  {d.ehHoje ? 'hoy' : LETRAS[dia]}
+                  {d.ehHoje ? 'hoy' : DIAS_ES[diaSemana]}
                 </span>
               </li>
             )

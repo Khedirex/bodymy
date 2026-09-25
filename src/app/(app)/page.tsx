@@ -88,6 +88,33 @@ export default async function HomePage() {
     return { id: p.id, nome: p.nome, href, descricao }
   })
 
+  // Atalhos exibidos lado a lado. "Comprende la práctica" só para quem tem
+  // acesso ao conteúdo do reto.
+  const atalhos = [
+    {
+      href: '/sofia',
+      label: 'Sofía',
+      cor: 'bg-sage-100 text-sage-600',
+      icone: <ChatIcon width={22} height={22} />,
+    },
+    ...(temAcesso
+      ? [
+          {
+            href: '/entenda',
+            label: 'La práctica',
+            cor: 'bg-cream-200 text-ink-800',
+            icone: <BookIcon width={22} height={22} />,
+          },
+        ]
+      : []),
+    {
+      href: '/dieta',
+      label: 'Menú de hoy',
+      cor: 'bg-sage-100 text-sage-600',
+      icone: <SaladIcon width={22} height={22} />,
+    },
+  ]
+
   const primeiroNome = (profile.nome ?? '').split(' ')[0] || 'Hola'
   const bloqueados = storefront.filter((s) => !s.liberado)
 
@@ -121,9 +148,9 @@ export default async function HomePage() {
             <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-coral-600">
               <span className="chip">{chipHoje}</span>
             </div>
-            <h3 className="text-lg font-bold text-ink-900">Tu entrenamiento de hoy</h3>
+            <h3 className="text-lg font-bold text-ink-900">Tus movimientos de hoy</h3>
             <p className="mt-1 text-sm text-ink-700">
-              Movilidad + 5 ejercicios · se ajusta a ti
+              Estiramiento leve + movilidad correctiva
             </p>
             <div className="mt-4">
               <Link href="/treino" className="btn-primary w-full">
@@ -172,44 +199,26 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Atalhos */}
+      {/* Atalhos — blocos lado a lado dentro de uma box mãe */}
       <section>
         <h2 className="section-title mb-2">Accesos rápidos</h2>
-        <div className="space-y-2">
-          <Link href="/sofia" className="card flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sage-100 text-sage-600">
-              <ChatIcon width={22} height={22} />
-            </div>
-            <div className="flex-1">
-              <p className="font-bold text-ink-900">Hablar con Sofía</p>
-              <p className="text-sm text-ink-700">Tu nutricionista, en chat privado</p>
-            </div>
-            <ChevronRight className="text-ink-700/40" width={20} height={20} />
-          </Link>
-
-          {temAcesso ? (
-            <Link href="/entenda" className="card flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cream-200 text-ink-800">
-                <BookIcon width={22} height={22} />
-              </div>
-              <div className="flex-1">
-                <p className="font-bold text-ink-900">Comprende la práctica</p>
-                <p className="text-sm text-ink-700">Textos cortos sobre el movimiento somático</p>
-              </div>
-              <ChevronRight className="text-ink-700/40" width={20} height={20} />
-            </Link>
-          ) : null}
-
-          <Link href="/dieta" className="card flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sage-100 text-sage-600">
-              <SaladIcon width={22} height={22} />
-            </div>
-            <div className="flex-1">
-              <p className="font-bold text-ink-900">Menú de hoy</p>
-              <p className="text-sm text-ink-700">Ideas simples para tu alimentación</p>
-            </div>
-            <ChevronRight className="text-ink-700/40" width={20} height={20} />
-          </Link>
+        <div className="card">
+          <div className="grid grid-cols-3 gap-2">
+            {atalhos.map((a) => (
+              <Link
+                key={a.href}
+                href={a.href}
+                className="flex flex-col items-center gap-2 rounded-2xl bg-cream-50 px-1.5 py-3 text-center transition active:scale-[0.97]"
+              >
+                <span
+                  className={`flex h-11 w-11 items-center justify-center rounded-2xl ${a.cor}`}
+                >
+                  {a.icone}
+                </span>
+                <span className="text-xs font-bold leading-tight text-ink-900">{a.label}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
