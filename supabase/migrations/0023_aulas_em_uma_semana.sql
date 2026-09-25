@@ -27,11 +27,15 @@ declare
   v_total      int;
 begin
   -- Programa canônico (o do protocolo no ar).
+  -- Mesmo desempate da 0021: o programa que tem catálogo é o canônico.
   select p.id into v_program_id
     from public.programs p
     join public.products pr on pr.id = p.product_id
    where pr.slug in ('drenagem-tailandesa', 'ritual-do-tapetinho')
-   order by p.ordem_exibicao
+   order by (select count(*) from public.exercises e where e.program_id = p.id) desc,
+            p.ativo desc,
+            p.ordem_exibicao,
+            p.id
    limit 1;
 
   if v_program_id is null then

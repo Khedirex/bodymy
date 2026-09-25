@@ -29,11 +29,15 @@ do $$
 declare
   v_program_id uuid;
 begin
+  -- Desempate DETERMINÍSTICO. Ordenar só por ordem_exibicao elegia um
+  -- programa arbitrário quando havia empate (em produção os três valiam 0),
+  -- e o catálogo foi parar num programa inativo. Não dá para desempatar por
+  -- "quem tem catálogo" aqui: é esta migration que cria exercises.program_id.
   select p.id into v_program_id
     from public.programs p
     join public.products pr on pr.id = p.product_id
    where pr.slug in ('drenagem-tailandesa', 'ritual-do-tapetinho')
-   order by p.ordem_exibicao
+   order by p.ativo desc, p.ordem_exibicao, p.id
    limit 1;
 
   if v_program_id is null then

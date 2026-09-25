@@ -91,15 +91,33 @@ export async function getCircuitoPrograma(
   const temAcessoCanonico = Array.from(ativos).some((id) => idsAcesso.has(id))
   if (!temAcessoCanonico) return null
 
-  const { data: canonico } = await admin
+  // Entre os programas canônicos, escolhe um que REALMENTE tenha catálogo.
+  // Pegar "o primeiro ativo" já elegeu um programa vazio em produção e a aluna
+  // viu a tela de treino sem exercícios nem alongamentos.
+  const { data: canonicos } = await admin
     .from('programs')
     .select('id, slug, nome, duracao_semanas, products!inner(slug)')
     .in('products.slug', CIRCUITO_PRODUCT_SLUGS)
     .eq('ativo', true)
-    .limit(1)
-    .maybeSingle()
+    .order('ordem_exibicao', { ascending: true })
 
-  return canonico ? montar(canonico as unknown as { id: string; slug: string; nome: string; duracao_semanas: number }) : null
+  const lista = (canonicos ?? []) as unknown as {
+    id: string
+    slug: string
+    nome: string
+    duracao_semanas: number
+  }[]
+  if (lista.length === 0) return null
+
+  const { data: exsCanon } = await admin
+    .from('exercises')
+    .select('program_id')
+    .in('program_id', lista.map((p) => p.id))
+    .eq('ativo', true)
+  const comCatalogo = new Set((exsCanon ?? []).map((e) => e.program_id as string))
+
+  const canonico = lista.find((p) => comCatalogo.has(p.id))
+  return canonico ? montar(canonico) : null
 }
 
 function montar(p: { id: string; slug: string; nome: string; duracao_semanas: number }): CircuitoPrograma {

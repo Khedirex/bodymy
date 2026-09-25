@@ -27,14 +27,26 @@ const nextConfig = {
     // Slug do programa mudou (ritual-do-tapetinho → drenagem-tailandesa).
     // Redireciona links antigos já compartilhados para não quebrar.
     return [
+      // O programa canônico virou 'descompresion-articular' (0024). Os slugs
+      // anteriores continuam válidos como link antigo.
       {
         source: '/programa/ritual-do-tapetinho',
-        destination: '/programa/drenagem-tailandesa',
+        destination: '/programa/descompresion-articular',
         permanent: true,
       },
       {
         source: '/programa/ritual-do-tapetinho/:path*',
-        destination: '/programa/drenagem-tailandesa/:path*',
+        destination: '/programa/descompresion-articular/:path*',
+        permanent: true,
+      },
+      {
+        source: '/programa/drenagem-tailandesa',
+        destination: '/programa/descompresion-articular',
+        permanent: true,
+      },
+      {
+        source: '/programa/drenagem-tailandesa/:path*',
+        destination: '/programa/descompresion-articular/:path*',
         permanent: true,
       },
       {
