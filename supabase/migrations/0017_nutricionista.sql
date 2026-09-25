@@ -37,19 +37,26 @@ update public.products
  where slug = 'nutricionista-online'
    and not exists (select 1 from public.products where slug = 'acompanhamento-diario');
 
+-- UPDATE + INSERT-se-não-existe em vez de ON CONFLICT: não depende de haver
+-- um índice único em products.slug (evita o erro 42P10 em bancos cuja
+-- constraint de slug não esteja presente).
+update public.products
+   set nome = 'Acompañamiento Diario',
+       tipo = 'extra',
+       descricao = 'Asistente que te acompaña cada día del reto: adapta tu sesión, responde tus dudas y orienta tu alimentación como apoyo al estímulo hormonal.',
+       ativo = true
+ where slug = 'acompanhamento-diario';
+
 insert into public.products (slug, nome, tipo, descricao, ativo)
-values (
+select
   'acompanhamento-diario',
   'Acompañamiento Diario',
   'extra',
   'Asistente que te acompaña cada día del reto: adapta tu sesión, responde tus dudas y orienta tu alimentación como apoyo al estímulo hormonal.',
   true
-)
-on conflict (slug) do update
-  set nome = excluded.nome,
-      tipo = excluded.tipo,
-      descricao = excluded.descricao,
-      ativo = excluded.ativo;
+ where not exists (
+   select 1 from public.products where slug = 'acompanhamento-diario'
+ );
 
 -- ---------------------------------------------------------------------
 -- nutri_perfil — respostas do questionário (base para a IA montar a dieta).

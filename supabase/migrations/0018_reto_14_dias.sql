@@ -97,9 +97,18 @@ alter table public.program_weeks_config
   add constraint program_weeks_config_semana_check
   check (semana between 1 and 2);
 
+-- UPDATE + INSERT-se-não-existe em vez de ON CONFLICT: não depende de haver
+-- um índice único em program_weeks_config.semana (evita o erro 42P10).
+update public.program_weeks_config
+   set liberada = true, atualizado_em = now()
+ where semana in (1, 2);
+
 insert into public.program_weeks_config (semana, liberada)
-values (1, true), (2, true)
-on conflict (semana) do update set liberada = true, atualizado_em = now();
+select v.semana, true
+  from (values (1), (2)) as v(semana)
+ where not exists (
+   select 1 from public.program_weeks_config p where p.semana = v.semana
+ );
 
 -- ---------------------------------------------------------------------
 -- 4) Renomeia produtos e programas: "28" → "14", "Protocolo" → "Reto".
