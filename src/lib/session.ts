@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { captureException } from '@/lib/observability'
 import type { Profile } from '@/types/db'
@@ -7,7 +8,9 @@ import type { Profile } from '@/types/db'
 // Lê o usuário de forma DEFENSIVA: getUser() pode, em cenários raros,
 // rejeitar (falha de rede Vercel↔Supabase) ou retornar um shape
 // inesperado. Nunca deixamos isso virar um crash genérico sem contexto.
-async function lerUsuario() {
+// cache() = memória por REQUISIÇÃO. auth.getUser() é uma ida à rede; sem isso
+// ela se repetia a cada chamador dentro do mesmo carregamento de página.
+const lerUsuario = cache(async () => {
   const supabase = createClient()
   try {
     const { data, error } = await supabase.auth.getUser()
@@ -22,13 +25,13 @@ async function lerUsuario() {
     // um problema transitório), com mensagem honesta.
     throw new Error('No pudimos verificar tu sesión ahora.')
   }
-}
+})
 
 export async function getUser() {
   return lerUsuario()
 }
 
-export async function getProfile(): Promise<Profile | null> {
+export const getProfile = cache(async (): Promise<Profile | null> => {
   const user = await lerUsuario()
   if (!user) return null
 
@@ -61,4 +64,4 @@ export async function getProfile(): Promise<Profile | null> {
     }
   }
   return data as Profile
-}
+})

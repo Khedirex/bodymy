@@ -1,6 +1,8 @@
 import 'server-only'
+import { cache } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 import { getActiveEntitlementProductIds } from '@/lib/entitlements'
 import { captureException } from '@/lib/observability'
 import {
@@ -50,6 +52,15 @@ export async function getCircuitoPrograma(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<CircuitoPrograma | null> {
+  if (!userId) return null
+  return resolverPrograma(userId)
+}
+
+// Memorizado por REQUISIÇÃO: são 3 consultas (entitlements, programs,
+// exercises) e a mesma resolução acontecia em getCircuitoPrograma,
+// hasCircuitoAccess e no contexto da Sofía num mesmo carregamento.
+const resolverPrograma = cache(async (userId: string): Promise<CircuitoPrograma | null> => {
+  const supabase = createClient()
   const ativos = await getActiveEntitlementProductIds(supabase, userId)
   if (ativos.size === 0) return null
 
@@ -118,7 +129,7 @@ export async function getCircuitoPrograma(
 
   const canonico = lista.find((p) => comCatalogo.has(p.id))
   return canonico ? montar(canonico) : null
-}
+})
 
 function montar(p: { id: string; slug: string; nome: string; duracao_semanas: number }): CircuitoPrograma {
   const semanas = Math.max(1, Number(p.duracao_semanas) || 1)
