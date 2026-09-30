@@ -84,11 +84,40 @@ produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 → `0016_entitlement_origem_hotmart.sql` → `0017_nutricionista.sql`
 → `0018_reto_14_dias.sql` → `0019_repara_integridade.sql`
 → `0020_nome_protocolo_descompressao.sql` → `0022_dedup_catalogo_circuito.sql`
-→ `0021_escopa_circuito_por_programa.sql` → `0023_aulas_em_uma_semana.sql`,
+→ `0021_escopa_circuito_por_programa.sql` → `0023_aulas_em_uma_semana.sql`
+→ `0024_consolida_programa_canonico.sql` → `0025_reto_cama_14_dias.sql`,
 
 ⚠️ **A 0022 roda ANTES da 0021** (apesar do número): a 0021 cria uniques por
 programa e falha enquanto houver duplicatas no catálogo.
 via `supabase db push` ou colando cada uma no SQL Editor.
+
+### Reto 14 días en la cama (`0025_reto_cama_14_dias.sql`)
+
+O programa canônico ("Protocolo Descompresión Articular — Reto 14 días") passa
+ao formato **aula diária**: `programs.formato = 'aula_diaria'` faz o `/treino`
+mostrar **1 vídeo + 1 texto de apoio por dia** (a aula do `program_day` de
+número N = dia N do desafio; o número 0 é a Bienvenida) com um botão
+"Terminé", que grava a sessão, o check-in de streak e avança o dia (um dia do
+reto por dia do calendário). O circuito cronometrado continua no banco, sem
+uso por este programa. As leituras antigas de `/entenda` foram substituídas
+pelas 15 aulas novas ("Guías del reto").
+
+Fonte única: `supabase/content/reto-cama-14-dias.ts` (dias, doses, textos) e
+`reto-cama-ejercicios.ts` (os 5 exercícios de cada fase). O gerador valida o
+conteúdo (frases ≤ 12 palavras, sem português/voseo, 150–250 palavras, doses
+da tabela) e escreve a migração **e** os roteiros da Lucy em `guiones/`:
+```bash
+npm run gen:reto-cama
+```
+Vídeos: `panda_video_id` nasce NULL (o app mostra "El video de hoy llega
+pronto"). Para cadastrar, no SQL Editor:
+```sql
+update public.lessons l set panda_video_id = 'ID_DO_PANDA'
+  from public.program_days d, public.program_weeks w, public.programs p
+ where l.day_id = d.id and d.week_id = w.id and w.program_id = p.id
+   and p.slug = 'descompresion-articular' and d.numero = 1;  -- dia do reto
+```
+Reaplicar a 0025 atualiza os textos e **preserva** os vídeos já cadastrados.
 
 ### Acompañamiento Diario / asistente de IA (`0017_nutricionista.sql`)
 

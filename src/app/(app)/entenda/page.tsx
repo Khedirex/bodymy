@@ -3,26 +3,27 @@ import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
 import { createClient } from '@/lib/supabase/server'
 import { getProgramTrack } from '@/lib/queries'
-import { hasCircuitoAccess } from '@/lib/circuito'
-import { CIRCUITO_PRODUCT_SLUG } from '@/lib/training'
+import { getCircuitoPrograma } from '@/lib/circuito'
 import { SafetyNotice } from '@/components/SafetyNotice'
 import { EmptyState } from '@/components/ui/states'
 import { BookIcon, ChevronRight } from '@/components/ui/icons'
 
 export const dynamic = 'force-dynamic'
 
-// "Entenda a prática": as 28 aulas de movimento somático viram material
-// complementar — leitura livre (sem trava sequencial, sem marcar feito).
+// "Guías del reto": todas as aulas do programa (bienvenida + un día por
+// aula) para consultar quando quiser — leitura livre, sem trava sequencial e
+// sem marcar feito (o dia se marca em /treino).
 export default async function EntendaPage() {
   const profile = await getProfile()
   if (!profile) redirect('/login')
 
   // Acesso: qualquer SKU que libera a experiência (não só o produto canônico).
   const supabase = createClient()
-  const temAcesso = await hasCircuitoAccess(supabase, profile.id)
-  // Conteúdo é sempre o do programa canônico; entitlement já validado acima.
-  const track = temAcesso
-    ? await getProgramTrack(profile.id, CIRCUITO_PRODUCT_SLUG, { skipEntitlement: true })
+  // O programa que ela acessa (qualquer SKU que libera a experiência). O
+  // acesso já vem validado, então a trilha pula a checagem por produto.
+  const programa = await getCircuitoPrograma(supabase, profile.id)
+  const track = programa
+    ? await getProgramTrack(profile.id, programa.slug, { skipEntitlement: true })
     : null
   if (!track) {
     return (
@@ -37,10 +38,10 @@ export default async function EntendaPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-extrabold text-ink-900">Comprende la práctica</h1>
+        <h1 className="text-2xl font-extrabold text-ink-900">Guías del reto</h1>
         <p className="mt-1 text-ink-700">
-          Textos cortos sobre el movimiento somático — el porqué detrás de los ejercicios. Lee en
-          el orden que quieras, cuando tengas ganas.
+          Todos los días del reto en un solo lugar. Vuelve a ver un video o repasa una guía
+          cuando quieras.
         </p>
       </header>
 
@@ -62,7 +63,11 @@ export default async function EntendaPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-semibold text-ink-900">{lesson.titulo}</p>
-                        <p className="truncate text-sm text-ink-700">{lesson.duracao_min} min de lectura</p>
+                        <p className="truncate text-sm text-ink-700">
+                          {lesson.tipo === 'video'
+                            ? `Video de ${lesson.duracao_min} min`
+                            : `${lesson.duracao_min} min de lectura`}
+                        </p>
                       </div>
                       <ChevronRight className="text-ink-700/40" width={20} height={20} />
                     </Link>

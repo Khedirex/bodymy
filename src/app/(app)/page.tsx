@@ -42,6 +42,7 @@ export default async function HomePage() {
   // O protocolo dela define catálogo, duração e progresso.
   const programa = await getCircuitoPrograma(supabase, profile.id)
   const temAcesso = programa !== null
+  const aulaDiaria = programa?.formato === 'aula_diaria'
 
   const [datas, storefront, config, acessos, programas] = await Promise.all([
     getCheckinDates(profile.id),
@@ -78,7 +79,7 @@ export default async function HomePage() {
     let descricao = 'Acceso liberado'
     if (CIRCUITO_ACCESS_SLUGS.includes(p.slug)) {
       href = '/treino'
-      descricao = 'Movilidad + circuito que se ajusta a ti'
+      descricao = aulaDiaria ? 'Un video y una guía por día, en tu cama' : 'Movilidad + circuito que se ajusta a ti'
     } else if (p.slug === NUTRI_PRODUCT_SLUG) {
       href = '/sofia'
       descricao = 'Tu chat privado con Sofía'
@@ -109,7 +110,7 @@ export default async function HomePage() {
       ? [
           {
             href: '/entenda',
-            label: 'La práctica',
+            label: aulaDiaria ? 'Guías' : 'La práctica',
             cor: 'bg-cream-200 text-ink-800',
             icone: <BookIcon width={22} height={22} />,
           },
@@ -157,9 +158,11 @@ export default async function HomePage() {
             <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-coral-600">
               <span className="chip">{chipHoje}</span>
             </div>
-            <h3 className="text-lg font-bold text-ink-900">Tus movimientos de hoy</h3>
+            <h3 className="text-lg font-bold text-ink-900">
+              {aulaDiaria ? 'Tu clase de hoy' : 'Tus movimientos de hoy'}
+            </h3>
             <p className="mt-1 text-sm text-ink-700">
-              Estiramiento leve + movilidad correctiva
+              {aulaDiaria ? 'Un video guiado en tu cama, paso a paso' : 'Estiramiento leve + movilidad correctiva'}
             </p>
             <div className="mt-4">
               <Link href="/treino" className="btn-primary w-full">

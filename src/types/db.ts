@@ -61,6 +61,10 @@ export interface Entitlement {
   created_at: string
 }
 
+// 'circuito': treino cronometrado de 5 exercícios (padrão).
+// 'aula_diaria': 1 vídeo + 1 texto de apoio por dia (lessons do programa).
+export type ProgramaFormato = 'circuito' | 'aula_diaria'
+
 export interface Program {
   id: string
   product_id: string
@@ -71,6 +75,8 @@ export interface Program {
   duracao_semanas: number
   ordem_exibicao: number
   ativo: boolean
+  /** Ausente antes da 0025 — trate como 'circuito'. */
+  formato?: ProgramaFormato
 }
 
 export interface ProgramWeek {

@@ -1,40 +1,60 @@
 import Link from 'next/link'
 import { ChevronLeft } from '@/components/ui/icons'
-import type { GuiaBloco } from '@/types/db'
+import { VideoAula } from '@/components/lesson/VideoAula'
+import type { GuiaBloco, LessonTipo } from '@/types/db'
 
-// Leitor read-only de uma aula (material complementar "Entenda a prática").
+// Leitor read-only de uma aula (material "Guías del reto" em /entenda).
 // Sem "marcar como feito" — não afeta streak/progresso.
 export function LessonReader({
   titulo,
   duracaoMin,
+  tipo,
+  videoId,
   conteudo,
 }: {
   titulo: string
   duracaoMin: number
+  tipo: LessonTipo
+  videoId: string | null
   conteudo: { intro?: string; blocos: GuiaBloco[] } | null
 }) {
-  const blocos = conteudo?.blocos ?? []
   return (
     <div className="space-y-5">
       <Link href="/entenda" className="inline-flex items-center gap-1 text-sm font-semibold text-ink-700">
-        <ChevronLeft width={18} height={18} /> Entiende la práctica
+        <ChevronLeft width={18} height={18} /> Guías del reto
       </Link>
 
       <header>
         <h1 className="text-2xl font-extrabold leading-tight text-ink-900">{titulo}</h1>
-        <p className="mt-1 text-sm text-ink-700">{duracaoMin} min de lectura</p>
+        <p className="mt-1 text-sm text-ink-700">
+          {tipo === 'video' ? `Video de ${duracaoMin} min` : `${duracaoMin} min de lectura`}
+        </p>
       </header>
 
+      {tipo === 'video' ? <VideoAula videoId={videoId} /> : null}
+
+      <ConteudoAula conteudo={conteudo} />
+    </div>
+  )
+}
+
+// Intro + blocos de uma aula. Os passos são numerados entre si (1, 2, 3…),
+// independentemente dos blocos de texto/aviso que venham antes.
+export function ConteudoAula({ conteudo }: { conteudo: { intro?: string; blocos: GuiaBloco[] } | null }) {
+  const blocos = conteudo?.blocos ?? []
+  let passo = 0
+  return (
+    <>
       {conteudo?.intro ? (
         <p className="text-lg leading-relaxed text-ink-800">{conteudo.intro}</p>
       ) : null}
 
       <div className="space-y-3">
         {blocos.map((b, i) => (
-          <BlocoView key={i} bloco={b} numero={b.tipo === 'passo' ? i + 1 : undefined} />
+          <BlocoView key={i} bloco={b} numero={b.tipo === 'passo' ? ++passo : undefined} />
         ))}
       </div>
-    </div>
+    </>
   )
 }
 

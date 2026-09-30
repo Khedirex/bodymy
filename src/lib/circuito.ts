@@ -18,6 +18,8 @@ import type {
   Exercise,
   ExerciseVariation,
   Stretch,
+  Lesson,
+  ProgramaFormato,
 } from '@/types/db'
 
 // =====================================================================
@@ -36,6 +38,18 @@ export interface CircuitoPrograma {
   nome: string
   semanas: number // duracao_semanas do programa
   totalDias: number // semanas * 7
+  formato: ProgramaFormato // circuito cronometrado ou aula diária (vídeo + texto)
+}
+
+// Linha de programs como o resolvedor lê. `select('*')` em vez de listar as
+// colunas: se o deploy chegar antes da 0025, `formato` só vem ausente (e vira
+// 'circuito') em vez de a consulta falhar e a aluna perder o acesso.
+interface ProgramaRow {
+  id: string
+  slug: string
+  nome: string
+  duracao_semanas: number
+  formato?: string | null
 }
 
 /**
@@ -69,17 +83,12 @@ const resolverPrograma = cache(async (userId: string): Promise<CircuitoPrograma 
   // Programas dos produtos que ela possui, na ordem de exibição.
   const { data: programas } = await admin
     .from('programs')
-    .select('id, slug, nome, duracao_semanas, product_id')
+    .select('*')
     .in('product_id', Array.from(ativos))
     .eq('ativo', true)
     .order('ordem_exibicao', { ascending: true })
 
-  const candidatos = (programas ?? []) as {
-    id: string
-    slug: string
-    nome: string
-    duracao_semanas: number
-  }[]
+  const candidatos = (programas ?? []) as ProgramaRow[]
 
   if (candidatos.length > 0) {
     // Só vale se o programa tiver circuito cadastrado.
@@ -107,17 +116,12 @@ const resolverPrograma = cache(async (userId: string): Promise<CircuitoPrograma 
   // viu a tela de treino sem exercícios nem alongamentos.
   const { data: canonicos } = await admin
     .from('programs')
-    .select('id, slug, nome, duracao_semanas, products!inner(slug)')
+    .select('*, products!inner(slug)')
     .in('products.slug', CIRCUITO_PRODUCT_SLUGS)
     .eq('ativo', true)
     .order('ordem_exibicao', { ascending: true })
 
-  const lista = (canonicos ?? []) as unknown as {
-    id: string
-    slug: string
-    nome: string
-    duracao_semanas: number
-  }[]
+  const lista = (canonicos ?? []) as unknown as ProgramaRow[]
   if (lista.length === 0) return null
 
   const { data: exsCanon } = await admin
@@ -131,9 +135,10 @@ const resolverPrograma = cache(async (userId: string): Promise<CircuitoPrograma 
   return canonico ? montar(canonico) : null
 })
 
-function montar(p: { id: string; slug: string; nome: string; duracao_semanas: number }): CircuitoPrograma {
+function montar(p: ProgramaRow): CircuitoPrograma {
   const semanas = Math.max(1, Number(p.duracao_semanas) || 1)
-  return { id: p.id, slug: p.slug, nome: p.nome, semanas, totalDias: semanas * CIRCUITO_DIAS }
+  const formato: ProgramaFormato = p.formato === 'aula_diaria' ? 'aula_diaria' : 'circuito'
+  return { id: p.id, slug: p.slug, nome: p.nome, semanas, totalDias: semanas * CIRCUITO_DIAS, formato }
 }
 
 export async function getTrainingConfig(
@@ -416,4 +421,49 @@ export async function syncLiberacao(
   await resetarVariacoes(supabase, userId, programa.id, nivelEntradaSemana(novaSemana), now)
 
   return { ...config, semana_atual: novaSemana, dia_atual: 1, aguardando_liberacao: 0 }
+}
+
+// =====================================================================
+// Formato 'aula_diaria': 1 vídeo + 1 texto de apoio por dia.
+// As aulas vivem em program_days/lessons do programa: o dia N do desafio é
+// o program_day de numero N; o numero 0 é a página de boas-vindas.
+// =====================================================================
+
+/** Dia do desafio (1..totalDias) a partir da posição semana/dia. */
+export const diaDoDesafio = (config: Pick<UserTrainingConfig, 'semana_atual' | 'dia_atual'>) =>
+  (config.semana_atual - 1) * CIRCUITO_DIAS + config.dia_atual
+
+export interface AulaDoDia {
+  aula: Lesson | null // null = aula ainda não cadastrada para esse dia
+  bienvenidaId: string | null
+}
+
+export async function getAulaDoDia(programId: string, numero: number): Promise<AulaDoDia> {
+  const admin = createAdminClient()
+  const { data: weeks } = await admin.from('program_weeks').select('id').eq('program_id', programId)
+  const weekIds = (weeks ?? []).map((w) => w.id as string)
+  if (weekIds.length === 0) return { aula: null, bienvenidaId: null }
+
+  const { data: days } = await admin
+    .from('program_days')
+    .select('id, numero')
+    .in('week_id', weekIds)
+    .in('numero', [0, numero])
+  const dayIds = (days ?? []).map((d) => d.id as string)
+  if (dayIds.length === 0) return { aula: null, bienvenidaId: null }
+
+  const { data: lessons, error } = await admin
+    .from('lessons')
+    .select('*')
+    .in('day_id', dayIds)
+    .order('ordem', { ascending: true })
+  if (error) {
+    captureException(new Error(`[circuito.getAulaDoDia] lessons: ${error.message}`), { programId, numero })
+  }
+
+  const numeroDoDia = new Map((days ?? []).map((d) => [d.id as string, d.numero as number]))
+  const lista = (lessons ?? []) as Lesson[]
+  const aula = lista.find((l) => numeroDoDia.get(l.day_id) === numero) ?? null
+  const bienvenida = lista.find((l) => numeroDoDia.get(l.day_id) === 0) ?? null
+  return { aula, bienvenidaId: bienvenida?.id ?? null }
 }

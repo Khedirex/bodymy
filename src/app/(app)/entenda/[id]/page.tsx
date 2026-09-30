@@ -14,6 +14,12 @@ export default async function EntendaLessonPage({ params }: { params: { id: stri
 
   const lesson = ctx.lesson
   return (
-    <LessonReader titulo={lesson.titulo} duracaoMin={lesson.duracao_min} conteudo={lesson.conteudo} />
+    <LessonReader
+      titulo={lesson.titulo}
+      duracaoMin={lesson.duracao_min}
+      tipo={lesson.tipo}
+      videoId={lesson.panda_video_id}
+      conteudo={lesson.conteudo}
+    />
   )
 }
