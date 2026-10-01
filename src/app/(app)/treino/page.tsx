@@ -7,6 +7,7 @@ import { AgeGate } from '@/components/circuito/AgeGate'
 import { TreinoFluxo } from '@/components/circuito/TreinoFluxo'
 import { EmptyState } from '@/components/ui/states'
 import { LockIcon } from '@/components/ui/icons'
+import { hasCisneAccess } from '@/lib/cisne-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,6 +21,8 @@ export default async function TreinoPage() {
   // Acesso ao circuito é por entitlement (mesmo produto). Sem acesso → vitrine.
   // Qual protocolo ela acessa (catálogo, semanas e progresso vêm daqui).
   const programa = await getCircuitoPrograma(supabase, profile.id)
+  // Só tem o Reset Postura de Cisne → "Tu plan" é o reto dela.
+  if (!programa && (await hasCisneAccess(profile.id))) redirect('/cisne')
   if (!programa) {
     return (
       <div className="space-y-4">

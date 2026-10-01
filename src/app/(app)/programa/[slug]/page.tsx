@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
 import { getProgramMeta, getProgramTrack } from '@/lib/queries'
 import { SalesView } from '@/components/SalesView'
+import { CISNE_PROGRAM_SLUG } from '@/lib/cisne'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,6 +12,9 @@ export const dynamic = 'force-dynamic'
 export default async function ProgramaPage({ params }: { params: { slug: string } }) {
   const profile = await getProfile()
   if (!profile) redirect('/login')
+
+  // Reset Postura de Cisne tem a própria experiência (venda incluída).
+  if (params.slug === CISNE_PROGRAM_SLUG) redirect('/cisne')
 
   const meta = await getProgramMeta(params.slug)
   if (!meta) notFound()

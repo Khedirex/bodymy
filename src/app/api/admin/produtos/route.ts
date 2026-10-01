@@ -31,6 +31,10 @@ export async function POST(request: NextRequest) {
     kiwify_checkout_url: (b.kiwify_checkout_url as string) ?? null,
     sales_page: (b.sales_page as Record<string, unknown>) ?? null,
     ativo: b.ativo !== false,
+    // Só entra quando o form envia o campo — clientes antigos não apagam o id.
+    ...('hotmart_product_id' in b
+      ? { hotmart_product_id: ((b.hotmart_product_id as string) ?? '').trim() || null }
+      : {}),
   }
 
   const admin = createAdminClient()

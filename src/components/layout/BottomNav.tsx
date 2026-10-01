@@ -14,7 +14,7 @@ import {
 
 const ITEMS = [
   { href: '/', label: 'Inicio', Icon: HomeIcon, match: (p: string) => p === '/' },
-  { href: '/treino', label: 'Tu plan', Icon: RouteIcon, match: (p: string) => p.startsWith('/treino') || p.startsWith('/programa') },
+  { href: '/treino', label: 'Tu plan', Icon: RouteIcon, match: (p: string) => p.startsWith('/treino') || p.startsWith('/programa') || p.startsWith('/cisne') },
   { href: '/dieta', label: 'Dieta', Icon: SaladIcon, match: (p: string) => p.startsWith('/dieta') },
   { href: '/sofia', label: 'Sofía', Icon: ChatIcon, match: (p: string) => p.startsWith('/sofia') },
   { href: '/progresso', label: 'Progreso', Icon: ChartIcon, match: (p: string) => p.startsWith('/progresso') },
