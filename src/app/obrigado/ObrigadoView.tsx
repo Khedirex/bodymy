@@ -5,15 +5,25 @@ import Link from 'next/link'
 
 type Status = 'verificando' | 'pronto' | 'demorou' | 'sem_email'
 
+// Guia em PDF de um produto (ex.: Reset Postura de Cisne). O conteúdo
+// completo vive no app; o PDF é o resumo prático para ter à mão.
+export interface GuiaPdf {
+  url: string
+  arquivo: string // nome sugerido no download
+  titulo: string
+  ondeNoApp: string // como achar o módulo dentro do app
+}
+
 interface Props {
   email: string | null
   produtoNome: string
   suporteEmail: string
+  guia?: GuiaPdf
 }
 
 const MAX_TENTATIVAS = 18 // ~45s (2,5s cada)
 
-export function ObrigadoView({ email, produtoNome, suporteEmail }: Props) {
+export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) {
   const [status, setStatus] = useState<Status>(email ? 'verificando' : 'sem_email')
   const [progresso, setProgresso] = useState(email ? 8 : 100)
 
@@ -124,8 +134,40 @@ export function ObrigadoView({ email, produtoNome, suporteEmail }: Props) {
         </Link>
       </StepCard>
 
-      {/* Passo 2 — Se o e-mail demorar */}
-      <StepCard numero={2} titulo="Si el correo del código tarda">
+      {guia ? (
+        <>
+          {/* Passo 2 — Onde está o reto (no app) */}
+          <StepCard numero={2} titulo="Tu reto completo está en el app">
+            <p className="text-ink-700">
+              <strong>{guia.titulo}</strong> vive dentro de BodyMy. {guia.ondeNoApp}
+            </p>
+            <ul className="mt-3 space-y-1.5 text-ink-700">
+              <li>✓ Cada día te muestra tus <strong>4 movimientos</strong>, en orden.</li>
+              <li>✓ Dibujo, paso a paso, lo correcto, qué evitar y la opción <strong>“Más fácil”</strong>.</li>
+              <li>✓ Marcas cada movimiento, anotas cómo quedó tu cuello y el app guarda tu avance.</li>
+            </ul>
+          </StepCard>
+
+          {/* Passo 3 — PDF (resumo prático) */}
+          <StepCard numero={3} titulo="Tu guía práctica en PDF">
+            <p className="mb-3 text-ink-700">
+              Además, aquí tienes el <strong>guía práctico resumido</strong>: los ejercicios ilustrados, paso
+              a paso, para tener a mano, imprimir o consultar sin internet. <strong>Tu reto día a día lo
+              sigues en el app</strong> (ahí está el orden de cada día y tu avance) — el PDF es tu apoyo.
+            </p>
+            <a
+              href={guia.url}
+              download={guia.arquivo}
+              className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-coral-200 bg-white px-5 text-lg font-extrabold text-coral-600"
+            >
+              <span aria-hidden>⬇️</span> Descargar el guía (PDF)
+            </a>
+          </StepCard>
+        </>
+      ) : null}
+
+      {/* Se o e-mail demorar */}
+      <StepCard numero={guia ? 4 : 2} titulo="Si el correo del código tarda">
         <p className="text-ink-700">
           El correo con tu código puede tardar unos minutos. Si no aparece, revisa la carpeta de{' '}
           <strong>spam</strong> o <strong>promociones</strong> — y márcalo como <strong>&ldquo;no es spam&rdquo;</strong>{' '}

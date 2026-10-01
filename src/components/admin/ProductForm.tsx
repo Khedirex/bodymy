@@ -24,6 +24,7 @@ export function ProductForm({ product }: { product: Product | null }) {
     ativo: product?.ativo ?? true,
     kiwify_product_id: product?.kiwify_product_id ?? '',
     kiwify_checkout_url: product?.kiwify_checkout_url ?? '',
+    hotmart_product_id: product?.hotmart_product_id ?? '',
     headline: sp.headline ?? '',
     subheadline: sp.subheadline ?? '',
     imagem_url: sp.imagem_url ?? '',
@@ -63,6 +64,7 @@ export function ProductForm({ product }: { product: Product | null }) {
           ativo: f.ativo,
           kiwify_product_id: f.kiwify_product_id,
           kiwify_checkout_url: f.kiwify_checkout_url,
+          hotmart_product_id: f.hotmart_product_id,
           sales_page,
         }),
       })
@@ -114,6 +116,8 @@ export function ProductForm({ product }: { product: Product | null }) {
           </div>
           <label className="block text-sm"><span className="text-slate-600">kiwify_product_id</span><input className={inputCls} value={f.kiwify_product_id} onChange={(e) => set('kiwify_product_id', e.target.value)} /></label>
           <label className="block text-sm"><span className="text-slate-600">kiwify_checkout_url</span><input className={inputCls} value={f.kiwify_checkout_url} onChange={(e) => set('kiwify_checkout_url', e.target.value)} placeholder="https://pay.kiwify.com.br/..." /></label>
+          <label className="block text-sm"><span className="text-slate-600">hotmart_product_id</span><input className={inputCls} value={f.hotmart_product_id} onChange={(e) => set('hotmart_product_id', e.target.value)} placeholder="ej.: 1234567" /></label>
+          <p className="text-xs text-slate-500">Hotmart: es el <strong>ID numérico del producto</strong> (campo <code>data.product.id</code> del webhook), no el código del enlace <code>pay.hotmart.com/…</code>. El enlace de Hotmart va en kiwify_checkout_url.</p>
         </fieldset>
 
         <fieldset className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">

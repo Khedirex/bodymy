@@ -84,7 +84,7 @@ produção): aplique em ordem `0001_schema.sql` → `0002_rls.sql` →
 → `0016_entitlement_origem_hotmart.sql` → `0017_nutricionista.sql`
 → `0018_reto_14_dias.sql` → `0019_repara_integridade.sql`
 → `0020_nome_protocolo_descompressao.sql` → `0022_dedup_catalogo_circuito.sql`
-→ `0021_escopa_circuito_por_programa.sql` → `0023_aulas_em_uma_semana.sql`,
+→ `0021_escopa_circuito_por_programa.sql` → `0023_aulas_em_uma_semana.sql` → `0024_consolida_programa_canonico.sql` → `0025_reset_postura_cisne.sql`,
 
 ⚠️ **A 0022 roda ANTES da 0021** (apesar do número): a 0021 cria uniques por
 programa e falha enquanto houver duplicatas no catálogo.
@@ -129,7 +129,11 @@ Adiciona `products.hotmart_product_id` e vincula o **mesmo** produto
 produto nas duas plataformas. O webhook `/api/webhooks/hotmart`
 verifica o `hottok` (`HOTMART_WEBHOOK_TOKEN`) e reaproveita o
 `processPurchaseEvent` do fluxo Kiwify — o produto é localizado por
-`hotmart_product_id` **ou** `kiwify_product_id`. Configure na Hotmart:
+`hotmart_product_id` **ou** `kiwify_product_id`.
+
+> **Desde a `0026`**, o id Hotmart `8385058` é do **Reset Postura de Cisne**
+> (não mais do Pilates Hormonal, que segue só na Kiwify; quem já comprou
+> mantém o acesso). Configure na Hotmart:
 Ferramentas → Webhook/Postback → URL `https://SEU-DOMINIO/api/webhooks/hotmart`,
 eventos de compra aprovada/reembolso/chargeback; copie o hottok para
 `HOTMART_WEBHOOK_TOKEN` no ambiente.
@@ -526,3 +530,17 @@ validação de acesso no servidor):
 ### Fora do escopo do MVP
 Push, personalização automática de dieta, comunidade, lista de compras,
 integrações de saúde, painel admin com UI, checkout dentro do app, app nativo.
+
+### Reset Postura de Cisne — Reto 14 días (`0025_reset_postura_cisne.sql`)
+
+Módulo à parte (produto Hotmart `pay.hotmart.com/C107702699A`), em `/cisne`:
+7 sessões de **4 movimentos** (nenhum repete o da sessão anterior) nos dias
+1–7; nos dias 8–14 o mesmo ciclo volta com a intensidade seguinte. Um dia novo
+por data, em ordem. Conteúdo (12 exercícios, plano, conselhos) em
+`src/lib/cisne.ts`; ilustrações e o PDF original em `public/guias/cisne/`.
+O diário da aluna (dia feito + "¿cómo quedó tu cuello?") fica em
+`cisne_registros`; concluir um dia gera o check-in `treino` (streak).
+
+- **Hotmart:** id do produto `8385058` (gravado pela `0026_hotmart_8385058_para_cisne.sql`).
+- **Página de obrigado:** configure na Hotmart `https://<app>/obrigado/cisne`
+  (explica que o reto está no app e entrega o PDF para download).

@@ -11,6 +11,8 @@ import { createClient } from '@/lib/supabase/server'
 import { getTrainingConfig, getCircuitoPrograma } from '@/lib/circuito'
 import { CIRCUITO_ACCESS_SLUGS } from '@/lib/training'
 import { NUTRI_PRODUCT_SLUG } from '@/lib/nutri'
+import { CISNE_PRODUCT_SLUG, CISNE_DIAS, CISNE_TOTAL_DIAS } from '@/lib/cisne'
+import { hasCisneAccess, getCisneEstado } from '@/lib/cisne-server'
 import { SOFIA_ATIVA } from '@/lib/flags'
 import { calcularStreak } from '@/lib/streak'
 import { todayISO, addDaysISO } from '@/lib/dates'
@@ -43,13 +45,16 @@ export default async function HomePage() {
   const programa = await getCircuitoPrograma(supabase, profile.id)
   const temAcesso = programa !== null
 
-  const [datas, storefront, config, acessos, programas] = await Promise.all([
+  const [datas, storefront, config, acessos, programas, cisne] = await Promise.all([
     getCheckinDates(profile.id),
     getEsteira(profile.id),
     programa ? getTrainingConfig(supabase, profile.id, programa.id) : Promise.resolve(null),
     getMyAccesses(profile.id),
     getEntitledPrograms(profile.id),
+    // Reset Postura de Cisne (módulo à parte, com o próprio diário).
+    hasCisneAccess(profile.id).then((ok) => (ok ? getCisneEstado(profile.id) : null)),
   ])
+  const cisneHoje = cisne?.proximoDia ? CISNE_DIAS[cisne.proximoDia - 1] : null
 
   const hoje = todayISO()
   const streak = calcularStreak(datas, hoje)
@@ -76,7 +81,12 @@ export default async function HomePage() {
   const cursos = acessos.map((p) => {
     let href: string | null = null
     let descricao = 'Acceso liberado'
-    if (CIRCUITO_ACCESS_SLUGS.includes(p.slug)) {
+    if (p.slug === CISNE_PRODUCT_SLUG) {
+      href = '/cisne'
+      descricao = cisne
+        ? `${cisne.concluidos} de ${CISNE_TOTAL_DIAS} días · 10 min en tu cama`
+        : '14 días · 10 minutos al día · en tu cama'
+    } else if (CIRCUITO_ACCESS_SLUGS.includes(p.slug)) {
       href = '/treino'
       descricao = 'Movilidad + circuito que se ajusta a ti'
     } else if (p.slug === NUTRI_PRODUCT_SLUG) {
@@ -153,7 +163,7 @@ export default async function HomePage() {
       <section>
         <h2 className="section-title mb-2">Hoy</h2>
         {temAcesso ? (
-          <div className="card">
+          <div className="card mb-3">
             <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-coral-600">
               <span className="chip">{chipHoje}</span>
             </div>
@@ -167,13 +177,53 @@ export default async function HomePage() {
               </Link>
             </div>
           </div>
-        ) : (
+        ) : null}
+        {cisne ? (
+          <div className="card">
+            <div className="mb-1 flex items-center gap-2">
+              <span className="chip">
+                {cisne.terminado
+                  ? 'Reto completado 🦢'
+                  : cisne.feitoHoje
+                    ? 'Listo por hoy ✓'
+                    : `Postura de Cisne · Día ${cisneHoje?.numero} de ${CISNE_TOTAL_DIAS}`}
+              </span>
+            </div>
+            <h3 className="text-lg font-bold text-ink-900">
+              {cisne.terminado
+                ? 'Mantén tu cuello de cisne'
+                : cisne.feitoHoje
+                  ? `Mañana: Día ${cisneHoje?.numero} · ${cisneHoje?.titulo}`
+                  : `Reset Postura de Cisne · ${cisneHoje?.titulo}`}
+            </h3>
+            <p className="mt-1 text-sm text-ink-700">
+              {cisne.feitoHoje && !cisne.terminado
+                ? 'Tu cuello descansa hoy. El próximo día se abre mañana.'
+                : '4 movimientos · ~10 minutos, acostada en tu cama'}
+            </p>
+            <div className="mt-4">
+              <Link
+                href={cisne.feitoHoje || cisne.terminado ? '/cisne' : `/cisne/dia/${cisneHoje?.numero}`}
+                className={cisne.feitoHoje && !cisne.terminado ? 'btn-secondary w-full' : 'btn-primary w-full'}
+              >
+                {cisne.feitoHoje || cisne.terminado ? (
+                  'Ver mi reto'
+                ) : (
+                  <>
+                    <PlayIcon width={20} height={20} /> Empezar ahora
+                  </>
+                )}
+              </Link>
+            </div>
+          </div>
+        ) : null}
+        {!temAcesso && !cisne ? (
           <EmptyState
             titulo="Tu entrenamiento aparece aquí"
             descricao="En cuanto tu acceso esté activo, tu circuito del día aparecerá en este espacio."
             icone={<LockIcon width={28} height={28} />}
           />
-        )}
+        ) : null}
       </section>
 
       {/* Cursos que ela já tem */}

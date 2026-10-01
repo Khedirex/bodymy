@@ -1,12 +1,10 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { CIRCUITO_PRODUCT_SLUGS } from '@/lib/training'
 import { ObrigadoView } from './ObrigadoView'
+import { SUPORTE_EMAIL, emailDosParams } from './params'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Bienvenida a BodyMy 🤍' }
-
-// Suporte por e-mail (por enquanto). Ajuste conforme o negócio.
-const SUPORTE_EMAIL = 'soporte@bodymy.online'
 
 // Página pública pós-compra (Kiwify). Recebe ?email= opcional.
 export default async function ObrigadoPage({
@@ -14,11 +12,7 @@ export default async function ObrigadoPage({
 }: {
   searchParams: Record<string, string | string[] | undefined>
 }) {
-  // Aceita variações do nome do parâmetro que a Kiwify possa enviar.
-  const ALIASES = ['email', 'customer_email', 'e-mail', 'mail', 'Email']
-  const pick = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)
-  const raw = ALIASES.map((k) => pick(searchParams[k])).find(Boolean)
-  const email = raw && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(raw.trim()) ? raw.trim().toLowerCase() : null
+  const email = emailDosParams(searchParams)
 
   let produtoNome = 'tu programa BodyMy'
   try {
