@@ -129,7 +129,11 @@ Adiciona `products.hotmart_product_id` e vincula o **mesmo** produto
 produto nas duas plataformas. O webhook `/api/webhooks/hotmart`
 verifica o `hottok` (`HOTMART_WEBHOOK_TOKEN`) e reaproveita o
 `processPurchaseEvent` do fluxo Kiwify — o produto é localizado por
-`hotmart_product_id` **ou** `kiwify_product_id`. Configure na Hotmart:
+`hotmart_product_id` **ou** `kiwify_product_id`.
+
+> **Desde a `0026`**, o id Hotmart `8385058` é do **Reset Postura de Cisne**
+> (não mais do Pilates Hormonal, que segue só na Kiwify; quem já comprou
+> mantém o acesso). Configure na Hotmart:
 Ferramentas → Webhook/Postback → URL `https://SEU-DOMINIO/api/webhooks/hotmart`,
 eventos de compra aprovada/reembolso/chargeback; copie o hottok para
 `HOTMART_WEBHOOK_TOKEN` no ambiente.
@@ -537,8 +541,6 @@ por data, em ordem. Conteúdo (12 exercícios, plano, conselhos) em
 O diário da aluna (dia feito + "¿cómo quedó tu cuello?") fica em
 `cisne_registros`; concluir um dia gera o check-in `treino` (streak).
 
-- **Hotmart:** preencha o `hotmart_product_id` (ID **numérico** do produto, não o
-  código do link) em `/admin/produtos` — sem ele o webhook responde
-  `produto_nao_encontrado`.
+- **Hotmart:** id do produto `8385058` (gravado pela `0026_hotmart_8385058_para_cisne.sql`).
 - **Página de obrigado:** configure na Hotmart `https://<app>/obrigado/cisne`
   (explica que o reto está no app e entrega o PDF para download).

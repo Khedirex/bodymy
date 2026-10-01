@@ -116,7 +116,7 @@ export function ProductForm({ product }: { product: Product | null }) {
           </div>
           <label className="block text-sm"><span className="text-slate-600">kiwify_product_id</span><input className={inputCls} value={f.kiwify_product_id} onChange={(e) => set('kiwify_product_id', e.target.value)} /></label>
           <label className="block text-sm"><span className="text-slate-600">kiwify_checkout_url</span><input className={inputCls} value={f.kiwify_checkout_url} onChange={(e) => set('kiwify_checkout_url', e.target.value)} placeholder="https://pay.kiwify.com.br/..." /></label>
-          <label className="block text-sm"><span className="text-slate-600">hotmart_product_id</span><input className={inputCls} value={f.hotmart_product_id} onChange={(e) => set('hotmart_product_id', e.target.value)} placeholder="ej.: 8385058" /></label>
+          <label className="block text-sm"><span className="text-slate-600">hotmart_product_id</span><input className={inputCls} value={f.hotmart_product_id} onChange={(e) => set('hotmart_product_id', e.target.value)} placeholder="ej.: 1234567" /></label>
           <p className="text-xs text-slate-500">Hotmart: es el <strong>ID numérico del producto</strong> (campo <code>data.product.id</code> del webhook), no el código del enlace <code>pay.hotmart.com/…</code>. El enlace de Hotmart va en kiwify_checkout_url.</p>
         </fieldset>
 

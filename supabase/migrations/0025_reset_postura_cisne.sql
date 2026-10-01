@@ -15,8 +15,8 @@
 --      canônico (aparece com cadeado em "Para ti" / Descubre).
 --
 -- Hotmart: o webhook casa o produto pelo ID NUMÉRICO (data.product.id),
--- que NÃO é o código do link pay.hotmart.com/C107702699A. Preencha
--- hotmart_product_id no /admin/produtos (ou no UPDATE comentado no fim).
+-- que NÃO é o código do link pay.hotmart.com/C107702699A. O id (8385058)
+-- é gravado na 0026.
 --
 -- Sem ON CONFLICT (produção já teve uniques ausentes → erro 42P10):
 -- UPDATE + INSERT-se-não-existe. Idempotente.
@@ -123,13 +123,9 @@ select origem.id, cisne.id, 5, true
    );
 
 -- ---------------------------------------------------------------------
--- 5) Hotmart — preencha com o ID numérico do produto (Hotmart → Produtos
---    → o produto → "ID"), e descomente. Sem isso, a compra chega no
---    webhook e responde produto_nao_encontrado (com o id na resposta).
+-- 5) Hotmart — o id do produto (8385058) é gravado pela 0026, que
+--    também o retira do Pilates Hormonal.
 -- ---------------------------------------------------------------------
--- update public.products
---    set hotmart_product_id = '0000000'
---  where slug = 'reset-postura-cisne';
 
 notify pgrst, 'reload schema';
 
