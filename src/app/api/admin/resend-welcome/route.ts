@@ -3,6 +3,7 @@ import { adminApiGuard, adminLog } from '@/lib/admin'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendWelcomeEmail } from '@/lib/email'
 import { env } from '@/lib/env'
+import { CISNE_PRODUCT_SLUG } from '@/lib/cisne'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -28,11 +29,16 @@ export async function POST(request: NextRequest) {
   let programaNome = 'tu programa'
   const { data: ents } = await admin
     .from('entitlements')
-    .select('product:products(id, nome)')
+    .select('product:products(id, slug, nome)')
     .eq('user_id', alunaId)
     .eq('status', 'ativo')
-  const prodId = (ents?.[0]?.product as unknown as { id?: string })?.id
-  if (prodId) {
+  const prods = (ents ?? []).map((e) => e.product as unknown as { id?: string; slug?: string; nome?: string })
+  // Quem tem o Reset Postura de Cisne recebe a versão com o PDF.
+  const cisne = prods.find((p) => p?.slug === CISNE_PRODUCT_SLUG)
+  const prodId = cisne?.id ?? prods[0]?.id
+  if (cisne?.nome) {
+    programaNome = cisne.nome
+  } else if (prodId) {
     const { data: prog } = await admin
       .from('programs')
       .select('nome')
@@ -58,6 +64,7 @@ export async function POST(request: NextRequest) {
     nome: (profile?.nome as string) ?? null,
     programaNome,
     magicLink: linkData.properties.action_link,
+    produtoSlug: cisne ? CISNE_PRODUCT_SLUG : undefined,
   })
 
   await adminLog({

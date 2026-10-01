@@ -1,7 +1,9 @@
 import 'server-only'
 import { Resend } from 'resend'
 import { serverEnv } from '@/lib/env'
-import { welcomeHtml } from '@/lib/email-templates'
+import { welcomeHtml, type GuiaEmail } from '@/lib/email-templates'
+import { env } from '@/lib/env'
+import { CISNE_PRODUCT_SLUG, CISNE_GUIA_PDF } from '@/lib/cisne'
 
 // Remetente de TESTE do Resend: funciona SEM verificar domínio, mas só
 // entrega para o e-mail dono da conta Resend. Usado como fallback em dev
@@ -107,20 +109,36 @@ export function dicaResend(status: number | undefined, message: string | undefin
   return null
 }
 
+// Conteúdo extra do e-mail por produto (hoje só o Reset Postura de Cisne,
+// que entrega o PDF junto com o acesso ao app).
+function guiaDoProduto(produtoSlug: string | undefined): GuiaEmail | undefined {
+  if (produtoSlug !== CISNE_PRODUCT_SLUG) return undefined
+  return {
+    pdfUrl: `${env.appUrl}${CISNE_GUIA_PDF}`,
+    itens: [
+      'Cada día, tus <strong>4 movimientos</strong> en orden — 10 minutos, acostada en tu cama',
+      'Dibujo, paso a paso, lo correcto, qué evitar y la opción <strong>“Más fácil”</strong>',
+      'Al entrar, tócalo en <strong>Inicio → “Hoy”</strong> (o en la pestaña “Tu plan”)',
+    ],
+  }
+}
+
 // E-mail transacional de boas-vindas com o link mágico de acesso.
 export async function sendWelcomeEmail(params: {
   to: string
   nome: string | null
   programaNome: string
   magicLink: string
+  produtoSlug?: string
 }): Promise<EnvioResultado> {
-  const { to, nome, programaNome, magicLink } = params
+  const { to, nome, programaNome, magicLink, produtoSlug } = params
   const primeiroNome = (nome ?? '').split(' ')[0] || ''
+  const guia = guiaDoProduto(produtoSlug)
   return enviar({
     contexto: 'boas-vindas',
     to,
-    subject: 'Tu acceso a BodyMy ya está listo 🤍',
-    html: welcomeHtml({ primeiroNome, programaNome, magicLink }),
+    subject: guia ? `Tu acceso a ${programaNome} ya está listo 🦢` : 'Tu acceso a BodyMy ya está listo 🤍',
+    html: welcomeHtml({ primeiroNome, programaNome, magicLink, guia }),
   })
 }
 
