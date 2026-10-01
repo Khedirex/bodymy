@@ -29,17 +29,33 @@ function botao(magicLink: string, label = 'ACCEDER A MI PROGRAMA'): string {
   </div>`
 }
 
+// Bloco extra de um produto com guia em PDF (ex.: Reset Postura de Cisne):
+// o reto vive no app; o PDF é o resumo prático para baixar.
+export interface GuiaEmail {
+  pdfUrl: string // URL absoluta do PDF
+  itens: string[] // o que ela encontra no app
+}
+
 // E-mail de BOAS-VINDAS (primeiro acesso). Acolhedor, linguagem simples,
 // sem jargão fitness. Público: mulheres 35–55.
 export function welcomeHtml({
   primeiroNome,
   programaNome,
   magicLink,
+  guia,
 }: {
   primeiroNome: string
   programaNome: string
   magicLink: string
+  guia?: GuiaEmail
 }): string {
+  const encontrar = guia
+    ? guia.itens
+    : [
+        'Una guía del día, cortita y fácil de seguir',
+        'Sugerencias de menú para apoyar tu alimentación',
+        'Tu progreso registrado, para que veas cuánto avanzaste',
+      ]
   return shell(`
     <div style="text-align:center;margin-bottom:24px;">
       <div style="display:inline-block;width:56px;height:56px;line-height:56px;border-radius:16px;background:${CORAL};color:#fff;font-size:26px;">🤍</div>
@@ -51,16 +67,33 @@ export function welcomeHtml({
         Tu acceso a <strong>${programaNome}</strong> ya está activo. Todo está pensado para caber en
         tu rutina — a tu tiempo, sin prisa y sin complicaciones.
       </p>
-      <p style="font-size:16px;line-height:1.5;margin:0 0 8px;"><strong>Lo que vas a encontrar:</strong></p>
+      <p style="font-size:16px;line-height:1.5;margin:0 0 8px;"><strong>${
+        guia ? 'Tu reto completo está en la app:' : 'Lo que vas a encontrar:'
+      }</strong></p>
       <ul style="font-size:16px;line-height:1.6;margin:0 0 16px;padding-left:20px;color:${INK};">
-        <li>Una guía del día, cortita y fácil de seguir</li>
-        <li>Sugerencias de menú para apoyar tu alimentación</li>
-        <li>Tu progreso registrado, para que veas cuánto avanzaste</li>
+        ${encontrar.map((i) => `<li>${i}</li>`).join('\n        ')}
       </ul>
       <p style="font-size:16px;line-height:1.5;margin:0 0 4px;">
         Para entrar por primera vez solo toca el botón de abajo — <strong>sin contraseña</strong>:
       </p>
       ${botao(magicLink)}
+      ${
+        guia
+          ? `<div style="border:2px solid #F2B7A1;border-radius:14px;padding:16px;margin:0 0 12px;">
+        <p style="font-size:16px;line-height:1.5;margin:0 0 6px;"><strong>📄 Tu guía práctico en PDF</strong></p>
+        <p style="font-size:14px;line-height:1.6;margin:0 0 12px;color:#6b625b;">
+          Además, aquí tienes el <strong>guía práctico resumido</strong>: los ejercicios ilustrados, paso a
+          paso, para tener a mano o imprimir. <strong>Tu reto día a día lo sigues en la app</strong> (ahí está
+          el orden de cada día y tu avance) — el PDF es tu apoyo.
+        </p>
+        <div style="text-align:center;">
+          <a href="${guia.pdfUrl}" style="display:inline-block;background:#fff;color:#C85A38;border:2px solid #F2B7A1;text-decoration:none;font-weight:bold;font-size:15px;padding:12px 22px;border-radius:14px;">
+            ⬇️ Descargar el guía (PDF)
+          </a>
+        </div>
+      </div>`
+          : ''
+      }
       <div style="background:${CREAM};border-radius:14px;padding:14px 16px;margin-top:8px;">
         <p style="font-size:14px;line-height:1.6;margin:0 0 8px;color:#6b625b;">
           📲 <strong>Consejo:</strong> después de entrar, agrega BodyMy a la pantalla de tu celular

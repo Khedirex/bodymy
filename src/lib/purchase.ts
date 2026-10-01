@@ -28,7 +28,7 @@ export async function processPurchaseEvent(
   }
   const { data: products, error: prodErr } = await admin
     .from('products')
-    .select('id, nome, kiwify_product_id')
+    .select('id, slug, nome, kiwify_product_id')
     .or(`kiwify_product_id.eq.${event.productId},hotmart_product_id.eq.${event.productId}`)
 
   if (prodErr) throw prodErr
@@ -87,6 +87,7 @@ export async function processPurchaseEvent(
         nome: event.nome,
         programaNome: product.nome,
         magicLink,
+        produtoSlug: product.slug,
       })
       if (!envio.ok) {
         // E-mail não saiu, mas o acesso já foi concedido. Logamos o motivo
