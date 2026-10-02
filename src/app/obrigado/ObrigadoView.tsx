@@ -68,6 +68,19 @@ export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) 
   const podeEntrar = status !== 'verificando'
   const loginHref = email ? `/login?email=${encodeURIComponent(email)}` : '/login'
 
+  const botaoEntrar = (label: string) => (
+    <Link
+      href={loginHref}
+      aria-disabled={!podeEntrar}
+      tabIndex={podeEntrar ? undefined : -1}
+      className={`flex min-h-[52px] w-full items-center justify-center rounded-2xl px-5 text-lg font-extrabold text-white transition ${
+        podeEntrar ? 'bg-coral-400' : 'pointer-events-none bg-coral-400/50'
+      }`}
+    >
+      {podeEntrar ? label : 'Liberando acceso…'}
+    </Link>
+  )
+
   return (
     <div className="mx-auto max-w-md px-5 py-8 text-[17px] leading-relaxed">
       {/* Topo — confirmação */}
@@ -81,6 +94,25 @@ export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) 
           es rapidísimo para entrar. 🤍
         </p>
       </header>
+
+      {guia ? (
+        <>
+        {/* 1ª linha — o PDF, disponível na hora */}
+          <StepCard numero={1} titulo="Tu guía práctica en PDF">
+            <p className="mb-3 text-ink-700">
+              Descárgala ahora: el <strong>guía práctico resumido</strong> con los ejercicios ilustrados, paso
+              a paso, para tener a mano, imprimir o consultar sin internet.
+            </p>
+            <a
+              href={guia.url}
+              download={guia.arquivo}
+              className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-coral-400 px-5 text-lg font-extrabold text-white"
+            >
+              <span aria-hidden>⬇️</span> Descargar el guía (PDF)
+            </a>
+          </StepCard>
+        </>
+      ) : null}
 
       {/* Estado de liberação do acesso */}
       <section className="mt-6" aria-live="polite">
@@ -116,58 +148,35 @@ export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) 
         ) : null}
       </section>
 
-      {/* Passo 1 — Como entrar */}
-      <StepCard numero={1} titulo="Entra a BodyMy">
-        <p className="mb-3 text-ink-700">
-          <strong>No necesitas crear contraseña</strong>. Toca el botón, escribe tu correo y te enviamos un
-          código de 6 números. Solo escribes el código en el app y listo.
-        </p>
-        <Link
-          href={loginHref}
-          aria-disabled={!podeEntrar}
-          tabIndex={podeEntrar ? undefined : -1}
-          className={`flex min-h-[52px] w-full items-center justify-center rounded-2xl px-5 text-lg font-extrabold text-white transition ${
-            podeEntrar ? 'bg-coral-400' : 'pointer-events-none bg-coral-400/50'
-          }`}
-        >
-          {podeEntrar ? 'Entrar a BodyMy →' : 'Liberando acceso…'}
-        </Link>
-      </StepCard>
-
       {guia ? (
         <>
-          {/* Passo 2 — Onde está o reto (no app) */}
-          <StepCard numero={2} titulo="Tu reto completo está en el app">
-            <p className="text-ink-700">
-              <strong>{guia.titulo}</strong> vive dentro de BodyMy. {guia.ondeNoApp}
-            </p>
-            <ul className="mt-3 space-y-1.5 text-ink-700">
-              <li>✓ Cada día te muestra tus <strong>4 movimientos</strong>, en orden.</li>
-              <li>✓ Dibujo, paso a paso, lo correcto, qué evitar y la opción <strong>“Más fácil”</strong>.</li>
-              <li>✓ Marcas cada movimiento, anotas cómo quedó tu cuello y el app guarda tu avance.</li>
-            </ul>
-          </StepCard>
-
-          {/* Passo 3 — PDF (resumo prático) */}
-          <StepCard numero={3} titulo="Tu guía práctica en PDF">
+          {/* 2ª linha — acessar o plano no app */}
+          <StepCard numero={2} titulo="Accede a tu plan en el app">
             <p className="mb-3 text-ink-700">
-              Además, aquí tienes el <strong>guía práctico resumido</strong>: los ejercicios ilustrados, paso
-              a paso, para tener a mano, imprimir o consultar sin internet. <strong>Tu reto día a día lo
-              sigues en el app</strong> (ahí está el orden de cada día y tu avance) — el PDF es tu apoyo.
+              <strong>Tu reto día a día lo sigues en el app</strong>: cada día te muestra tus{' '}
+              <strong>4 movimientos</strong> en orden, con dibujo y paso a paso, y guarda tu avance.{' '}
+              {guia.ondeNoApp}
             </p>
-            <a
-              href={guia.url}
-              download={guia.arquivo}
-              className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-coral-200 bg-white px-5 text-lg font-extrabold text-coral-600"
-            >
-              <span aria-hidden>⬇️</span> Descargar el guía (PDF)
-            </a>
+            {botaoEntrar('Acceder a mi plan →')}
+            <p className="mt-3 text-sm text-ink-700">
+              <strong>No necesitas crear contraseña</strong>: escribe tu correo y te enviamos un código de 6
+              números.
+            </p>
           </StepCard>
         </>
-      ) : null}
+      ) : (
+        /* Passo 1 — Como entrar */
+        <StepCard numero={1} titulo="Entra a BodyMy">
+          <p className="mb-3 text-ink-700">
+            <strong>No necesitas crear contraseña</strong>. Toca el botón, escribe tu correo y te enviamos un
+            código de 6 números. Solo escribes el código en el app y listo.
+          </p>
+          {botaoEntrar('Entrar a BodyMy →')}
+        </StepCard>
+      )}
 
       {/* Se o e-mail demorar */}
-      <StepCard numero={guia ? 4 : 2} titulo="Si el correo del código tarda">
+      <StepCard numero={guia ? 3 : 2} titulo="Si el correo del código tarda">
         <p className="text-ink-700">
           El correo con tu código puede tardar unos minutos. Si no aparece, revisa la carpeta de{' '}
           <strong>spam</strong> o <strong>promociones</strong> — y márcalo como <strong>&ldquo;no es spam&rdquo;</strong>{' '}

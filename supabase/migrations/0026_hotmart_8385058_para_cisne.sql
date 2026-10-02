@@ -1,38 +1,10 @@
 -- =====================================================================
--- 0026_hotmart_8385058_para_cisne.sql
--- BodyMy — O produto 8385058 da Hotmart passa a ser o
--- "Reset Postura de Cisne — Reto 14 días".
+-- 0026_hotmart_8385058_para_cisne.sql — ANULADA (no-op).
 --
--- Até aqui (0015) esse id liberava o Pilates Hormonal. A partir desta
--- migration, uma compra 8385058 na Hotmart libera SÓ o Reset Postura de
--- Cisne (e o reembolso revoga só ele).
---
---   • pilates-hormonal: perde o vínculo com a Hotmart. Continua existindo
---     e vendável pela Kiwify (kiwify_product_id intacto).
---   • Quem já comprou Pilates Hormonal pela Hotmart MANTÉM o acesso: os
---     entitlements existentes não são tocados.
---
--- Ordem importa: primeiro solta o id do Pilates, depois grava no Cisne —
--- nunca existem dois produtos com o mesmo hotmart_product_id.
--- Idempotente.
+-- Ela movia o id Hotmart 8385058 para o Reset Postura de Cisne, mas esse
+-- id é o do produto PRINCIPAL na Hotmart ("Protocolo Regeneración Articular
+-- - Reto de 14 Días"). Enquanto esteve aplicada, quem comprou o protocolo
+-- recebeu o Cisne no lugar dele. Revertida pela 0027.
+-- Mantida só para a numeração não quebrar. Não faz nada.
 -- =====================================================================
-
-update public.products
-   set hotmart_product_id = null
- where hotmart_product_id = '8385058'
-   and slug <> 'reset-postura-cisne';
-
-update public.products
-   set hotmart_product_id = '8385058'
- where slug = 'reset-postura-cisne'
-   and hotmart_product_id is distinct from '8385058';
-
-notify pgrst, 'reload schema';
-
--- ---------------------------------------------------------------------
--- VERIFICAÇÃO — esperado: UMA linha, reset-postura-cisne.
--- (Se vier vazio, a 0025 ainda não foi aplicada: rode-a e repita esta.)
--- ---------------------------------------------------------------------
-select slug, nome, hotmart_product_id
-  from public.products
- where hotmart_product_id = '8385058';
+select 'no-op: ver 0027_reverte_hotmart_8385058.sql' as aviso;
