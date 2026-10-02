@@ -77,8 +77,14 @@ export function resolveAppUrl(): string {
   return raw || 'http://localhost:3000'
 }
 
-// Valida o formato do RESEND_FROM. Aceita vazio (usa remetente de teste)
-// ou "Nome <email@dominio>".
+// Valida o formato do RESEND_FROM. Aceita vazio (usa remetente de teste),
+// "Nome <email@dominio>" ou o endereço puro — este último é NORMALIZADO.
+//
+// O endereço puro já custou caro: com RESEND_FROM="no-reply@bodymy.online" o
+// app recusava o valor, caía no onboarding@resend.dev e o Resend barrava com
+// 403 todo destinatário que não fosse o dono da conta. Resultado: meses de
+// compras aprovadas sem nenhum e-mail de acesso, falhando em silêncio. Um
+// domínio verificado com o nome faltando não é motivo para não enviar.
 export function validateResendFrom(raw: string | undefined): {
   value: string
   valid: boolean
@@ -88,12 +94,16 @@ export function validateResendFrom(raw: string | undefined): {
   if (!v) return { value: '', valid: true }
   const ok = /^[^<>]+<[^<>@\s]+@[^<>@\s]+\.[^<>@\s]+>$/.test(v)
   if (ok) return { value: v, valid: true }
+  if (/^[^<>@\s]+@[^<>@\s]+\.[^<>@\s]+$/.test(v)) {
+    return { value: `BodyMy <${v}>`, valid: true }
+  }
   return {
     value: v,
     valid: false,
     error:
       `RESEND_FROM inválido: "${v}". Esperado: Nome <email@dominio> ` +
-      `(ex.: BodyMy <ola@seudominio.com>), ou vazio para usar o remetente de teste.`,
+      `(ex.: BodyMy <ola@seudominio.com>), o endereço puro, ou vazio para ` +
+      `usar o remetente de teste.`,
   }
 }
 

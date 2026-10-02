@@ -35,17 +35,22 @@ export function validateOriginUrl(url, nome, exemplo) {
   return null
 }
 
+// Mesma regra de src/lib/env.ts: o endereço puro é normalizado, não recusado.
 export function validateResendFrom(raw) {
   const v = clean(raw)
   if (!v) return { value: '', valid: true }
   const ok = /^[^<>]+<[^<>@\s]+@[^<>@\s]+\.[^<>@\s]+>$/.test(v)
   if (ok) return { value: v, valid: true }
+  if (/^[^<>@\s]+@[^<>@\s]+\.[^<>@\s]+$/.test(v)) {
+    return { value: `BodyMy <${v}>`, valid: true }
+  }
   return {
     value: v,
     valid: false,
     error:
       `RESEND_FROM inválido: "${v}". Esperado: Nome <email@dominio> ` +
-      `(ex.: BodyMy <ola@seudominio.com>), ou vazio para usar o remetente de teste.`,
+      `(ex.: BodyMy <ola@seudominio.com>), o endereço puro, ou vazio para ` +
+      `usar o remetente de teste.`,
   }
 }
 
