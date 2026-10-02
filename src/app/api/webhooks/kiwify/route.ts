@@ -79,6 +79,19 @@ export async function POST(request: NextRequest) {
     // eslint-disable-next-line no-console
     console.log('[webhook:kiwify] resultado', { status: result.status, detail: result.detail })
 
+    // Produto não mapeado = COMPRA PERDIDA. Ver a nota no webhook da Hotmart:
+    // 200 aqui faz a plataforma parar de reenviar e a venda some.
+    if (result.status === 'produto_nao_encontrado') {
+      captureException(
+        new Error(`[webhook:kiwify] produto não mapeado: ${result.detail}`),
+        { webhook: 'kiwify', eventId: event.eventId, email: event.email },
+      )
+      return NextResponse.json(
+        { error: 'produto_nao_encontrado', detail: result.detail },
+        { status: 500 },
+      )
+    }
+
     await admin
       .from('webhook_events')
       .update({ processed: true })

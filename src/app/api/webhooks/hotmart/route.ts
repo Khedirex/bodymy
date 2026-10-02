@@ -66,6 +66,22 @@ export async function POST(request: NextRequest) {
     // eslint-disable-next-line no-console
     console.log('[webhook:hotmart] resultado', { status: result.status, detail: result.detail })
 
+    // Produto não mapeado = COMPRA PERDIDA. Marcar como processado aqui
+    // enterrava a venda em silêncio: a Hotmart recebia 200, não reenviava, e
+    // a aluna pagava sem nunca receber acesso. Devolvendo 500 e deixando o
+    // evento aberto, a Hotmart reenvia sozinha assim que o hotmart_product_id
+    // for preenchido no produto.
+    if (result.status === 'produto_nao_encontrado') {
+      captureException(
+        new Error(`[webhook:hotmart] produto não mapeado: ${result.detail}`),
+        { webhook: 'hotmart', eventId: event.eventId, email: event.email },
+      )
+      return NextResponse.json(
+        { error: 'produto_nao_encontrado', detail: result.detail },
+        { status: 500 },
+      )
+    }
+
     await admin
       .from('webhook_events')
       .update({ processed: true })
