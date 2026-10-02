@@ -6,8 +6,9 @@ import '@fontsource/nunito/latin-800.css'
 import './index.css'
 import { copy } from './data/copy.es'
 import { Ancla, Ilustracion } from './components/ui'
+import { asset } from './data/asset'
 
-const PDF = '/guia/ritual-noche-perfecta-14-noches.pdf'
+const PDF = asset('/guia/ritual-noche-perfecta-14-noches.pdf')
 
 // Página de obrigado (pós-compra Hotmart): 1ª linha o PDF, 2ª linha o plano.
 function Gracias() {
@@ -42,7 +43,7 @@ function Gracias() {
         </h2>
         <p className="mt-3 text-lg text-crema-soft">{g.planTexto}</p>
         <a
-          href="/"
+          href={asset('/')}
           className="mt-4 flex min-h-14 w-full items-center justify-center rounded-2xl border-2 border-ambar bg-noche-900 px-5 text-xl font-bold text-crema focus:outline-none focus-visible:ring-4 focus-visible:ring-crema"
         >
           🌙 {g.planBoton} →

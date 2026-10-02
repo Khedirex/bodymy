@@ -1,4 +1,5 @@
 import { copy } from '../data/copy.es'
+import { asset } from '../data/asset'
 
 export const PRESET_ITEMS = [
   { key: 'celular', icono: 'preset-celular' },
@@ -38,7 +39,7 @@ export function Checklist({
                 onChange={() => onToggle(key)}
                 className="h-7 w-7 shrink-0 accent-[#f5c86a]"
               />
-              <img src={`/illustrations/${icono}.webp`} alt="" className="h-12 w-12 shrink-0 object-contain" />
+              <img src={asset(`/illustrations/${icono}.webp`)} alt="" className="h-12 w-12 shrink-0 object-contain" />
               <span className="text-lg text-crema">{copy.preset.items[key]}</span>
             </label>
             {key === 'frase' ? (

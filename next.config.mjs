@@ -23,6 +23,14 @@ const nextConfig = {
     ]
     return config
   },
+  // Ritual Noche Perfecta: app estático (Vite) gerado em public/ritual pelo
+  // script `npm run build:bodymy` de noche-perfecta/.
+  async rewrites() {
+    return [
+      { source: '/ritual', destination: '/ritual/index.html' },
+      { source: '/ritual/gracias', destination: '/ritual/gracias.html' },
+    ]
+  },
   async redirects() {
     // Slug do programa mudou (ritual-do-tapetinho → drenagem-tailandesa).
     // Redireciona links antigos já compartilhados para não quebrar.
@@ -64,6 +72,14 @@ const nextConfig = {
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
           { key: 'Service-Worker-Allowed', value: '/' },
+        ],
+      },
+      {
+        source: '/ritual/sw.js',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          // Escopo "/ritual" (sem barra), que é a URL que o Next serve.
+          { key: 'Service-Worker-Allowed', value: '/ritual' },
         ],
       },
     ]

@@ -1,3 +1,4 @@
+import { asset } from './asset'
 // =====================================================================
 // Ritual Noche Perfecta — TODOS los textos de la interfaz (español neutro).
 // Ningún componente escribe texto propio: todo sale de aquí.
@@ -250,12 +251,12 @@ export const copy = {
   errores: {
     titulo: 'Errores comunes',
     items: [
-      { t: 'Escuchar en el sofá.', d: 'Escucha siempre en tu cama.', icono: '/illustrations/error-sofa.webp' },
-      { t: 'Escuchar con la luz encendida.', d: 'Apaga la luz principal antes de dar play.', icono: '/illustrations/error-luz.webp' },
-      { t: 'Saltar un audio.', d: 'Cada audio prepara el siguiente.', icono: '/illustrations/error-saltar.webp' },
-      { t: 'Cambiar el orden.', d: 'La secuencia es lo que reprograma tu sueño.', icono: '/illustrations/error-orden.webp' },
-      { t: 'Cambiar la hora cada noche.', d: 'Respeta tu hora fija y su ventana de 30 minutos.', icono: '/illustrations/error-hora.webp' },
-      { t: 'Parar en la noche 7.', d: 'Sin la Fijación, el cerebro vuelve al patrón anterior.', icono: '/illustrations/error-parar.webp' },
+      { t: 'Escuchar en el sofá.', d: 'Escucha siempre en tu cama.', icono: asset('/illustrations/error-sofa.webp') },
+      { t: 'Escuchar con la luz encendida.', d: 'Apaga la luz principal antes de dar play.', icono: asset('/illustrations/error-luz.webp') },
+      { t: 'Saltar un audio.', d: 'Cada audio prepara el siguiente.', icono: asset('/illustrations/error-saltar.webp') },
+      { t: 'Cambiar el orden.', d: 'La secuencia es lo que reprograma tu sueño.', icono: asset('/illustrations/error-orden.webp') },
+      { t: 'Cambiar la hora cada noche.', d: 'Respeta tu hora fija y su ventana de 30 minutos.', icono: asset('/illustrations/error-hora.webp') },
+      { t: 'Parar en la noche 7.', d: 'Sin la Fijación, el cerebro vuelve al patrón anterior.', icono: asset('/illustrations/error-parar.webp') },
     ],
   },
 

@@ -52,14 +52,25 @@ barra con botones para avanzar 12/24 h, completar noches (durmió / no durmió),
 guardar bitácoras rápidas (buena o mala) y reiniciar — para probar las 14
 noches, el mantenimiento y la recaída en minutos.
 
-## Deploy (Vercel)
+## Publicación (dentro del BodyMy)
 
-1. En Vercel: **Add New → Project** e importa el repositorio `Khedirex/bodymy`.
-2. En **Root Directory** elige `noche-perfecta`.
-3. Framework: **Vite** (Build `npm run build`, Output `dist`). Deploy.
-4. Tendrás una URL tipo `https://ritual-noche-perfecta.vercel.app`.
+La app se publica **dentro del proyecto BodyMy**, en el mismo dominio:
 
-(Netlify: base directory `noche-perfecta`, build `npm run build`, publish `dist`.)
+- App: `https://app.bodymy.com.br/ritual`
+- Página de gracias (Hotmart): `https://app.bodymy.com.br/ritual/gracias`
+
+Después de cualquier cambio en `noche-perfecta/`, genera el build estático
+dentro del BodyMy y haz commit de `public/ritual/`:
+
+```bash
+cd noche-perfecta
+npm run build:bodymy   # escribe en ../public/ritual
+```
+
+El BodyMy sirve `/ritual` y `/ritual/gracias` (rewrites en `next.config.mjs`)
+sin login (excluido en `src/middleware.ts`).
+
+(Para un dominio propio en el futuro: `npm run build` genera `dist/` con base `/`.)
 
 ## Dentro de la Hotmart
 
@@ -73,7 +84,7 @@ iPhone el audio con pantalla bloqueada y el modo sin internet son menos
 confiables dentro de un iframe, y no se puede instalar en la pantalla de inicio.
 
 ```html
-<iframe src="https://TU-URL" style="width:100%;height:800px;border:0" allow="autoplay"></iframe>
+<iframe src="https://app.bodymy.com.br/ritual" style="width:100%;height:800px;border:0" allow="autoplay"></iframe>
 ```
 
 ## Pendiente de validar en celular real

@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { copy } from '../data/copy.es'
 import { go, type Route } from '../state/router'
+import { asset } from '../data/asset'
 
 // Peças visuais compartilhadas. Alvos de toque ≥ 56 px, texto ≥ 16 px.
 
@@ -30,7 +31,7 @@ export function Card({ children, className = '' }: { children: ReactNode; classN
 export function Ilustracion({ name, size = 120, className = '' }: { name: string; size?: number; className?: string }) {
   return (
     <img
-      src={`/illustrations/${name}.webp`}
+      src={asset(`/illustrations/${name}.webp`)}
       alt=""
       width={size}
       height={size}

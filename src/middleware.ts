@@ -116,8 +116,9 @@ export const config = {
   // Roda em tudo, exceto: rotas de API (fazem a própria auth — o webhook
   // precisa ser público e as demais retornam 401 por conta própria),
   // assets estáticos, imagens (inclui /guias: ilustrações e o PDF entregue
-  // na página pública de obrigado), manifest e o service worker.
+  // na página pública de obrigado), o app estático /ritual (Ritual Noche
+  // Perfecta, sem login), manifest e o service worker.
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|icons|guias|manifest.json|sw.js|apple-touch-icon.png).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|icons|guias|ritual|manifest.json|sw.js|apple-touch-icon.png).*)',
   ],
 }

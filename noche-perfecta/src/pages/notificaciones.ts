@@ -1,4 +1,5 @@
 import { copy } from '../data/copy.es'
+import { asset } from '../data/asset'
 
 // Notificação local da Bitácora. Sem servidor de push: o aviso é mostrado
 // quando o app é aberto (ou volta ao primeiro plano) de manhã com a
@@ -22,7 +23,7 @@ export async function avisarBitacora(hoy: string) {
     const reg = await navigator.serviceWorker.ready
     await reg.showNotification(copy.notificacion.titulo, {
       body: copy.notificacion.cuerpo,
-      icon: '/icons/icon-192.png',
+      icon: asset('/icons/icon-192.png'),
       tag: 'rnp-bitacora',
     })
     localStorage.setItem(LAST_KEY, hoy)

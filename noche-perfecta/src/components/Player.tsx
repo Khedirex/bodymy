@@ -3,6 +3,7 @@ import { copy } from '../data/copy.es'
 import type { AudioMeta } from '../data/audios'
 import { countsAsComplete } from '../protocol/protocol'
 import { ensureCached, getAudio, isLoaded, load, ramp } from './audioEngine'
+import { asset } from '../data/asset'
 
 const FADE_IN_MS = 3000
 const FADE_OUT_MS = 5000
@@ -122,8 +123,8 @@ export function Player({ audio, plays, allowLoop, rescue, onFinish }: Props) {
       title: `${audio.code} · ${audio.nombre}`,
       artist: copy.marca,
       artwork: [
-        { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-        { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+        { src: asset('/icons/icon-192.png'), sizes: '192x192', type: 'image/png' },
+        { src: asset('/icons/icon-512.png'), sizes: '512x512', type: 'image/png' },
       ],
     })
     navigator.mediaSession.setActionHandler('play', () => void toggle(true))
