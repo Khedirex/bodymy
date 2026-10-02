@@ -2,11 +2,11 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
 import { getCheckinDates, getEsteira } from '@/lib/queries'
-import { getModulosDaAluna, escolherPrincipal } from '@/lib/modulos'
+import { getModulosDaAluna, type ModuloDaAluna } from '@/lib/modulos'
 import { calcularStreak } from '@/lib/streak'
 import { todayISO, addDaysISO } from '@/lib/dates'
-import { HomeDash, type DiaSemana } from '@/components/home/HomeDash'
-import { ModuloDestaque, CarrosselModulos } from '@/components/home/ModuloCard'
+import { DashGeneral, type DiaSemana } from '@/components/home/DashGeneral'
+import { CarrosselDashes, type DashModulo } from '@/components/home/CarrosselDashes'
 import { LockedProductCard } from '@/components/LockedProductCard'
 import { InstallBanner } from '@/components/pwa/InstallBanner'
 import { EmptyState } from '@/components/ui/states'
@@ -17,7 +17,35 @@ export const dynamic = 'force-dynamic'
 // Quantos produtos da esteira mostrar no resumo da Home.
 const ESTEIRA_RESUMO = 4
 
-// A Home é o PAINEL DA ROTINA. Ela não conhece produto por nome: lê o
+// Ordem do carrossel: primeiro o que ainda tem algo para hoje, depois o que
+// já está feito, e por último o que ela terminou. Assim o primeiro painel é
+// sempre o que ela precisa abrir agora — sem precisar deslizar.
+function prioridade({ estado }: ModuloDaAluna): number {
+  if (!estado) return 0
+  if (estado.terminado) return 2
+  if (estado.feitoHoje) return 1
+  return 0
+}
+
+// Converte o módulo do registro no formato chapado que o carrossel (cliente)
+// consegue receber — funções não cruzam a fronteira servidor/cliente.
+function paraDash({ modulo, estado }: ModuloDaAluna): DashModulo {
+  return {
+    slug: modulo.slug,
+    nome: modulo.nome,
+    resumo: modulo.resumo,
+    href: modulo.href,
+    emoji: modulo.emoji,
+    concluidos: estado?.concluidos ?? 0,
+    total: estado?.total ?? 0,
+    feitoHoje: estado?.feitoHoje ?? false,
+    terminado: estado?.terminado ?? false,
+    chamadaHoje: estado?.chamadaHoje ?? null,
+  }
+}
+
+// A Home é o PAINEL DA ROTINA: um dash GERAL dela no topo e, abaixo, um dash
+// por produto comprado em carrossel. Ela não conhece produto por nome — lê o
 // registro de módulos (src/lib/modulos.ts) e mostra o que a compra liberou.
 export default async function HomePage() {
   const profile = await getProfile()
@@ -41,9 +69,14 @@ export default async function HomePage() {
   })
   const perdidos = semana.filter((d) => !d.fez && !d.ehHoje).length
 
-  const principal = escolherPrincipal(modulos)
-  // O carrossel só existe a partir do segundo produto.
-  const outros = modulos.filter((m) => m.modulo.slug !== principal?.modulo.slug)
+  // Números do dash geral: a soma das rotinas dela, não de um produto só.
+  const pasosHechos = modulos.reduce((s, m) => s + (m.estado?.concluidos ?? 0), 0)
+  const pasosTotales = modulos.reduce((s, m) => s + (m.estado?.total ?? 0), 0)
+  const pendientesHoy = modulos.filter(
+    (m) => !m.estado || (!m.estado.terminado && !m.estado.feitoHoje),
+  ).length
+
+  const dashes = [...modulos].sort((a, b) => prioridade(a) - prioridade(b)).map(paraDash)
 
   const primeiroNome = (profile.nome ?? '').split(' ')[0] || 'Hola'
   const bloqueados = storefront.filter((s) => !s.liberado)
@@ -57,12 +90,13 @@ export default async function HomePage() {
 
       <InstallBanner />
 
-      {/* Constância — vale para a rotina inteira, não para um produto só. */}
+      {/* Dash geral — vale para a rotina inteira, não para um produto só. */}
       {modulos.length > 0 && (
-        <HomeDash
-          diaDoDesafio={principal?.estado ? principal.estado.concluidos + 1 : null}
-          diasFeitos={principal?.estado?.concluidos ?? 0}
-          totalDias={principal?.estado?.total ?? 0}
+        <DashGeneral
+          totalRutinas={modulos.length}
+          pasosHechos={pasosHechos}
+          pasosTotales={pasosTotales}
+          pendientesHoy={pendientesHoy}
           streakAtual={streak.atual}
           fezHoje={streak.fezHoje}
           semana={semana}
@@ -70,22 +104,19 @@ export default async function HomePage() {
         />
       )}
 
-      {/* Hoje: o módulo principal da compra */}
-      <section>
-        <h2 className="section-title mb-2">Hoy</h2>
-        {principal ? (
-          <ModuloDestaque item={principal} />
-        ) : (
+      {/* Um dash por produto comprado. Com um só, o carrossel não aparece. */}
+      {dashes.length > 0 ? (
+        <CarrosselDashes itens={dashes} />
+      ) : (
+        <section>
+          <h2 className="section-title mb-2">Hoy</h2>
           <EmptyState
             titulo="Tu rutina aparece aquí"
             descricao="En cuanto tu acceso esté activo, lo de hoy aparecerá en este espacio."
             icone={<LockIcon width={28} height={28} />}
           />
-        )}
-      </section>
-
-      {/* A partir do segundo produto, as rotinas dela viram carrossel. */}
-      <CarrosselModulos itens={outros} />
+        </section>
+      )}
 
       {/* O que ela ainda não tem — sempre por último. */}
       {bloqueados.length > 0 && (

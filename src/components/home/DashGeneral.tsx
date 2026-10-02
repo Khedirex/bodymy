@@ -11,12 +11,14 @@ export interface DiaSemana {
 }
 
 interface Props {
-  /** Posição no reto (1..totalDias) — null se ainda não começou. */
-  diaDoDesafio: number | null
-  /** Dias concluídos no reto (para a barra). */
-  diasFeitos: number
-  /** Duração do protocolo em dias — vem do programa, não é fixa. */
-  totalDias: number
+  /** Quantas rotinas ela tem (não o produto, a soma deles). */
+  totalRutinas: number
+  /** Passos concluídos somando TODAS as rotinas dela. */
+  pasosHechos: number
+  /** Passos previstos somando TODAS as rotinas dela. */
+  pasosTotales: number
+  /** Rotinas que ainda têm algo para hoje. */
+  pendientesHoy: number
   streakAtual: number
   fezHoje: boolean
   /** Últimos 7 dias, do mais antigo ao de hoje. */
@@ -25,13 +27,19 @@ interface Props {
   perdidos: number
 }
 
-// Resumo do momento da aluna: onde ela está no protocolo, a constância e o
-// que ficou para trás nos últimos 7 dias. Tudo vem de dados reais
-// (user_training_config + check-ins) — nada estimado.
-export function HomeDash({
-  diaDoDesafio,
-  diasFeitos,
-  totalDias,
+// ---------------------------------------------------------------------
+// DASH GERAL DA ROTINA.
+//
+// Este painel é da ALUNA, não de um produto: ele soma tudo o que ela tem.
+// Antes mostrava "Día X de Y" do protocolo em destaque, o que ficava errado
+// para quem tem duas rotinas — o progresso de cada produto agora vive no
+// carrossel de dashes (um card por compra), logo abaixo.
+// ---------------------------------------------------------------------
+export function DashGeneral({
+  totalRutinas,
+  pasosHechos,
+  pasosTotales,
+  pendientesHoy,
   streakAtual,
   fezHoje,
   semana,
@@ -39,20 +47,29 @@ export function HomeDash({
 }: Props) {
   return (
     <section className="card space-y-4">
-      {/* Linha de topo: onde ela está + constância */}
+      {/* Linha de topo: o tamanho da rotina dela + constância */}
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-ink-700/60">
-            Tu reto
+            Tu rutina
           </p>
           <p className="text-xl font-extrabold text-ink-900">
-            {diaDoDesafio ? `Día ${diaDoDesafio} de ${totalDias}` : 'Aún no empiezas'}
+            {pendientesHoy > 0
+              ? `${pendientesHoy} ${pendientesHoy === 1 ? 'cosa' : 'cosas'} para hoy`
+              : 'Todo hecho por hoy ✓'}
           </p>
+          {totalRutinas > 1 && (
+            <p className="text-sm text-ink-700">
+              {totalRutinas} rutinas activas
+            </p>
+          )}
         </div>
         <StreakBadge dias={streakAtual} />
       </div>
 
-      <ProgressBar atual={diasFeitos} total={totalDias} label="Tu avance" />
+      {pasosTotales > 0 && (
+        <ProgressBar atual={pasosHechos} total={pasosTotales} label="Tu avance total" />
+      )}
 
       {/* Semana: 7 dias, marcados os que tiveram registro */}
       <div>

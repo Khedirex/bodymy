@@ -179,13 +179,3 @@ export const getModulosDaAluna = cache(async (userId: string): Promise<ModuloDaA
 
   return liberados.map((modulo, i) => ({ modulo, estado: estados[i] }))
 })
-
-/** O módulo em destaque na Home: o que ainda tem algo pendente hoje. */
-export function escolherPrincipal(lista: ModuloDaAluna[]): ModuloDaAluna | null {
-  if (lista.length === 0) return null
-  return (
-    lista.find((m) => m.estado && !m.estado.terminado && !m.estado.feitoHoje) ??
-    lista.find((m) => m.estado && !m.estado.terminado) ??
-    lista[0]
-  )
-}
