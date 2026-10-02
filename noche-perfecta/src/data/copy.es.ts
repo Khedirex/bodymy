@@ -288,6 +288,23 @@ export const copy = {
     cuerpo: 'Completa tu Bitácora de anoche: son 30 segundos.',
   },
 
+  gracias: {
+    titulo: '¡Compra confirmada!',
+    texto: 'Qué alegría tenerte aquí. Tu Ritual Noche Perfecta ya está listo.',
+    pdfTitulo: 'Tu protocolo en PDF',
+    pdfTexto:
+      'Descárgalo ahora: el Protocolo de 14 noches con tu preset, tu hora fija, los 7 audios y tu bitácora, para tener a mano o imprimir.',
+    pdfBoton: 'Descargar mi PDF',
+    planTitulo: 'Accede a tu plan',
+    planTexto:
+      'Tu ritual noche a noche lo sigues en la app: te dice qué audio escuchar hoy, lo reproduce con la pantalla apagada y guarda tu avance.',
+    planBoton: 'Acceder a mi plan',
+    instalarTitulo: 'Tenlo siempre a mano',
+    instalarTexto:
+      'Al abrir tu plan, agrégalo a la pantalla de inicio de tu celular (en el menú del navegador: «Agregar a pantalla de inicio»). Así lo abres con un toque cada noche.',
+    guardaLink: 'Guarda también el enlace de esta página: aquí encuentras siempre tu PDF y tu plan.',
+  },
+
   cierre: 'Cada noche que completas le enseña a tu cerebro a descansar de nuevo. Confía en la secuencia.',
 
   debug: {

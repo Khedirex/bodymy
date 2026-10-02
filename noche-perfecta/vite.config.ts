@@ -4,6 +4,12 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      // Duas páginas: o app (/) e a página de obrigado da Hotmart (/gracias).
+      input: { main: 'index.html', gracias: 'gracias.html' },
+    },
+  },
   plugins: [
     react(),
     VitePWA({
@@ -32,7 +38,9 @@ export default defineConfig({
         // Os áudios NÃO entram no precache (são grandes) nem passam pelo
         // service worker: o app guarda cada um no cache depois do primeiro
         // play e, nas próximas vezes, toca o arquivo completo do aparelho.
-        globIgnores: ['audios/**'],
+        globIgnores: ['audios/**', 'guia/**'],
+        // /gracias é uma página própria: o SW não deve trocá-la pelo app.
+        navigateFallbackDenylist: [/^\/gracias/],
       },
     }),
   ],
