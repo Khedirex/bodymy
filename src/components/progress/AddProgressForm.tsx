@@ -106,13 +106,13 @@ export function AddProgressForm() {
       </div>
 
       {/* Foto */}
-      <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-cream-200 bg-cream-50 p-5 text-center">
+      <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-mist-200 bg-mist-50 p-5 text-center">
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="Vista previa" className="h-40 rounded-xl object-cover" />
         ) : (
           <>
-            <CameraIcon width={28} height={28} className="text-coral-300" />
+            <CameraIcon width={28} height={28} className="text-brand-300" />
             <span className="text-sm font-medium text-ink-700">
               Agregar foto (opcional y privada)
             </span>
@@ -156,7 +156,7 @@ export function AddProgressForm() {
       </div>
 
       {/* Peso (opcional, discreto) */}
-      <details className="rounded-2xl bg-cream-50 p-3">
+      <details className="rounded-2xl bg-mist-50 p-3">
         <summary className="cursor-pointer text-sm font-semibold text-ink-700">
           Registrar peso (opcional)
         </summary>
@@ -185,7 +185,7 @@ export function AddProgressForm() {
       </div>
 
       {erro ? (
-        <p className="rounded-2xl bg-coral-50 px-4 py-3 text-sm font-medium text-coral-700">
+        <p className="rounded-2xl bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">
           {erro}
         </p>
       ) : null}

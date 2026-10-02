@@ -33,7 +33,7 @@ export function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="tabbar-safe fixed inset-x-0 bottom-0 z-40 border-t border-cream-200 bg-white/95 backdrop-blur">
+    <nav className="tabbar-safe fixed inset-x-0 bottom-0 z-40 border-t border-mist-200 bg-white/95 backdrop-blur">
       <ul className="mx-auto flex max-w-md items-stretch justify-around px-1">
         {ITEMS.map(({ href, label, Icon, match }) => {
           const active = match(pathname)
@@ -45,11 +45,11 @@ export function BottomNav() {
                 aria-current={active ? 'page' : undefined}
               >
                 <Icon
-                  className={active ? 'text-coral-500' : 'text-ink-700/50'}
+                  className={active ? 'text-brand-500' : 'text-ink-700/50'}
                   width={24}
                   height={24}
                 />
-                <span className={active ? 'text-coral-600' : 'text-ink-700/60'}>
+                <span className={active ? 'text-brand-600' : 'text-ink-700/60'}>
                   {label}
                 </span>
               </Link>

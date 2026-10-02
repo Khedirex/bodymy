@@ -38,7 +38,7 @@ export default async function ProgressoPage() {
       <div className="flex items-center justify-between gap-3 rounded-3xl bg-white p-5 shadow-card">
         <div>
           <p className="text-sm text-ink-700">Racha actual</p>
-          <p className="text-3xl font-extrabold text-coral-600">
+          <p className="text-3xl font-extrabold text-brand-600">
             {streak.atual}
             <span className="ml-1 text-base font-semibold text-ink-700">
               {streak.atual === 1 ? 'día' : 'días'}
@@ -90,7 +90,7 @@ export default async function ProgressoPage() {
                   <p className="font-bold text-ink-900">{formatDataBR(e.data)}</p>
                 </div>
                 {e.fotoUrl ? (
-                  <div className="relative mb-3 h-56 w-full overflow-hidden rounded-2xl bg-cream-100">
+                  <div className="relative mb-3 h-56 w-full overflow-hidden rounded-2xl bg-mist-100">
                     <Image
                       src={e.fotoUrl}
                       alt={`Registro del ${formatDataBR(e.data)}`}

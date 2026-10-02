@@ -137,11 +137,11 @@ export function ProductForm({ product }: { product: Product | null }) {
       {/* Preview /oferta */}
       <div className="lg:sticky lg:top-4 lg:self-start">
         <p className="mb-2 text-xs font-semibold uppercase text-slate-500">Vista previa de la pantalla /oferta</p>
-        <div className="mx-auto max-w-sm rounded-2xl bg-cream-50 p-5 shadow-inner" style={{ colorScheme: 'light' }}>
-          <span className="inline-flex items-center gap-1 rounded-full bg-gold-300/40 px-3 py-1 text-xs font-bold text-gold-500">🔒 Contenido bloqueado</span>
+        <div className="mx-auto max-w-sm rounded-2xl bg-mist-50 p-5 shadow-inner" style={{ colorScheme: 'light' }}>
+          <span className="inline-flex items-center gap-1 rounded-full bg-sun-300/40 px-3 py-1 text-xs font-bold text-sun-700">🔒 Contenido bloqueado</span>
           <h1 className="mt-3 text-2xl font-extrabold leading-tight text-ink-900">{f.headline || f.nome || 'Headline del producto'}</h1>
           {f.subheadline ? <p className="mt-2 text-ink-700">{f.subheadline}</p> : null}
-          <div className="mt-3 flex h-32 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-coral-100 to-cream-100 text-5xl">
+          <div className="mt-3 flex h-32 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-brand-100 to-mist-100 text-5xl">
             {f.imagem_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={f.imagem_url} alt="" className="h-full w-full object-cover" />
@@ -153,7 +153,7 @@ export function ProductForm({ product }: { product: Product | null }) {
             )) : <li className="text-sm text-ink-700/50">Agrega bullets…</li>}
           </ul>
           {f.preco_exibicao ? <p className="mt-3 text-center text-ink-700">por <span className="text-lg font-extrabold text-ink-900">{f.preco_exibicao}</span></p> : null}
-          <div className="mt-2 rounded-2xl bg-coral-400 py-3 text-center text-sm font-bold text-white">{f.cta_label || 'QUIERO ESTE PROGRAMA'}</div>
+          <div className="mt-2 rounded-2xl bg-brand-400 py-3 text-center text-sm font-bold text-white">{f.cta_label || 'QUIERO ESTE PROGRAMA'}</div>
         </div>
       </div>
     </div>

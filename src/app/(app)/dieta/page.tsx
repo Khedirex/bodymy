@@ -40,7 +40,7 @@ export default async function DietaPage() {
       </header>
 
       {/* Disclaimer fixo de conteúdo educativo */}
-      <div className="rounded-2xl border border-gold-300/50 bg-gold-300/10 px-4 py-3 text-sm text-ink-700">
+      <div className="rounded-2xl border border-sun-300/50 bg-sun-300/10 px-4 py-3 text-sm text-ink-700">
         <span className="mr-1" aria-hidden>
           ℹ️
         </span>

@@ -16,7 +16,7 @@ export function ConstancyChart({
             <div key={i} className="flex flex-1 flex-col items-center gap-1">
               <div className="flex w-full flex-1 items-end">
                 <div
-                  className="w-full rounded-t-lg bg-gradient-to-t from-coral-300 to-coral-400"
+                  className="w-full rounded-t-lg bg-gradient-to-t from-brand-300 to-brand-400"
                   style={{ height: `${altura}%` }}
                   title={`${s.dias} de 7 días`}
                 />

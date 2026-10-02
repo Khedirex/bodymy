@@ -26,9 +26,9 @@ export default function GlobalError({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#FDFBF8',
+          background: '#FAFAFB',
           fontFamily: 'system-ui, sans-serif',
-          color: '#39322D',
+          color: '#37343F',
           padding: 24,
           textAlign: 'center',
         }}
@@ -38,14 +38,14 @@ export default function GlobalError({
             🤍
           </div>
           <h1 style={{ fontSize: 22 }}>Algo salió mal</h1>
-          <p style={{ color: '#6b625b' }}>
+          <p style={{ color: '#625F6B' }}>
             Tuvimos un problemita por aquí. Inténtalo de nuevo.
           </p>
           <button
             onClick={reset}
             style={{
               marginTop: 16,
-              background: '#E8896B',
+              background: '#7550AD',
               color: '#fff',
               border: 0,
               borderRadius: 16,

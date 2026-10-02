@@ -123,7 +123,7 @@ export default async function HomePage() {
         <section>
           <div className="mb-2 flex items-center justify-between">
             <h2 className="section-title">Para ti</h2>
-            <Link href="/descubra" className="text-sm font-semibold text-coral-600">
+            <Link href="/descubra" className="text-sm font-semibold text-brand-600">
               Ver todo
             </Link>
           </div>

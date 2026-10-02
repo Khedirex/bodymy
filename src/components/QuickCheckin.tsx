@@ -48,7 +48,7 @@ export function QuickCheckin({
       className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-base font-bold transition ${
         feito
           ? 'bg-sage-100 text-sage-600'
-          : 'bg-coral-400 text-white active:scale-[0.98] hover:bg-coral-500'
+          : 'bg-brand-400 text-white active:scale-[0.98] hover:bg-brand-500'
       }`}
       style={{ minHeight: 48 }}
     >

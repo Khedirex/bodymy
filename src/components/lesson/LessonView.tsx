@@ -97,7 +97,7 @@ export function LessonView({
       )}
 
       {erro ? (
-        <p className="rounded-2xl bg-coral-50 px-4 py-3 text-sm font-medium text-coral-700">
+        <p className="rounded-2xl bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">
           {erro}
         </p>
       ) : null}
@@ -142,8 +142,8 @@ function BlocoCard({ bloco, numero }: { bloco: GuiaBloco; numero?: number }) {
   }
   if (bloco.tipo === 'dica') {
     return (
-      <div className="rounded-2xl bg-gold-300/20 p-4">
-        <p className="mb-1 text-sm font-bold text-gold-500">
+      <div className="rounded-2xl bg-sun-300/20 p-4">
+        <p className="mb-1 text-sm font-bold text-sun-700">
           {bloco.titulo ?? 'Consejo'}
         </p>
         <p className="whitespace-pre-line text-ink-800">{bloco.conteudo}</p>
@@ -153,7 +153,7 @@ function BlocoCard({ bloco, numero }: { bloco: GuiaBloco; numero?: number }) {
   return (
     <div className="card flex gap-3">
       {numero ? (
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-coral-100 font-bold text-coral-600">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-100 font-bold text-brand-600">
           {numero}
         </span>
       ) : null}

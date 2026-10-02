@@ -8,10 +8,10 @@ import { UserIcon } from '@/components/ui/icons'
 // feita no middleware; aqui cuidamos do layout.
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col bg-cream-50">
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-cream-200 bg-cream-50/90 px-4 py-2.5 backdrop-blur">
+    <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col bg-mist-50">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-mist-200 bg-mist-50/90 px-4 py-2.5 backdrop-blur">
         <Link href="/" className="text-lg font-extrabold text-ink-900">
-          Body<span className="text-coral-500">My</span>
+          Body<span className="text-brand-500">My</span>
         </Link>
         <Link
           href="/perfil"

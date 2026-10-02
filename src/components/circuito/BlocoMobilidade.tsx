@@ -140,16 +140,16 @@ export function BlocoMobilidade({ stretches, sinalizador, onConcluir, onSair }: 
   const progresso = Math.round(((fase.indice - 1) / fase.total) * 100)
 
   return (
-    <div className="rounded-3xl bg-coral-50 p-6 text-center text-coral-700">
+    <div className="rounded-3xl bg-brand-50 p-6 text-center text-brand-700">
       {/* Progresso do bloco */}
       <div className="mb-2 h-1.5 w-full overflow-hidden rounded-full bg-white/60">
-        <div className="h-full rounded-full bg-coral-400 transition-all" style={{ width: `${progresso}%` }} />
+        <div className="h-full rounded-full bg-brand-400 transition-all" style={{ width: `${progresso}%` }} />
       </div>
       <p className="text-sm font-bold uppercase tracking-wide opacity-80">
         Estiramiento {fase.indice} de {fase.total}
       </p>
       <p className="mt-1 text-2xl font-extrabold text-ink-900">{fase.nome}</p>
-      {fase.posicao ? <p className="mt-1 text-lg font-bold text-coral-600">{fase.posicao}</p> : null}
+      {fase.posicao ? <p className="mt-1 text-lg font-bold text-brand-600">{fase.posicao}</p> : null}
 
       <p className="mt-3 text-7xl font-black tabular-nums leading-none">{Math.max(0, segundos)}</p>
 

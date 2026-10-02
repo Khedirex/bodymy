@@ -13,7 +13,7 @@ export function InstallBanner() {
   if (instalado || dispensado) return null
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-coral-100 bg-coral-50/60 px-4 py-3">
+    <div className="flex items-center gap-3 rounded-2xl border border-brand-100 bg-brand-50/60 px-4 py-3">
       <span className="text-xl" aria-hidden>
         📲
       </span>
@@ -24,14 +24,14 @@ export function InstallBanner() {
       {podeInstalarNativo && plataforma === 'android' ? (
         <button
           onClick={() => promptInstall()}
-          className="rounded-xl bg-coral-400 px-3 py-2 text-sm font-bold text-white"
+          className="rounded-xl bg-brand-400 px-3 py-2 text-sm font-bold text-white"
         >
           Instalar
         </button>
       ) : (
         <Link
           href="/perfil#instalar"
-          className="rounded-xl bg-coral-400 px-3 py-2 text-sm font-bold text-white"
+          className="rounded-xl bg-brand-400 px-3 py-2 text-sm font-bold text-white"
         >
           Cómo hacerlo
         </Link>

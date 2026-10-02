@@ -159,7 +159,7 @@ export function LoginForm() {
           value={codigo}
           onChange={(e) => setCodigo(e.target.value.replace(/\D/g, '').slice(0, 8))}
         />
-        {erro ? <p className="rounded-2xl bg-coral-50 px-4 py-3 text-sm font-medium text-coral-700">{erro}</p> : null}
+        {erro ? <p className="rounded-2xl bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">{erro}</p> : null}
         <button type="submit" className="btn-primary w-full" disabled={status !== 'idle' || codigo.replace(/\D/g, '').length < 6}>
           {status === 'verificando' ? 'Entrando…' : 'Entrar'}
         </button>
@@ -174,7 +174,7 @@ export function LoginForm() {
           </button>
           <button
             type="button"
-            className="font-semibold text-coral-600 disabled:text-ink-700/40"
+            className="font-semibold text-brand-600 disabled:text-ink-700/40"
             onClick={() => enviarCodigo()}
             disabled={cooldown > 0 || status === 'enviando'}
           >
@@ -182,7 +182,7 @@ export function LoginForm() {
           </button>
         </div>
 
-        <div className="rounded-2xl bg-cream-100 px-4 py-3 text-xs text-ink-700/70">
+        <div className="rounded-2xl bg-mist-100 px-4 py-3 text-xs text-ink-700/70">
           ⏳ El correo puede tardar <strong>unos minutos</strong> en llegar (el dominio es nuevo).
           Revisa también la carpeta de spam/promociones. En el correo también hay un botón para entrar por el enlace.
         </div>
@@ -195,18 +195,18 @@ export function LoginForm() {
   // ---------------------------------------------------------------------
   return (
     <div className="space-y-3">
-      <div className="flex rounded-2xl bg-cream-100 p-1">
+      <div className="flex rounded-2xl bg-mist-100 p-1">
         <button
           type="button"
           onClick={() => { setMetodo('codigo'); setErro(null); setAviso(null) }}
-          className={`flex-1 rounded-xl py-2.5 text-sm font-bold transition ${metodo === 'codigo' ? 'bg-white text-coral-600 shadow-card' : 'text-ink-700/60'}`}
+          className={`flex-1 rounded-xl py-2.5 text-sm font-bold transition ${metodo === 'codigo' ? 'bg-white text-brand-600 shadow-card' : 'text-ink-700/60'}`}
         >
           Código por correo
         </button>
         <button
           type="button"
           onClick={() => { setMetodo('senha'); setErro(null); setAviso(null) }}
-          className={`flex-1 rounded-xl py-2.5 text-sm font-bold transition ${metodo === 'senha' ? 'bg-white text-coral-600 shadow-card' : 'text-ink-700/60'}`}
+          className={`flex-1 rounded-xl py-2.5 text-sm font-bold transition ${metodo === 'senha' ? 'bg-white text-brand-600 shadow-card' : 'text-ink-700/60'}`}
         >
           Entrar con contraseña
         </button>
@@ -242,13 +242,13 @@ export function LoginForm() {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
             />
-            <button type="button" onClick={esqueciSenha} className="mt-1.5 text-sm font-semibold text-coral-600">
+            <button type="button" onClick={esqueciSenha} className="mt-1.5 text-sm font-semibold text-brand-600">
               Olvidé mi contraseña
             </button>
           </div>
         )}
 
-        {erro ? <p className="rounded-2xl bg-coral-50 px-4 py-3 text-sm font-medium text-coral-700">{erro}</p> : null}
+        {erro ? <p className="rounded-2xl bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">{erro}</p> : null}
         {aviso ? <p className="rounded-2xl bg-sage-100 px-4 py-3 text-sm font-medium text-sage-600">{aviso}</p> : null}
 
         <button type="submit" className="btn-primary w-full" disabled={status !== 'idle'}>

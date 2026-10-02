@@ -132,7 +132,7 @@ da Vercel para `main`.
    (sem erro de Supabase, sem `:porta` estranha na URL).
 2. **PWA instalável:** no celular, o navegador oferece "Adicionar à tela inicial"
    (Android: prompt nativo; iOS: Compartilhar → Adicionar à Tela de Início).
-   Ícone coral com coração, abre em tela cheia (standalone).
+   Ícone roxo com coração, abre em tela cheia (standalone).
 3. **Login por e-mail:** em `/login`, informe o e-mail de um usuário com acesso
    (ex.: `khedirex@gmail.com`). Deve aparecer "Enviamos seu link!" **sem** o
    aviso de modo dev.

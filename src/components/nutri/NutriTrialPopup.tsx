@@ -73,7 +73,7 @@ export function NutriTrialPopup() {
         </p>
         <button
           onClick={montar}
-          className="mt-5 w-full rounded-full bg-coral-500 px-6 py-3 text-sm font-bold text-white"
+          className="mt-5 w-full rounded-full bg-brand-500 px-6 py-3 text-sm font-bold text-white"
         >
           Empezar mi chat gratis
         </button>

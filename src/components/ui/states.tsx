@@ -13,8 +13,8 @@ export function EmptyState({
   acao?: ReactNode
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-3xl bg-cream-100 px-6 py-10 text-center">
-      {icone ? <div className="text-coral-300">{icone}</div> : null}
+    <div className="flex flex-col items-center justify-center gap-3 rounded-3xl bg-mist-100 px-6 py-10 text-center">
+      {icone ? <div className="text-brand-300">{icone}</div> : null}
       <h3 className="text-base font-bold text-ink-900">{titulo}</h3>
       {descricao ? <p className="max-w-xs text-sm text-ink-700">{descricao}</p> : null}
       {acao}
@@ -28,15 +28,15 @@ export function ErrorState({
   descricao?: string
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 rounded-3xl bg-coral-50 px-6 py-10 text-center">
-      <h3 className="text-base font-bold text-coral-700">¡Ups!</h3>
+    <div className="flex flex-col items-center justify-center gap-2 rounded-3xl bg-brand-50 px-6 py-10 text-center">
+      <h3 className="text-base font-bold text-brand-700">¡Ups!</h3>
       <p className="max-w-xs text-sm text-ink-700">{descricao}</p>
     </div>
   )
 }
 
 export function Skeleton({ className = '' }: { className?: string }) {
-  return <div className={`animate-pulse rounded-2xl bg-cream-200 ${className}`} />
+  return <div className={`animate-pulse rounded-2xl bg-mist-200 ${className}`} />
 }
 
 export function LoadingCard() {

@@ -29,7 +29,7 @@ export function SalesView({ product }: { product: Product }) {
   return (
     <div className="space-y-6">
       {/* Selo de bloqueio */}
-      <div className="inline-flex items-center gap-2 rounded-full bg-gold-300/40 px-3 py-1.5 text-sm font-bold text-gold-500">
+      <div className="inline-flex items-center gap-2 rounded-full bg-sun-300/40 px-3 py-1.5 text-sm font-bold text-sun-700">
         <LockIcon width={16} height={16} /> Contenido bloqueado
       </div>
 
@@ -50,7 +50,7 @@ export function SalesView({ product }: { product: Product }) {
           className="w-full rounded-3xl object-cover"
         />
       ) : (
-        <div className="flex h-44 items-center justify-center rounded-3xl bg-gradient-to-br from-coral-100 to-cream-100 text-6xl">
+        <div className="flex h-44 items-center justify-center rounded-3xl bg-gradient-to-br from-brand-100 to-mist-100 text-6xl">
           {product.tipo === 'dieta_premium' ? '🥗' : '🚶‍♀️'}
         </div>
       )}
@@ -69,7 +69,7 @@ export function SalesView({ product }: { product: Product }) {
       )}
 
       {sales?.depoimento ? (
-        <blockquote className="rounded-3xl bg-cream-100 p-5">
+        <blockquote className="rounded-3xl bg-mist-100 p-5">
           <p className="text-ink-800">“{sales.depoimento.texto}”</p>
           <footer className="mt-2 text-sm font-semibold text-ink-700">
             — {sales.depoimento.autora}

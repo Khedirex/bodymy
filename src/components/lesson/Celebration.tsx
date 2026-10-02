@@ -63,7 +63,7 @@ export function Celebration({
             </div>
 
             {proxima ? (
-              <div className="mt-6 rounded-2xl bg-cream-100 p-4 text-left">
+              <div className="mt-6 rounded-2xl bg-mist-100 p-4 text-left">
                 <p className="text-xs font-semibold uppercase tracking-wide text-ink-700/60">
                   Próxima clase
                 </p>

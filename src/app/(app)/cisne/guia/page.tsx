@@ -32,7 +32,7 @@ export default async function CisneGuiaPage() {
         <div className="grid grid-cols-2 gap-3">
           {g.comoFunciona.map((c, i) => (
             <div key={c.titulo} className="card p-4">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#2F6E68] text-sm font-bold text-white">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-sun-700 text-sm font-bold text-white">
                 {i + 1}
               </span>
               <p className="mt-2 font-bold text-ink-900">{c.titulo}</p>
@@ -47,7 +47,7 @@ export default async function CisneGuiaPage() {
         <ul className="space-y-1.5 text-ink-800">
           {g.queNecesitas.map((q) => (
             <li key={q.destaque} className="flex gap-2">
-              <span className="text-coral-500">•</span>
+              <span className="text-brand-500">•</span>
               <span>
                 <strong>{q.destaque}</strong>
                 {q.texto}
@@ -61,16 +61,16 @@ export default async function CisneGuiaPage() {
         <h2 className="mb-2 font-extrabold text-sage-600">Reglas de oro</h2>
         <ul className="space-y-1.5 text-ink-800">
           {g.reglasDeOro.map((r) => (
-            <li key={r} className="flex gap-2"><span className="text-coral-500">•</span> {r}</li>
+            <li key={r} className="flex gap-2"><span className="text-brand-500">•</span> {r}</li>
           ))}
         </ul>
       </section>
 
-      <section className="rounded-3xl bg-coral-50 p-5">
-        <h2 className="mb-2 font-extrabold text-coral-600">Detente si sientes</h2>
+      <section className="rounded-3xl bg-brand-50 p-5">
+        <h2 className="mb-2 font-extrabold text-brand-600">Detente si sientes</h2>
         <ul className="space-y-1.5 text-ink-800">
           {g.detenteSi.map((r) => (
-            <li key={r} className="flex gap-2"><span className="text-coral-500">•</span> {r}</li>
+            <li key={r} className="flex gap-2"><span className="text-brand-500">•</span> {r}</li>
           ))}
         </ul>
         <p className="mt-2 text-sm text-ink-700">{g.detenteNota}</p>
@@ -84,7 +84,7 @@ export default async function CisneGuiaPage() {
       <section className="card">
         <h2 className="mb-1 font-extrabold text-ink-900">Tu foto de perfil (días 1, 7 y 14)</h2>
         <p className="text-ink-700">{g.fotoPerfil}</p>
-        <Link href="/progresso" className="mt-3 inline-block text-sm font-bold text-coral-600">
+        <Link href="/progresso" className="mt-3 inline-block text-sm font-bold text-brand-600">
           Guardar mis fotos en Progreso →
         </Link>
       </section>
@@ -94,13 +94,13 @@ export default async function CisneGuiaPage() {
         <p className="mb-1 font-bold text-ink-900">Para mantener</p>
         <ul className="mb-3 space-y-1.5 text-ink-800">
           {g.paraMantener.map((t) => (
-            <li key={t} className="flex gap-2"><span className="text-coral-500">•</span> {t}</li>
+            <li key={t} className="flex gap-2"><span className="text-brand-500">•</span> {t}</li>
           ))}
         </ul>
         <p className="mb-1 font-bold text-ink-900">Durante el día</p>
         <ul className="space-y-1.5 text-ink-800">
           {g.duranteElDia.map((t) => (
-            <li key={t} className="flex gap-2"><span className="text-coral-500">•</span> {t}</li>
+            <li key={t} className="flex gap-2"><span className="text-brand-500">•</span> {t}</li>
           ))}
         </ul>
       </section>

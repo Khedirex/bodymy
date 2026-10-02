@@ -35,7 +35,7 @@ export function PandaPlayer({ videoId, autoPlay = false, muted = false, loop = f
   const host = env.pandaPlayerHost
   if (!host) {
     return (
-      <div className="flex aspect-video w-full items-center justify-center rounded-3xl bg-cream-200 text-sm text-ink-700">
+      <div className="flex aspect-video w-full items-center justify-center rounded-3xl bg-mist-200 text-sm text-ink-700">
         Video no disponible — configura NEXT_PUBLIC_PANDA_PLAYER_HOST.
       </div>
     )

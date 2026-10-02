@@ -119,7 +119,7 @@ export function NutriPanel({
       </div>
       <TrialBanner acesso={acesso} checkoutUrl={checkoutUrl} />
       {aviso && (
-        <p className="rounded-2xl bg-gold-300/10 px-4 py-3 text-sm text-ink-700">{aviso}</p>
+        <p className="rounded-2xl bg-sun-300/10 px-4 py-3 text-sm text-ink-700">{aviso}</p>
       )}
       {dieta ? (
         <DietaView dieta={dieta} onEditar={() => setEditando(true)} />
@@ -130,7 +130,7 @@ export function NutriPanel({
           </p>
           <button
             onClick={() => setEditando(true)}
-            className="mt-3 rounded-full bg-coral-500 px-5 py-2 text-sm font-bold text-white"
+            className="mt-3 rounded-full bg-brand-500 px-5 py-2 text-sm font-bold text-white"
           >
             Crear mi plan
           </button>
@@ -211,7 +211,7 @@ function Questionario({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-start gap-3 rounded-2xl bg-gradient-to-br from-coral-500 to-coral-400 px-4 py-4 text-white">
+      <div className="flex items-start gap-3 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-400 px-4 py-4 text-white">
         <Avatar size={44} />
         <div>
           <h3 className="text-lg font-extrabold">
@@ -238,13 +238,13 @@ function Questionario({
         ))}
       </div>
 
-      {erro && <p className="text-sm font-semibold text-coral-500">{erro}</p>}
+      {erro && <p className="text-sm font-semibold text-brand-500">{erro}</p>}
 
       <div className="flex gap-2">
         <button
           onClick={enviar}
           disabled={enviando}
-          className="flex-1 rounded-full bg-coral-500 px-5 py-3 text-sm font-bold text-white disabled:opacity-60"
+          className="flex-1 rounded-full bg-brand-500 px-5 py-3 text-sm font-bold text-white disabled:opacity-60"
         >
           {enviando ? 'Preparando…' : primeiraVez ? 'Empezar gratis' : 'Guardar y actualizar'}
         </button>
@@ -252,7 +252,7 @@ function Questionario({
           <button
             onClick={onCancel}
             disabled={enviando}
-            className="rounded-full bg-cream-100 px-5 py-3 text-sm font-semibold text-ink-700"
+            className="rounded-full bg-mist-100 px-5 py-3 text-sm font-semibold text-ink-700"
           >
             Cancelar
           </button>
@@ -275,7 +275,7 @@ function CampoInput({
 }) {
   const label = (
     <label className="mb-1.5 block text-sm font-semibold text-ink-900">
-      {campo.label} {campo.obrigatorio && <span className="text-coral-500">*</span>}
+      {campo.label} {campo.obrigatorio && <span className="text-brand-500">*</span>}
     </label>
   )
 
@@ -291,7 +291,7 @@ function CampoInput({
             min={campo.min}
             max={campo.max}
             onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}
-            className="w-full rounded-2xl border border-cream-200 bg-white px-4 py-3 text-ink-900 outline-none focus:border-coral-400"
+            className="w-full rounded-2xl border border-mist-200 bg-white px-4 py-3 text-ink-900 outline-none focus:border-brand-400"
           />
           {campo.sufixo && <span className="text-sm text-ink-700">{campo.sufixo}</span>}
         </div>
@@ -312,8 +312,8 @@ function CampoInput({
               onClick={() => onChange(o.valor)}
               className={`rounded-2xl border px-4 py-2.5 text-left text-sm font-medium transition ${
                 atual === o.valor
-                  ? 'border-coral-400 bg-coral-100 text-coral-500'
-                  : 'border-cream-200 bg-white text-ink-700'
+                  ? 'border-brand-400 bg-brand-100 text-brand-500'
+                  : 'border-mist-200 bg-white text-ink-700'
               }`}
             >
               {o.label}
@@ -337,8 +337,8 @@ function CampoInput({
               onClick={() => onToggleMulti(o.valor)}
               className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition ${
                 arr.includes(o.valor)
-                  ? 'border-coral-400 bg-coral-100 text-coral-500'
-                  : 'border-cream-200 bg-white text-ink-700'
+                  ? 'border-brand-400 bg-brand-100 text-brand-500'
+                  : 'border-mist-200 bg-white text-ink-700'
               }`}
             >
               {o.label}
@@ -358,7 +358,7 @@ function CampoInput({
         value={(valor as string) ?? ''}
         placeholder={campo.placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-2xl border border-cream-200 bg-white px-4 py-3 text-ink-900 outline-none placeholder:text-ink-700/40 focus:border-coral-400"
+        className="w-full rounded-2xl border border-mist-200 bg-white px-4 py-3 text-ink-900 outline-none placeholder:text-ink-700/40 focus:border-brand-400"
       />
     </div>
   )
@@ -373,7 +373,7 @@ function DietaView({ dieta, onEditar }: { dieta: NutriDietaConteudo; onEditar: (
     <section className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="section-title">Tu plan de apoyo</h2>
-        <button onClick={onEditar} className="text-sm font-semibold text-coral-500">
+        <button onClick={onEditar} className="text-sm font-semibold text-brand-500">
           Ajustar datos
         </button>
       </div>
@@ -389,7 +389,7 @@ function DietaView({ dieta, onEditar }: { dieta: NutriDietaConteudo; onEditar: (
 
       <div className="space-y-2">
         {(dieta.dias ?? []).map((d, i) => (
-          <div key={i} className="overflow-hidden rounded-2xl border border-cream-200 bg-white">
+          <div key={i} className="overflow-hidden rounded-2xl border border-mist-200 bg-white">
             <button
               onClick={() => setAberto(aberto === i ? -1 : i)}
               className="flex w-full items-center justify-between px-4 py-3 text-left"
@@ -398,10 +398,10 @@ function DietaView({ dieta, onEditar }: { dieta: NutriDietaConteudo; onEditar: (
               <span className="text-ink-700">{aberto === i ? '−' : '+'}</span>
             </button>
             {aberto === i && (
-              <div className="space-y-3 border-t border-cream-200 px-4 py-3">
+              <div className="space-y-3 border-t border-mist-200 px-4 py-3">
                 {(d.refeicoes ?? []).map((r, j) => (
                   <div key={j}>
-                    <p className="text-sm font-bold text-coral-500">
+                    <p className="text-sm font-bold text-brand-500">
                       {r.nome}
                       {r.horario && <span className="ml-2 font-normal text-ink-700">{r.horario}</span>}
                     </p>
@@ -425,7 +425,7 @@ function DietaView({ dieta, onEditar }: { dieta: NutriDietaConteudo; onEditar: (
       </div>
 
       {dieta.observacoes && (
-        <p className="rounded-2xl bg-cream-100 px-4 py-3 text-sm text-ink-700">{dieta.observacoes}</p>
+        <p className="rounded-2xl bg-mist-100 px-4 py-3 text-sm text-ink-700">{dieta.observacoes}</p>
       )}
     </section>
   )
@@ -513,9 +513,9 @@ function Chat({
   }
 
   return (
-    <section className="overflow-hidden rounded-3xl border border-cream-200 bg-white shadow-card">
+    <section className="overflow-hidden rounded-3xl border border-mist-200 bg-white shadow-card">
       {/* Cabeçalho estilo mensageiro */}
-      <header className="flex items-center gap-3 border-b border-cream-200 bg-white px-4 py-3">
+      <header className="flex items-center gap-3 border-b border-mist-200 bg-white px-4 py-3">
         <Avatar size={40} online />
         <div className="min-w-0">
           <p className="truncate font-bold text-ink-900">{NUTRI_ASSISTENTE.nome}</p>
@@ -523,13 +523,13 @@ function Chat({
             <span className="inline-block h-2 w-2 rounded-full bg-green-500" /> En línea
           </p>
         </div>
-        <span className="ml-auto rounded-full bg-cream-100 px-2.5 py-1 text-[11px] font-semibold text-ink-700">
+        <span className="ml-auto rounded-full bg-mist-100 px-2.5 py-1 text-[11px] font-semibold text-ink-700">
           Chat privado
         </span>
       </header>
 
       {/* Conversa */}
-      <div className="flex max-h-[52vh] flex-col gap-2.5 overflow-y-auto bg-cream-50 p-3">
+      <div className="flex max-h-[52vh] flex-col gap-2.5 overflow-y-auto bg-mist-50 p-3">
         {/* Saudação proativa: a assistente fala primeiro */}
         <BalaoAssistente texto={saudacao} />
 
@@ -537,7 +537,7 @@ function Chat({
           m.papel === 'user' ? (
             <div
               key={i}
-              className="max-w-[80%] self-end rounded-2xl rounded-br-md bg-coral-500 px-3.5 py-2 text-sm text-white"
+              className="max-w-[80%] self-end rounded-2xl rounded-br-md bg-brand-500 px-3.5 py-2 text-sm text-white"
             >
               {m.conteudo}
             </div>
@@ -558,20 +558,20 @@ function Chat({
       </div>
 
       {/* Barra de envio */}
-      <div className="border-t border-cream-200 bg-white p-3">
-        {erro && <p className="mb-2 text-sm font-semibold text-coral-500">{erro}</p>}
+      <div className="border-t border-mist-200 bg-white p-3">
+        {erro && <p className="mb-2 text-sm font-semibold text-brand-500">{erro}</p>}
         <div className="flex gap-2">
           <input
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && enviar()}
             placeholder={`Escríbele a ${NUTRI_ASSISTENTE.nome}…`}
-            className="flex-1 rounded-full border border-cream-200 bg-cream-50 px-4 py-3 text-sm text-ink-900 outline-none focus:border-coral-400"
+            className="flex-1 rounded-full border border-mist-200 bg-mist-50 px-4 py-3 text-sm text-ink-900 outline-none focus:border-brand-400"
           />
           <button
             onClick={enviar}
             disabled={enviando || !texto.trim()}
-            className="rounded-full bg-coral-500 px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
+            className="rounded-full bg-brand-500 px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
           >
             Enviar
           </button>
@@ -609,7 +609,7 @@ function TrialBanner({ acesso, checkoutUrl }: { acesso: Acesso; checkoutUrl: str
   if (acesso.plano !== 'trial') return null
   const dias = acesso.diasRestantes ?? 0
   return (
-    <div className="flex items-center justify-between gap-3 rounded-2xl border border-gold-300/50 bg-gold-300/10 px-4 py-3">
+    <div className="flex items-center justify-between gap-3 rounded-2xl border border-sun-300/50 bg-sun-300/10 px-4 py-3">
       <p className="text-sm text-ink-900">
         <span className="font-bold">Prueba gratis:</span> te{' '}
         {dias === 1 ? 'queda 1 día' : `quedan ${dias} días`}.
@@ -617,7 +617,7 @@ function TrialBanner({ acesso, checkoutUrl }: { acesso: Acesso; checkoutUrl: str
       {checkoutUrl && (
         <a
           href={checkoutUrl}
-          className="shrink-0 rounded-full bg-coral-500 px-4 py-1.5 text-xs font-bold text-white"
+          className="shrink-0 rounded-full bg-brand-500 px-4 py-1.5 text-xs font-bold text-white"
         >
           Activar acceso
         </a>
@@ -628,7 +628,7 @@ function TrialBanner({ acesso, checkoutUrl }: { acesso: Acesso; checkoutUrl: str
 
 function Paywall({ checkoutUrl, produtoNome }: { checkoutUrl: string | null; produtoNome: string }) {
   return (
-    <div className="rounded-3xl bg-gradient-to-br from-coral-500 to-coral-400 px-5 py-6 text-center text-white">
+    <div className="rounded-3xl bg-gradient-to-br from-brand-500 to-brand-400 px-5 py-6 text-center text-white">
       <p className="text-3xl">🥑</p>
       <h2 className="mt-2 text-xl font-extrabold">Tu prueba gratis terminó</h2>
       <p className="mx-auto mt-2 max-w-xs text-sm text-white/90">
@@ -638,7 +638,7 @@ function Paywall({ checkoutUrl, produtoNome }: { checkoutUrl: string | null; pro
       {checkoutUrl ? (
         <a
           href={checkoutUrl}
-          className="mt-4 inline-block rounded-full bg-white px-6 py-3 text-sm font-bold text-coral-500"
+          className="mt-4 inline-block rounded-full bg-white px-6 py-3 text-sm font-bold text-brand-500"
         >
           Activar {produtoNome}
         </a>

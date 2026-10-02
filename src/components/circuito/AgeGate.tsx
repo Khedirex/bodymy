@@ -50,8 +50,8 @@ export function AgeGate() {
             onClick={() => setFaixa(o.valor)}
             className={`flex w-full items-center rounded-2xl border-2 px-5 py-4 text-left text-lg font-semibold transition ${
               faixa === o.valor
-                ? 'border-coral-400 bg-coral-50 text-coral-700'
-                : 'border-cream-200 bg-white text-ink-800'
+                ? 'border-brand-400 bg-brand-50 text-brand-700'
+                : 'border-mist-200 bg-white text-ink-800'
             }`}
           >
             {o.label}
@@ -59,7 +59,7 @@ export function AgeGate() {
         ))}
       </div>
       {erro ? (
-        <p className="rounded-2xl bg-coral-50 px-4 py-3 text-sm font-medium text-coral-700">{erro}</p>
+        <p className="rounded-2xl bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">{erro}</p>
       ) : null}
       <button className="btn-primary w-full" disabled={!faixa || pending} onClick={salvar}>
         {pending ? 'Preparando…' : 'Empezar'}

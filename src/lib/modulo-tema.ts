@@ -2,8 +2,12 @@
 // Identidade visual de cada módulo.
 //
 // A cor que a aluna vê no card da Home é a MESMA que ela encontra ao entrar
-// no módulo. Sem isto, todo mini-app herdava o coral do protocolo principal
-// e o Ritual Noche Perfecta (que é noturno) saía igual ao de movimento.
+// no módulo. Sem isto, todo mini-app herdava a primária do protocolo
+// principal e o Ritual Noche Perfecta (que é noturno) saía igual ao de
+// movimento.
+//
+// A paleta vive em tailwind.config.ts: roxo (brand) é a marca, amarelo (sun)
+// é o acento. Verde (sage) aqui NÃO é tema de módulo — é só sinal de "hecho".
 //
 // Client-safe: usado nas telas dos módulos e nos cards.
 // =====================================================================
@@ -22,33 +26,35 @@ export interface ModuloTema {
 }
 
 const PADRAO: ModuloTema = {
-  avatar: 'bg-coral-50 text-coral-500',
-  chip: 'bg-coral-50 text-coral-600',
-  botao: 'bg-coral-500 text-white',
-  realce: 'text-coral-600',
-  barra: 'from-coral-400 to-coral-500',
+  avatar: 'bg-brand-50 text-brand-600',
+  chip: 'bg-brand-50 text-brand-700',
+  botao: 'bg-brand-500 text-white',
+  realce: 'text-brand-600',
+  barra: 'from-brand-400 to-brand-600',
 }
 
 export const TEMAS: Record<string, ModuloTema> = {
-  // Movimento — o coral da marca.
+  // Movimento — o roxo da marca.
   'descompresion-articular': PADRAO,
 
-  // Postura — verde-suave, de recuperação.
+  // Postura — o amarelo, quente e de manhã. Fundo amarelo leva texto ink:
+  // branco sobre amarelo não passa contraste nenhum.
   'reset-postura-cisne': {
-    avatar: 'bg-sage-100 text-sage-600',
-    chip: 'bg-sage-100 text-sage-600',
-    botao: 'bg-sage-600 text-white',
-    realce: 'text-sage-600',
-    barra: 'from-sage-300 to-sage-600',
+    avatar: 'bg-sun-100 text-sun-700',
+    chip: 'bg-sun-100 text-sun-700',
+    botao: 'bg-sun-300 text-ink-900',
+    realce: 'text-sun-700',
+    barra: 'from-sun-300 to-sun-500',
   },
 
-  // Sono — noturno. É um ritual de cama, com a luz baixa.
+  // Sono — noturno. É um ritual de cama, com a luz baixa: o neutro escuro
+  // com a barra puxando para o roxo.
   'ritual-noche-perfecta': {
-    avatar: 'bg-ink-900 text-cream-50',
+    avatar: 'bg-ink-900 text-mist-50',
     chip: 'bg-ink-900/10 text-ink-900',
-    botao: 'bg-ink-900 text-cream-50',
+    botao: 'bg-ink-900 text-mist-50',
     realce: 'text-ink-900',
-    barra: 'from-ink-700 to-ink-900',
+    barra: 'from-brand-500 to-ink-900',
   },
 }
 

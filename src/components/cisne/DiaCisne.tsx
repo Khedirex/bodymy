@@ -83,7 +83,7 @@ export function DiaCisne({ dia, jaFeito, cuelloAnterior }: Props) {
               : 'Tu cuello te lo agradece. El próximo día se abre mañana.'}
           </p>
           {concluido.streak > 1 ? (
-            <p className="mt-3 font-bold text-coral-600">🔥 {concluido.streak} días seguidos</p>
+            <p className="mt-3 font-bold text-brand-600">🔥 {concluido.streak} días seguidos</p>
           ) : null}
         </div>
         {dia.diaDeFoto ? (
@@ -104,7 +104,7 @@ export function DiaCisne({ dia, jaFeito, cuelloAnterior }: Props) {
         <ChevronLeft width={18} height={18} /> Reset Postura de Cisne
       </Link>
 
-      <header className="rounded-3xl bg-[#EBCFA9]/60 p-5">
+      <header className="rounded-3xl bg-sun-100 p-5">
         <p className="text-xs font-bold uppercase tracking-wider text-sage-600">
           Semana {dia.semana} · {dia.intensidade}
         </p>
@@ -137,7 +137,7 @@ export function DiaCisne({ dia, jaFeito, cuelloAnterior }: Props) {
                 className="flex w-full items-center gap-3 text-left"
                 aria-expanded={expandido}
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#2F6E68] text-sm font-bold text-white">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sun-700 text-sm font-bold text-white">
                   {i + 1}
                 </span>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -149,7 +149,7 @@ export function DiaCisne({ dia, jaFeito, cuelloAnterior }: Props) {
                 />
                 <span className="min-w-0 flex-1">
                   <span className="block font-bold text-ink-900">{m.exercicio.nome}</span>
-                  <span className="block text-sm font-semibold text-[#2F6E68]">{m.dose}</span>
+                  <span className="block text-sm font-semibold text-sun-700">{m.dose}</span>
                 </span>
                 {feito ? (
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-sage-500 text-white">
@@ -162,9 +162,9 @@ export function DiaCisne({ dia, jaFeito, cuelloAnterior }: Props) {
                 <div className="mt-4 space-y-4 animate-fade-up">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={m.exercicio.imagem} alt={m.exercicio.nome} className="w-full rounded-2xl" />
-                  <div className="rounded-2xl bg-cream-100 px-4 py-3 text-center">
+                  <div className="rounded-2xl bg-mist-100 px-4 py-3 text-center">
                     <p className="text-xs font-bold uppercase tracking-wider text-ink-700">Hoy</p>
-                    <p className="text-lg font-extrabold text-[#2F6E68]">{m.dose}</p>
+                    <p className="text-lg font-extrabold text-sun-700">{m.dose}</p>
                   </div>
                   <ExercicioDetalhe exercicio={m.exercicio} />
                 </div>
@@ -174,7 +174,7 @@ export function DiaCisne({ dia, jaFeito, cuelloAnterior }: Props) {
                 type="button"
                 onClick={() => marcar(i)}
                 className={`mt-3 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl text-base font-bold transition ${
-                  feito ? 'bg-sage-100 text-sage-600' : 'bg-coral-400 text-white'
+                  feito ? 'bg-sage-100 text-sage-600' : 'bg-brand-400 text-white'
                 }`}
               >
                 {feito ? (
@@ -190,18 +190,18 @@ export function DiaCisne({ dia, jaFeito, cuelloAnterior }: Props) {
         })}
       </ol>
 
-      <section className="rounded-3xl bg-coral-50 p-5">
-        <p className="text-xs font-bold uppercase tracking-wider text-coral-600">Consejo del día</p>
+      <section className="rounded-3xl bg-brand-50 p-5">
+        <p className="text-xs font-bold uppercase tracking-wider text-brand-600">Consejo del día</p>
         <p className="mt-1 text-ink-800">{dia.consejo}</p>
         {dia.diaDeFoto ? (
-          <Link href="/progresso" className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-coral-600">
+          <Link href="/progresso" className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-brand-600">
             <CameraIcon width={18} height={18} /> Guardar foto en Progreso
           </Link>
         ) : null}
       </section>
 
       <section className="card">
-        <p className="text-xs font-bold uppercase tracking-wider text-coral-600">¿Cómo quedó tu cuello?</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-brand-600">¿Cómo quedó tu cuello?</p>
         <p className="mt-1 text-sm text-ink-700">1 = muy tenso · 5 = muy suelto</p>
         <div className="mt-3 flex justify-between gap-2">
           {CUELLO_ESCALA.map((n) => (
@@ -213,8 +213,8 @@ export function DiaCisne({ dia, jaFeito, cuelloAnterior }: Props) {
               aria-pressed={cuello === n.valor}
               className={`flex h-12 w-12 items-center justify-center rounded-full border-2 text-lg font-bold transition ${
                 cuello === n.valor
-                  ? 'border-coral-400 bg-coral-400 text-white'
-                  : 'border-coral-200 bg-white text-coral-600'
+                  ? 'border-brand-400 bg-brand-400 text-white'
+                  : 'border-brand-200 bg-white text-brand-600'
               }`}
             >
               {n.valor}
@@ -224,7 +224,7 @@ export function DiaCisne({ dia, jaFeito, cuelloAnterior }: Props) {
       </section>
 
       {erro ? (
-        <p className="rounded-2xl bg-coral-50 px-4 py-3 text-sm font-medium text-coral-700">{erro}</p>
+        <p className="rounded-2xl bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">{erro}</p>
       ) : null}
 
       <div className="sticky bottom-24 rounded-3xl bg-white/85 p-2 backdrop-blur">

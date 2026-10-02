@@ -74,7 +74,7 @@ export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) 
       aria-disabled={!podeEntrar}
       tabIndex={podeEntrar ? undefined : -1}
       className={`flex min-h-[52px] w-full items-center justify-center rounded-2xl px-5 text-lg font-extrabold text-white transition ${
-        podeEntrar ? 'bg-coral-400' : 'pointer-events-none bg-coral-400/50'
+        podeEntrar ? 'bg-brand-400' : 'pointer-events-none bg-brand-400/50'
       }`}
     >
       {podeEntrar ? label : 'Liberando acceso…'}
@@ -85,7 +85,7 @@ export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) 
     <div className="mx-auto max-w-md px-5 py-8 text-[17px] leading-relaxed">
       {/* Topo — confirmação */}
       <header className="text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-coral-400 text-3xl">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-brand-400 text-3xl">
           <span aria-hidden>🎉</span>
         </div>
         <h1 className="text-2xl font-extrabold text-ink-900">¡Compra confirmada!</h1>
@@ -106,7 +106,7 @@ export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) 
             <a
               href={guia.url}
               download={guia.arquivo}
-              className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-coral-400 px-5 text-lg font-extrabold text-white"
+              className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-brand-400 px-5 text-lg font-extrabold text-white"
             >
               <span aria-hidden>⬇️</span> Descargar el guía (PDF)
             </a>
@@ -117,12 +117,12 @@ export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) 
       {/* Estado de liberação do acesso */}
       <section className="mt-6" aria-live="polite">
         {status === 'verificando' ? (
-          <div className="rounded-3xl bg-cream-100 p-5 text-center">
+          <div className="rounded-3xl bg-mist-100 p-5 text-center">
             <p className="font-bold text-ink-900">Liberando tu acceso…</p>
             {email ? <p className="mt-1 text-sm text-ink-700">para <strong>{email}</strong></p> : null}
             <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white">
               <div
-                className="h-full rounded-full bg-coral-400 transition-all duration-700 ease-out"
+                className="h-full rounded-full bg-brand-400 transition-all duration-700 ease-out"
                 style={{ width: `${progresso}%` }}
               />
             </div>
@@ -138,7 +138,7 @@ export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) 
         ) : null}
 
         {status === 'demorou' ? (
-          <div className="rounded-3xl border-2 border-gold-300/60 bg-gold-300/10 p-5 text-center">
+          <div className="rounded-3xl border-2 border-sun-300/60 bg-sun-300/10 p-5 text-center">
             <p className="font-bold text-ink-900">Ya casi está 🤍</p>
             <p className="mt-1 text-sm text-ink-700">
               A veces la liberación tarda un poquito más. Quédate tranquila — tu acceso no se pierde. Ya
@@ -187,7 +187,7 @@ export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) 
       {/* Rodapé — suporte */}
       <a
         href={`mailto:${suporteEmail}`}
-        className="mt-6 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-cream-200 bg-white px-5 text-base font-bold text-ink-800"
+        className="mt-6 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-mist-200 bg-white px-5 text-base font-bold text-ink-800"
       >
         <span aria-hidden>✉️</span> ¿Necesitas ayuda? Escríbenos a {suporteEmail}
       </a>
@@ -198,9 +198,9 @@ export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) 
 
 function StepCard({ numero, titulo, children }: { numero: number; titulo: string; children: ReactNode }) {
   return (
-    <section className="mt-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-cream-200">
+    <section className="mt-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-mist-200">
       <div className="mb-2 flex items-center gap-3">
-        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-coral-400 text-lg font-extrabold text-white">
+        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-400 text-lg font-extrabold text-white">
           {numero}
         </span>
         <h2 className="text-lg font-extrabold text-ink-900">{titulo}</h2>

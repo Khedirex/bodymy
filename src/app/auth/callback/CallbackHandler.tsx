@@ -113,7 +113,7 @@ export function CallbackHandler() {
   }, [router])
 
   if (erro) {
-    return <p className="text-sm text-coral-700">{erro}</p>
+    return <p className="text-sm text-brand-700">{erro}</p>
   }
   return null
 }

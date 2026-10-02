@@ -3,7 +3,7 @@ export function ProgressBar({
   atual,
   total,
   label,
-  gradiente = 'from-coral-400 to-coral-500',
+  gradiente = 'from-brand-400 to-brand-500',
 }: {
   atual: number
   total: number
@@ -23,7 +23,7 @@ export function ProgressBar({
         </div>
       ) : null}
       <div
-        className="h-2.5 w-full overflow-hidden rounded-full bg-cream-200"
+        className="h-2.5 w-full overflow-hidden rounded-full bg-mist-200"
         role="progressbar"
         aria-valuenow={pct}
         aria-valuemin={0}

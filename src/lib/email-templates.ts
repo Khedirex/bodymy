@@ -2,18 +2,18 @@
 // reutilizado tanto pelas rotas de servidor (src/lib/email.ts) quanto pelos
 // scripts de operação (supabase/*.ts). Não importe nada de servidor aqui.
 
-const CORAL = '#E8896B'
-const CREAM = '#FDFBF8'
-const INK = '#39322D'
+const BRAND = '#7550AD'
+const BASE = '#FAFAFB'
+const INK = '#37343F'
 
 function shell(inner: string): string {
   return `<!doctype html>
 <html lang="es">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;background:${CREAM};font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${INK};">
+<body style="margin:0;background:${BASE};font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${INK};">
   <div style="max-width:520px;margin:0 auto;padding:32px 20px;">
     ${inner}
-    <p style="font-size:12px;color:#9b938c;text-align:center;margin-top:20px;">
+    <p style="font-size:12px;color:#8E8B97;text-align:center;margin-top:20px;">
       BodyMy · hecho con 🤍 para que te muevas a tu ritmo
     </p>
   </div>
@@ -23,7 +23,7 @@ function shell(inner: string): string {
 
 function botao(magicLink: string, label = 'ACCEDER A MI PROGRAMA'): string {
   return `<div style="text-align:center;margin:26px 0;">
-    <a href="${magicLink}" style="display:inline-block;background:${CORAL};color:#fff;text-decoration:none;font-weight:bold;font-size:17px;padding:16px 28px;border-radius:16px;">
+    <a href="${magicLink}" style="display:inline-block;background:${BRAND};color:#fff;text-decoration:none;font-weight:bold;font-size:17px;padding:16px 28px;border-radius:16px;">
       ${label}
     </a>
   </div>`
@@ -58,10 +58,10 @@ export function welcomeHtml({
       ]
   return shell(`
     <div style="text-align:center;margin-bottom:24px;">
-      <div style="display:inline-block;width:56px;height:56px;line-height:56px;border-radius:16px;background:${CORAL};color:#fff;font-size:26px;">🤍</div>
+      <div style="display:inline-block;width:56px;height:56px;line-height:56px;border-radius:16px;background:${BRAND};color:#fff;font-size:26px;">🤍</div>
       <h1 style="font-size:22px;margin:14px 0 0;">¡Bienvenida a BodyMy${primeiroNome ? `, ${primeiroNome}` : ''}!</h1>
     </div>
-    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(74,66,60,.08);">
+    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(37,34,44,.08);">
       <p style="font-size:16px;line-height:1.5;margin:0 0 12px;">Qué alegría tenerte aquí. 🌷</p>
       <p style="font-size:16px;line-height:1.5;margin:0 0 16px;">
         Tu acceso a <strong>${programaNome}</strong> ya está activo. Todo está pensado para caber en
@@ -79,33 +79,33 @@ export function welcomeHtml({
       ${botao(magicLink)}
       ${
         guia
-          ? `<div style="border:2px solid #F2B7A1;border-radius:14px;padding:16px;margin:0 0 12px;">
+          ? `<div style="border:2px solid #D3C2EC;border-radius:14px;padding:16px;margin:0 0 12px;">
         <p style="font-size:16px;line-height:1.5;margin:0 0 6px;"><strong>📄 Tu guía práctico en PDF</strong></p>
-        <p style="font-size:14px;line-height:1.6;margin:0 0 12px;color:#6b625b;">
+        <p style="font-size:14px;line-height:1.6;margin:0 0 12px;color:#625F6B;">
           Además, aquí tienes el <strong>guía práctico resumido</strong>: los ejercicios ilustrados, paso a
           paso, para tener a mano o imprimir. <strong>Tu reto día a día lo sigues en la app</strong> (ahí está
           el orden de cada día y tu avance) — el PDF es tu apoyo.
         </p>
         <div style="text-align:center;">
-          <a href="${guia.pdfUrl}" style="display:inline-block;background:#fff;color:#C85A38;border:2px solid #F2B7A1;text-decoration:none;font-weight:bold;font-size:15px;padding:12px 22px;border-radius:14px;">
+          <a href="${guia.pdfUrl}" style="display:inline-block;background:#fff;color:#5F3F90;border:2px solid #D3C2EC;text-decoration:none;font-weight:bold;font-size:15px;padding:12px 22px;border-radius:14px;">
             ⬇️ Descargar el guía (PDF)
           </a>
         </div>
       </div>`
           : ''
       }
-      <div style="background:${CREAM};border-radius:14px;padding:14px 16px;margin-top:8px;">
-        <p style="font-size:14px;line-height:1.6;margin:0 0 8px;color:#6b625b;">
+      <div style="background:${BASE};border-radius:14px;padding:14px 16px;margin-top:8px;">
+        <p style="font-size:14px;line-height:1.6;margin:0 0 8px;color:#625F6B;">
           📲 <strong>Consejo:</strong> después de entrar, agrega BodyMy a la pantalla de tu celular
           (la app te muestra cómo) para abrirlo con un toque.
         </p>
-        <p style="font-size:14px;line-height:1.6;margin:0;color:#6b625b;">
+        <p style="font-size:14px;line-height:1.6;margin:0;color:#625F6B;">
           🔑 <strong>Las próximas veces es aún más fácil:</strong> abre la app, escribe tu correo y
           recibes un <strong>código de 6 dígitos</strong> para escribirlo ahí mismo — sin salir de la app.
           Si quieres, también puedes crear una contraseña.
         </p>
       </div>
-      <p style="font-size:14px;line-height:1.5;color:#6b625b;margin:16px 0 0;">
+      <p style="font-size:14px;line-height:1.5;color:#625F6B;margin:16px 0 0;">
         Cualquier duda, solo responde este correo. Estamos contigo. 💛
       </p>
     </div>

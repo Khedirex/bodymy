@@ -238,7 +238,7 @@ export function CircuitoSession({
   if (fase === 'ajustando') {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-coral-200 border-t-coral-500" />
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500" />
         <p className="text-lg font-bold text-ink-900">Ajustando tu entrenamiento…</p>
         <p className="text-sm text-ink-700">Dejando todo tal como te queda mejor.</p>
       </div>
@@ -267,7 +267,7 @@ export function CircuitoSession({
         ) : (
           <>
             <h1 className="text-2xl font-extrabold text-ink-900">Gracias por aparecer hoy</h1>
-            <p className="rounded-2xl bg-cream-100 px-4 py-3 text-ink-800">
+            <p className="rounded-2xl bg-mist-100 px-4 py-3 text-ink-800">
               Hoy no completaste el circuito. Es importante que hagas el circuito completo la
               próxima vez — tu cuerpo aprovecha más cuando la secuencia está entera.
             </p>
@@ -315,7 +315,7 @@ export function CircuitoSession({
             onChange={(e) => setComentario(e.target.value)}
             rows={3}
             placeholder="Cómo te sentiste, alguna duda…"
-            className="w-full rounded-2xl border-2 border-cream-200 px-4 py-3 text-ink-800"
+            className="w-full rounded-2xl border-2 border-mist-200 px-4 py-3 text-ink-800"
           />
         </div>
 
@@ -327,7 +327,7 @@ export function CircuitoSession({
                 key={o.valor}
                 onClick={() => setEixo(o.valor)}
                 className={`w-full rounded-2xl border-2 px-4 py-3 text-left font-semibold transition ${
-                  eixo === o.valor ? 'border-coral-400 bg-coral-50 text-coral-700' : 'border-cream-200 bg-white text-ink-800'
+                  eixo === o.valor ? 'border-brand-400 bg-brand-50 text-brand-700' : 'border-mist-200 bg-white text-ink-800'
                 }`}
               >
                 {o.label}
@@ -344,7 +344,7 @@ export function CircuitoSession({
                 key={o.valor}
                 onClick={() => setIntensidade(o.valor)}
                 className={`rounded-2xl border-2 px-3 py-3 text-sm font-semibold transition ${
-                  intensidade === o.valor ? 'border-coral-400 bg-coral-50 text-coral-700' : 'border-cream-200 bg-white text-ink-800'
+                  intensidade === o.valor ? 'border-brand-400 bg-brand-50 text-brand-700' : 'border-mist-200 bg-white text-ink-800'
                 }`}
               >
                 {o.label}
@@ -353,7 +353,7 @@ export function CircuitoSession({
           </div>
         </div>
 
-        {erro ? <p className="text-sm font-medium text-coral-700">{erro}</p> : null}
+        {erro ? <p className="text-sm font-medium text-brand-700">{erro}</p> : null}
         <button className="btn-primary w-full" disabled={!eixo || !intensidade} onClick={continuarFeedback}>
           Continuar
         </button>
@@ -384,7 +384,7 @@ export function CircuitoSession({
           <div
             key={e.exercise_id}
             className={`h-1.5 flex-1 rounded-full ${
-              statuses[e.exercise_id] ? 'bg-coral-400' : i === idx ? 'bg-coral-200' : 'bg-cream-200'
+              statuses[e.exercise_id] ? 'bg-brand-400' : i === idx ? 'bg-brand-200' : 'bg-mist-200'
             }`}
           />
         ))}
@@ -395,8 +395,8 @@ export function CircuitoSession({
       <div className="card">
         <div className="flex flex-wrap gap-3 text-sm font-semibold text-ink-800">
           <span className="rounded-full bg-sage-100 px-3 py-1 text-sage-600">{series} series</span>
-          <span className="rounded-full bg-cream-200 px-3 py-1">{formatarDescanso(descanso_seg)} de descanso</span>
-          <span className="rounded-full bg-cream-200 px-3 py-1">variación v{ex.nivel}</span>
+          <span className="rounded-full bg-mist-200 px-3 py-1">{formatarDescanso(descanso_seg)} de descanso</span>
+          <span className="rounded-full bg-mist-200 px-3 py-1">variación v{ex.nivel}</span>
         </div>
         {ex.instrucoes ? (
           <div className="mt-3">
@@ -413,7 +413,7 @@ export function CircuitoSession({
       {ex.podeFacilitar && !guiado ? (
         <button
           onClick={facilitar}
-          className="w-full rounded-2xl border-2 border-cream-200 bg-white px-4 py-3 text-sm font-semibold text-ink-800"
+          className="w-full rounded-2xl border-2 border-mist-200 bg-white px-4 py-3 text-sm font-semibold text-ink-800"
         >
           ¿Está difícil? Haz la variación anterior
         </button>
@@ -441,14 +441,14 @@ export function CircuitoSession({
         </button>
       )}
 
-      {erro ? <p className="text-sm font-medium text-coral-700">{erro}</p> : null}
+      {erro ? <p className="text-sm font-medium text-brand-700">{erro}</p> : null}
 
       <div className="space-y-2">
         <button className="btn-primary w-full text-lg" onClick={() => registrar('fez')}>
           Lo hice ✓
         </button>
         <button
-          className="w-full rounded-2xl border-2 border-cream-200 bg-white px-4 py-3 font-semibold text-ink-800"
+          className="w-full rounded-2xl border-2 border-mist-200 bg-white px-4 py-3 font-semibold text-ink-800"
           onClick={() => registrar('nao_conseguiu')}
         >
           No pude
@@ -506,7 +506,7 @@ function OfertaAjuste({
       <div className="space-y-5">
         <header>
           <h1 className="text-2xl font-extrabold text-ink-900">Vamos a ajustar a tu manera</h1>
-          <p className="mt-2 rounded-2xl bg-gold-300/20 px-4 py-3 text-sm text-ink-800">{proposta.aviso}</p>
+          <p className="mt-2 rounded-2xl bg-sun-300/20 px-4 py-3 text-sm text-ink-800">{proposta.aviso}</p>
         </header>
         <div className="space-y-4">
           <StepperField
@@ -571,13 +571,13 @@ function StepperField({
   formato: (n: number) => string
 }) {
   return (
-    <div className="rounded-2xl border-2 border-cream-200 bg-white p-4">
+    <div className="rounded-2xl border-2 border-mist-200 bg-white p-4">
       <p className="mb-2 font-semibold text-ink-900">{label}</p>
       <div className="flex items-center justify-between">
         <button
           onClick={() => onChange(Math.max(min, valor - passo))}
           disabled={valor <= min}
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-cream-200 text-2xl font-bold text-ink-800 disabled:opacity-40"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-mist-200 text-2xl font-bold text-ink-800 disabled:opacity-40"
         >
           −
         </button>
@@ -585,7 +585,7 @@ function StepperField({
         <button
           onClick={() => onChange(Math.min(max, valor + passo))}
           disabled={valor >= max}
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-cream-200 text-2xl font-bold text-ink-800 disabled:opacity-40"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-mist-200 text-2xl font-bold text-ink-800 disabled:opacity-40"
         >
           +
         </button>

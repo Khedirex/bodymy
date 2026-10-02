@@ -53,7 +53,7 @@ export function Calendar({
       <div className="mb-3 flex items-center justify-between">
         <button
           onClick={() => mudarMes(-1)}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-cream-100"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-mist-100"
           aria-label="Mes anterior"
         >
           <ChevronLeft width={18} height={18} />
@@ -63,7 +63,7 @@ export function Calendar({
         </p>
         <button
           onClick={() => mudarMes(1)}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-cream-100"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-mist-100"
           aria-label="Mes siguiente"
         >
           <ChevronRight width={18} height={18} />
@@ -86,9 +86,9 @@ export function Calendar({
               key={i}
               className={`flex aspect-square items-center justify-center rounded-full text-sm font-medium ${
                 ativo
-                  ? 'bg-coral-400 text-white'
+                  ? 'bg-brand-400 text-white'
                   : ehHoje
-                    ? 'border-2 border-coral-200 text-ink-800'
+                    ? 'border-2 border-brand-200 text-ink-800'
                     : 'text-ink-700'
               }`}
             >

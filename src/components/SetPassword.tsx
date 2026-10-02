@@ -54,7 +54,7 @@ export function SetPassword() {
         value={senha} onChange={(e) => setSenha(e.target.value)} />
       <input type="password" autoComplete="new-password" className="input" placeholder="Confirmar contraseña"
         value={confirma} onChange={(e) => setConfirma(e.target.value)} />
-      {erro ? <p className="rounded-2xl bg-coral-50 px-4 py-3 text-sm font-medium text-coral-700">{erro}</p> : null}
+      {erro ? <p className="rounded-2xl bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">{erro}</p> : null}
       <button onClick={salvar} disabled={salvando} className="btn-primary w-full">
         {salvando ? 'Guardando…' : 'Guardar contraseña'}
       </button>

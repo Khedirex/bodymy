@@ -51,7 +51,7 @@ export function LockedProductCard({
       <div className="opacity-90 saturate-[.7]">
         <div className="mb-3 flex items-start justify-between gap-2">
           <span className="chip">{tipoLabel}</span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-gold-300/40 px-2.5 py-1 text-xs font-bold text-gold-500">
+          <span className="inline-flex items-center gap-1 rounded-full bg-sun-300/40 px-2.5 py-1 text-xs font-bold text-sun-700">
             <LockIcon width={14} height={14} /> Desbloquear
           </span>
         </div>
@@ -67,7 +67,7 @@ export function LockedProductCard({
           ) : (
             <span />
           )}
-          <span className="inline-flex items-center gap-1 text-sm font-bold text-coral-600">
+          <span className="inline-flex items-center gap-1 text-sm font-bold text-brand-600">
             Ver oferta <ChevronRight width={16} height={16} />
           </span>
         </div>

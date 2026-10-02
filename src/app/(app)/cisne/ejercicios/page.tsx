@@ -31,7 +31,7 @@ export default async function CisneEjerciciosPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={e.imagem} alt="" className="h-16 w-20 shrink-0 rounded-xl object-cover" loading="lazy" />
             <span className="min-w-0 flex-1">
-              <span className="block text-xs font-bold text-coral-600">
+              <span className="block text-xs font-bold text-brand-600">
                 EJERCICIO {String(e.numero).padStart(2, '0')}
               </span>
               <span className="block font-bold text-ink-900">{e.nome}</span>
@@ -45,7 +45,7 @@ export default async function CisneEjerciciosPage() {
             <table className="w-full text-sm">
               <tbody>
                 {CISNE_INTENSIDADES.map((int) => (
-                  <tr key={int.semana} className="border-t border-cream-200">
+                  <tr key={int.semana} className="border-t border-mist-200">
                     <td className="py-1.5 text-ink-700">Semana {int.semana} · {int.nome}</td>
                     <td className="py-1.5 text-right font-bold text-ink-900">{doseNaSemana(e, int.semana)}</td>
                   </tr>

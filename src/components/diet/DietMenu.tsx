@@ -21,7 +21,7 @@ export function DietMenu({ days, diaInicial }: { days: DietDay[]; diaInicial: nu
 
   if (days.length === 0) {
     return (
-      <p className="rounded-2xl bg-cream-100 p-4 text-ink-700">
+      <p className="rounded-2xl bg-mist-100 p-4 text-ink-700">
         El menú todavía se está preparando. Vuelve pronto.
       </p>
     )

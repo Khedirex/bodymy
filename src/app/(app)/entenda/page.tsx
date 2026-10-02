@@ -57,7 +57,7 @@ export default async function EntendaPage() {
                 return (
                   <li key={d.day.id}>
                     <Link href={`/entenda/${lesson.id}`} className="card flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-cream-200 text-ink-800">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-mist-200 text-ink-800">
                         <BookIcon width={18} height={18} />
                       </div>
                       <div className="min-w-0 flex-1">

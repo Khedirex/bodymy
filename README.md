@@ -413,7 +413,7 @@ Configure na Kiwify a URL do webhook apontando para
 ## PWA
 
 - `public/manifest.json` — nome, ícones 192/512 (+ maskable), `display:
-  standalone`, `theme_color` coral, orientação retrato.
+  standalone`, `theme_color` roxo (#7550AD), orientação retrato.
 - `public/sw.js` — cache do shell/estáticos; conteúdo dinâmico (aulas, dados do
   usuário, APIs) sempre da rede. Registrado **apenas em produção**
   (`src/components/pwa/ServiceWorkerRegister.tsx`).

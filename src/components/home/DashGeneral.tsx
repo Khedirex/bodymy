@@ -84,10 +84,10 @@ export function DashGeneral({
                 <span
                   className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${
                     d.fez
-                      ? 'bg-coral-500 text-white'
+                      ? 'bg-brand-500 text-white'
                       : d.ehHoje
-                        ? 'border-2 border-dashed border-coral-400 text-coral-500'
-                        : 'bg-cream-200 text-ink-700/40'
+                        ? 'border-2 border-dashed border-brand-400 text-brand-500'
+                        : 'bg-mist-200 text-ink-700/40'
                   }`}
                   aria-label={`${DIAS_ES[diaSemana]} ${diaMes}${d.fez ? ' — registrado' : ' — sin registro'}`}
                 >
@@ -103,7 +103,7 @@ export function DashGeneral({
       </div>
 
       {/* O que ficou para trás / o que falta hoje */}
-      <div className="rounded-2xl bg-cream-100 px-3.5 py-2.5 text-sm">
+      <div className="rounded-2xl bg-mist-100 px-3.5 py-2.5 text-sm">
         {!fezHoje ? (
           <p className="text-ink-900">
             <span className="font-bold">Hoy todavía no registras nada.</span>{' '}

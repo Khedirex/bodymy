@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 export default function AuthCallbackPage() {
   return (
     <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col items-center justify-center gap-4 px-6 text-center">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-cream-200 border-t-coral-400" />
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-mist-200 border-t-brand-400" />
       <p className="font-semibold text-ink-800">Entrando a tu cuenta…</p>
       <Suspense fallback={null}>
         <CallbackHandler />

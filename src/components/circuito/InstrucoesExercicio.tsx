@@ -41,7 +41,7 @@ export function InstrucoesExercicio({ texto }: { texto: string }) {
           </div>
         ) : (
           <div key={i}>
-            <p className="text-xs font-bold uppercase tracking-wide text-coral-500">{b.label}</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-brand-500">{b.label}</p>
             <p className="whitespace-pre-line text-ink-800">{b.texto}</p>
           </div>
         ),

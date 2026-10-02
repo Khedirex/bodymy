@@ -6,10 +6,10 @@ export function StreakBadge({ dias, className = '' }: { dias: number; className?
   return (
     <div
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold ${
-        ativo ? 'bg-coral-50 text-coral-600' : 'bg-cream-100 text-ink-700/60'
+        ativo ? 'bg-sun-100 text-ink-900' : 'bg-mist-100 text-ink-700/60'
       } ${className}`}
     >
-      <FlameIcon width={18} height={18} className={ativo ? 'text-coral-500' : 'text-ink-700/40'} />
+      <FlameIcon width={18} height={18} className={ativo ? 'text-sun-600' : 'text-ink-700/40'} />
       {ativo ? (
         <span>
           {dias} {dias === 1 ? 'día seguido' : 'días seguidos'}

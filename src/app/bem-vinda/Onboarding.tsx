@@ -53,7 +53,7 @@ export function Onboarding({
           <div
             key={n}
             className={`h-1.5 flex-1 rounded-full ${
-              n <= passo ? 'bg-coral-400' : 'bg-cream-200'
+              n <= passo ? 'bg-brand-400' : 'bg-mist-200'
             }`}
           />
         ))}
@@ -70,7 +70,7 @@ export function Onboarding({
           <p className="mt-3 text-lg text-ink-700">
             Tu programa está listo:
           </p>
-          <p className="mt-1 text-xl font-bold text-coral-600">{programaNome}</p>
+          <p className="mt-1 text-xl font-bold text-brand-600">{programaNome}</p>
           <p className="mt-4 text-ink-700">
             Vamos a dejar todo a la medida de tu rutina. Toma menos de un minuto.
           </p>
@@ -98,8 +98,8 @@ export function Onboarding({
                 onClick={() => setFaixa(o.valor)}
                 className={`flex w-full items-center gap-3 rounded-2xl border-2 px-5 py-4 text-left text-lg font-semibold transition ${
                   faixa === o.valor
-                    ? 'border-coral-400 bg-coral-50 text-coral-700'
-                    : 'border-cream-200 bg-white text-ink-800'
+                    ? 'border-brand-400 bg-brand-50 text-brand-700'
+                    : 'border-mist-200 bg-white text-ink-800'
                 }`}
               >
                 {o.label}
@@ -132,7 +132,7 @@ export function Onboarding({
           </div>
           <div className="mt-auto pt-8">
             {erro ? (
-              <p className="mb-3 rounded-2xl bg-coral-50 px-4 py-3 text-sm font-medium text-coral-700">
+              <p className="mb-3 rounded-2xl bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">
                 {erro}
               </p>
             ) : null}

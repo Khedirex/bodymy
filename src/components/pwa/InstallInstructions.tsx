@@ -18,7 +18,7 @@ export function InstallInstructions() {
 
   if (plataforma === 'ios') {
     return (
-      <div className="rounded-2xl bg-cream-100 p-4">
+      <div className="rounded-2xl bg-mist-100 p-4">
         <p className="mb-2 font-semibold text-ink-900">Agrégalo a la pantalla de tu iPhone</p>
         <ol className="space-y-1.5 text-sm text-ink-700">
           <li>1. Toca el botón <strong>Compartir</strong> (el cuadradito con la flecha ↑) en la barra de Safari.</li>
@@ -31,7 +31,7 @@ export function InstallInstructions() {
 
   if (plataforma === 'android') {
     return (
-      <div className="rounded-2xl bg-cream-100 p-4">
+      <div className="rounded-2xl bg-mist-100 p-4">
         <p className="mb-2 font-semibold text-ink-900">Agrégalo a la pantalla de tu celular</p>
         {podeInstalarNativo ? (
           <button
@@ -53,7 +53,7 @@ export function InstallInstructions() {
   }
 
   return (
-    <div className="rounded-2xl bg-cream-100 p-4 text-sm text-ink-700">
+    <div className="rounded-2xl bg-mist-100 p-4 text-sm text-ink-700">
       Abre BodyMy en el navegador de tu celular y usa la opción{' '}
       <strong>Agregar a la pantalla de inicio</strong> para instalarlo como aplicación.
     </div>

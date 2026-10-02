@@ -102,7 +102,7 @@ export function NocheRitual({ nivel, concluidas, proximaNoche, feitoHoje, termin
             </button>
           ))}
         </div>
-        {erro && <p className="text-sm font-semibold text-coral-500">{erro}</p>}
+        {erro && <p className="text-sm font-semibold text-brand-500">{erro}</p>}
       </div>
     )
   }
@@ -170,7 +170,7 @@ export function NocheRitual({ nivel, concluidas, proximaNoche, feitoHoje, termin
             <PlayIcon width={22} height={22} />
             {salvando ? 'Guardando…' : 'Marcar esta noche'}
           </button>
-          {erro && <p className="mt-2 text-sm font-semibold text-coral-500">{erro}</p>}
+          {erro && <p className="mt-2 text-sm font-semibold text-brand-500">{erro}</p>}
         </section>
       )}
     </div>

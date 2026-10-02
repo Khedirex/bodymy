@@ -20,10 +20,10 @@ interface Props {
 
 // Cores calmas por fase (nada de vermelho agressivo).
 const CORES: Record<string, string> = {
-  prep: 'bg-cream-100 text-ink-800',
-  exec: 'bg-coral-50 text-coral-700',
-  exec_manual: 'bg-coral-50 text-coral-700',
-  transicao: 'bg-gold-300/20 text-gold-500',
+  prep: 'bg-mist-100 text-ink-800',
+  exec: 'bg-brand-50 text-brand-700',
+  exec_manual: 'bg-brand-50 text-brand-700',
+  transicao: 'bg-sun-300/20 text-sun-700',
   descanso: 'bg-sage-100 text-sage-600',
   fim: 'bg-sage-100 text-sage-600',
 }
@@ -141,7 +141,7 @@ export function CronometroExercicio({
           <p className="text-ink-700">Haz las repeticiones a tu ritmo. Cuando termines la serie, toca abajo.</p>
           <button
             onClick={serieConcluida}
-            className="mt-4 w-full rounded-2xl bg-coral-400 px-5 py-5 text-xl font-extrabold text-white"
+            className="mt-4 w-full rounded-2xl bg-brand-400 px-5 py-5 text-xl font-extrabold text-white"
           >
             Serie completada ✓
           </button>

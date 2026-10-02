@@ -105,7 +105,7 @@ export function CarrosselDashes({ itens }: { itens: DashModulo[] }) {
               >
                 <span
                   className={`block rounded-full transition-all ${
-                    i === ativo ? 'h-3 w-7 bg-coral-500' : 'h-3 w-3 bg-ink-700/20'
+                    i === ativo ? 'h-3 w-7 bg-brand-500' : 'h-3 w-3 bg-ink-700/20'
                   }`}
                 />
               </button>
@@ -178,7 +178,7 @@ function DashDoModulo({ item }: { item: DashModulo }) {
       {feito && (
         <Link
           href={item.href}
-          className="mt-3 flex w-full items-center justify-center rounded-full border-2 border-cream-200 py-3.5 text-base font-bold text-ink-900"
+          className="mt-3 flex w-full items-center justify-center rounded-full border-2 border-mist-200 py-3.5 text-base font-bold text-ink-900"
         >
           Abrir {item.nome}
         </Link>

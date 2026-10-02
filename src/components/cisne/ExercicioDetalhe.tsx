@@ -18,7 +18,7 @@ export function ExercicioDetalhe({ exercicio }: { exercicio: CisneExercicio }) {
         <ol className="space-y-2">
           {exercicio.passos.map((p, i) => (
             <li key={i} className="flex gap-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-coral-100 text-sm font-bold text-coral-600">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-600">
                 {i + 1}
               </span>
               <span>{p}</span>
@@ -32,13 +32,13 @@ export function ExercicioDetalhe({ exercicio }: { exercicio: CisneExercicio }) {
           <p className="text-xs font-bold uppercase tracking-wider text-sage-600">Lo correcto</p>
           <p className="mt-1">{exercicio.correto}</p>
         </div>
-        <div className="rounded-2xl bg-coral-50 p-3">
-          <p className="text-xs font-bold uppercase tracking-wider text-coral-600">Evita</p>
+        <div className="rounded-2xl bg-brand-50 p-3">
+          <p className="text-xs font-bold uppercase tracking-wider text-brand-600">Evita</p>
           <p className="mt-1">{exercicio.evita}</p>
         </div>
       </div>
 
-      <div className="rounded-2xl bg-cream-100 p-3 text-sm">
+      <div className="rounded-2xl bg-mist-100 p-3 text-sm">
         <span className="font-bold">Más fácil: </span>
         {exercicio.maisFacil}
       </div>

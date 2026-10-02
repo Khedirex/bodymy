@@ -51,8 +51,8 @@ function BlocoView({ bloco, numero }: { bloco: GuiaBloco; numero?: number }) {
   }
   if (bloco.tipo === 'dica') {
     return (
-      <div className="rounded-2xl bg-gold-300/20 p-4">
-        <p className="mb-1 text-sm font-bold text-gold-500">{bloco.titulo ?? 'Consejo'}</p>
+      <div className="rounded-2xl bg-sun-300/20 p-4">
+        <p className="mb-1 text-sm font-bold text-sun-700">{bloco.titulo ?? 'Consejo'}</p>
         <p className="whitespace-pre-line text-ink-800">{bloco.conteudo}</p>
       </div>
     )
@@ -60,7 +60,7 @@ function BlocoView({ bloco, numero }: { bloco: GuiaBloco; numero?: number }) {
   return (
     <div className="card flex gap-3">
       {numero ? (
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-coral-100 font-bold text-coral-600">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-100 font-bold text-brand-600">
           {numero}
         </span>
       ) : null}

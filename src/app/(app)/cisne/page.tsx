@@ -26,17 +26,17 @@ export default async function CisnePage() {
   return (
     <div className="space-y-6">
       {/* Capa */}
-      <header className="overflow-hidden rounded-3xl bg-[#EBCFA9]">
+      <header className="overflow-hidden rounded-3xl bg-sun-200">
         <div className="px-5 pb-3 pt-5">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#2F6E68]">BodyMy · Reto 14 días</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-sun-700">BodyMy · Reto 14 días</p>
           <h1 className="mt-1 text-3xl font-extrabold leading-tight text-ink-900">
-            Reset Postura <span className="italic text-coral-600">de Cisne</span>
+            Reset Postura <span className="italic text-brand-600">de Cisne</span>
           </h1>
           <p className="mt-1 text-sm text-ink-800">14 días · 10 minutos al día · en tu cama</p>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/guias/cisne/capa.webp" alt="" className="h-40 w-full object-cover object-[50%_70%]" />
-        <div className="bg-[#2F6E68] px-5 py-3 text-white">
+        <div className="bg-sun-700 px-5 py-3 text-white">
           <div className="flex items-center justify-between text-sm font-bold">
             <span>{estado.concluidos} de {CISNE_TOTAL_DIAS} días</span>
             <span>{pct}%</span>
@@ -95,7 +95,7 @@ export default async function CisnePage() {
           <span className="text-xs text-ink-700">Reglas de oro y cuidados</span>
         </Link>
         <Link href="/cisne/ejercicios" className="card flex flex-col gap-2 p-4">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-coral-50 text-coral-500">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-50 text-brand-500">
             🦢
           </span>
           <span className="font-bold text-ink-900">Los 12 ejercicios</span>
@@ -123,8 +123,8 @@ export default async function CisnePage() {
                         reg
                           ? 'bg-sage-500 text-white'
                           : aberto
-                            ? 'bg-coral-400 text-white'
-                            : 'bg-cream-200 text-ink-700/60'
+                            ? 'bg-brand-400 text-white'
+                            : 'bg-mist-200 text-ink-700/60'
                       }`}
                     >
                       {reg ? <CheckIcon width={18} height={18} /> : d.numero}
@@ -172,7 +172,7 @@ export default async function CisnePage() {
           <ul className="space-y-1.5 text-ink-800">
             {[...CISNE_GUIA.paraMantener, ...CISNE_GUIA.duranteElDia].map((t) => (
               <li key={t} className="flex gap-2">
-                <span className="text-coral-500">•</span> {t}
+                <span className="text-brand-500">•</span> {t}
               </li>
             ))}
           </ul>

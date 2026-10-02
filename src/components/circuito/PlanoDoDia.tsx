@@ -74,7 +74,7 @@ export function PlanoDoDia({
         >
           <span
             className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-2xl ${
-              alongou ? 'bg-sage-100 text-sage-600' : 'bg-coral-50'
+              alongou ? 'bg-sage-100 text-sage-600' : 'bg-brand-50'
             }`}
           >
             {alongou ? <CheckIcon width={26} height={26} /> : '🌿'}
@@ -92,7 +92,7 @@ export function PlanoDoDia({
 
         {aberto && (
           <div className="px-5 pb-5">
-            <ol className="mb-4 space-y-2.5 border-t border-cream-200 pt-4">
+            <ol className="mb-4 space-y-2.5 border-t border-mist-200 pt-4">
               {stretches.map((s, i) => (
                 <li key={s.id} className="flex items-baseline gap-3 text-base">
                   <span className="w-6 shrink-0 font-bold text-ink-700/40">{i + 1}</span>
@@ -147,7 +147,7 @@ export function PlanoDoDia({
           if (i === proximo) {
             return (
               <div key={e.exercise_id} className="rounded-3xl bg-white p-5 shadow-card">
-                <p className="text-base font-semibold text-coral-600">Ahora · Ejercicio {i + 1}</p>
+                <p className="text-base font-semibold text-brand-600">Ahora · Ejercicio {i + 1}</p>
                 <p className="mt-1 text-xl font-extrabold leading-tight text-ink-900">{e.nome}</p>
                 <button
                   onClick={() => onAbrirExercicio(i)}
@@ -163,9 +163,9 @@ export function PlanoDoDia({
             <div
               key={e.exercise_id}
               aria-disabled
-              className="flex min-h-[72px] items-center gap-4 rounded-3xl bg-cream-100 px-5 py-4"
+              className="flex min-h-[72px] items-center gap-4 rounded-3xl bg-mist-100 px-5 py-4"
             >
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-cream-200 text-ink-700/40">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-mist-200 text-ink-700/40">
                 <LockIcon width={24} height={24} />
               </span>
               <span className="min-w-0 flex-1">
