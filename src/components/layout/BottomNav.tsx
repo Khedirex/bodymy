@@ -21,6 +21,7 @@ const ITEMS = [
       p.startsWith('/treino') ||
       p.startsWith('/programa') ||
       p.startsWith('/cisne') ||
+      p.startsWith('/noche') ||
       p.startsWith('/entenda') ||
       p.startsWith('/dieta'),
   },

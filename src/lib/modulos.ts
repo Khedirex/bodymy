@@ -7,6 +7,8 @@ import { getCircuitoPrograma, getTrainingConfig } from '@/lib/circuito'
 import { CIRCUITO_ACCESS_SLUGS } from '@/lib/training'
 import { CISNE_PRODUCT_SLUG, CISNE_DIAS, CISNE_TOTAL_DIAS } from '@/lib/cisne'
 import { hasCisneAccess, getCisneEstado } from '@/lib/cisne-server'
+import { NOCHE_PRODUCT_SLUG, NOCHE_TOTAL_NOCHES, audioDaNoche } from '@/lib/noche'
+import { hasNocheAccess, getNocheEstado } from '@/lib/noche-server'
 
 // =====================================================================
 // REGISTRO DE MÓDULOS — a fonte única dos "mini-apps" do BodyMy.
@@ -88,6 +90,25 @@ async function estadoCisne(userId: string): Promise<EstadoModulo | null> {
 }
 
 // ---------------------------------------------------------------------
+// Ritual Noche Perfecta (14 noites de áudio, 7 min cada)
+// ---------------------------------------------------------------------
+async function estadoNoche(userId: string): Promise<EstadoModulo | null> {
+  if (!(await hasNocheAccess(userId))) return null
+  const e = await getNocheEstado(userId)
+  const audio = e.proximaNoche ? audioDaNoche(e.proximaNoche) : null
+  return {
+    concluidos: e.concluidas,
+    total: NOCHE_TOTAL_NOCHES,
+    feitoHoje: e.feitoHoje,
+    terminado: e.terminado,
+    chamadaHoje:
+      e.terminado || e.feitoHoje || !audio
+        ? null
+        : `Noche ${e.proximaNoche} · ${audio.nombre}`,
+  }
+}
+
+// ---------------------------------------------------------------------
 // O registro
 // ---------------------------------------------------------------------
 export const MODULOS: ModuloBodyMy[] = [
@@ -110,6 +131,16 @@ export const MODULOS: ModuloBodyMy[] = [
     cor: 'bg-sage-100 text-sage-600',
     emoji: '🦢',
     carregarEstado: estadoCisne,
+  },
+  {
+    slug: 'ritual-noche-perfecta',
+    nome: 'Ritual Noche Perfecta',
+    resumo: '7 minutos antes de dormir, 14 noches',
+    href: '/noche',
+    productSlugs: [NOCHE_PRODUCT_SLUG],
+    cor: 'bg-ink-900/5 text-ink-900',
+    emoji: '🌙',
+    carregarEstado: estadoNoche,
   },
 ]
 
