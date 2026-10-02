@@ -34,6 +34,8 @@ function botao(magicLink: string, label = 'ACCEDER A MI PROGRAMA'): string {
 export interface GuiaEmail {
   pdfUrl: string // URL absoluta do PDF
   itens: string[] // o que ela encontra no app
+  /** Emoji do produto, para o assunto do e-mail. */
+  emoji?: string
 }
 
 // E-mail de BOAS-VINDAS (primeiro acesso). Acolhedor, linguagem simples,

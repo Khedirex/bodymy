@@ -12,6 +12,9 @@ export const NOCHE_PRODUCT_SLUG = 'ritual-noche-perfecta'
 export const NOCHE_PROGRAM_SLUG = 'ritual-noche-perfecta'
 export const NOCHE_NOME = 'Ritual Noche Perfecta'
 
+/** Guia em PDF: as 7 noites, como usar e as dúvidas mais comuns. */
+export const NOCHE_GUIA_PDF = '/guias/noche/ritual-noche-perfecta-guia.pdf'
+
 /** O protocolo tem 7 noites: uma Vibración por noite, VN1 a VN7. */
 export const NOCHE_TOTAL_NOCHES = 7
 

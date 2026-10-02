@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation'
 import {
   NOCHE_TOTAL_NOCHES,
   NOCHE_NIVEIS,
+  NOCHE_AUDIO_RESCATE,
+  NOCHE_GUIA_PDF,
   audioDaNoche,
+  audioPorId,
   repeticoesDaNoche,
   type NocheNivel,
 } from '@/lib/noche'
@@ -25,6 +28,46 @@ interface Props {
 // marcar a noite. Texto grande e um botão só — o público é 45-60+.
 // O mesmo tema noturno do card da Home acompanha a aluna aqui dentro.
 const TEMA = temaDoModulo('ritual-noche-perfecta')
+
+// O áudio de rescate é promessa do produto ("úsalo cuando despiertes de
+// madrugada"), mas só aparecia na noite 5. Agora fica disponível TODA noite,
+// fechado por padrão para não competir com o ritual do dia.
+function Rescate() {
+  const audio = audioPorId(NOCHE_AUDIO_RESCATE)
+  return (
+    <details className="rounded-3xl bg-white p-5 shadow-card">
+      <summary className="cursor-pointer list-none text-lg font-bold text-ink-900">
+        🌑 ¿Despertaste de madrugada?
+      </summary>
+      <p className="mt-2 text-base text-ink-700">
+        No cuentes las horas que te quedan. Quédate acostada y escucha el{' '}
+        <strong>{audio.nombre}</strong> aquí mismo. Puedes usarlo todas las veces que lo
+        necesites — no cambia tu avance.
+      </p>
+      <audio src={audio.archivo} controls preload="none" className="mt-3 w-full" />
+    </details>
+  )
+}
+
+// A guia em PDF: as 7 noites, como usar e as dúvidas mais comuns.
+function Guia() {
+  return (
+    <a
+      href={NOCHE_GUIA_PDF}
+      target="_blank"
+      rel="noopener"
+      className="flex items-center gap-3 rounded-3xl bg-white p-5 shadow-card"
+    >
+      <span className="text-2xl">📄</span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-base font-bold text-ink-900">Tu guía en PDF</span>
+        <span className="block text-sm text-ink-700">
+          Las {NOCHE_TOTAL_NOCHES} noches, cómo usarlas y las dudas más comunes
+        </span>
+      </span>
+    </a>
+  )
+}
 
 export function NocheRitual({ nivel, concluidas, proximaNoche, feitoHoje, terminado }: Props) {
   const router = useRouter()
@@ -102,21 +145,35 @@ export function NocheRitual({ nivel, concluidas, proximaNoche, feitoHoje, termin
             </button>
           ))}
         </div>
-        {erro && <p className="text-sm font-semibold text-brand-500">{erro}</p>}
+        {erro && <p className="text-sm font-semibold text-brand-600">{erro}</p>}
+
+        <div className="rounded-3xl bg-white p-5 shadow-card">
+          <p className="text-base font-bold text-ink-900">Cómo funciona</p>
+          <p className="mt-1 text-base text-ink-700">
+            Son {NOCHE_TOTAL_NOCHES} noches. Cada noche, un audio de ~7 minutos: te acuestas,
+            cierras los ojos y lo dejas sonar. Quedarte dormida antes de que termine no es un
+            error — es el objetivo. Al día siguiente se abre la noche siguiente.
+          </p>
+        </div>
+        <Guia />
       </div>
     )
   }
 
   if (terminado) {
     return (
-      <div className="rounded-3xl bg-sage-100 p-8 text-center">
-        <p className="text-5xl">🌙</p>
-        <p className="mt-3 text-2xl font-extrabold text-sage-600">
-          ¡Completaste las {NOCHE_TOTAL_NOCHES} noches!
-        </p>
-        <p className="mt-2 text-base text-ink-700">
-          Tu sueño tiene una nueva frecuencia. Sigue usando los audios cuando lo necesites.
-        </p>
+      <div className="space-y-4">
+        <div className="rounded-3xl bg-sage-100 p-8 text-center">
+          <p className="text-5xl">🌙</p>
+          <p className="mt-3 text-2xl font-extrabold text-sage-600">
+            ¡Completaste las {NOCHE_TOTAL_NOCHES} noches!
+          </p>
+          <p className="mt-2 text-base text-ink-700">
+            Tu sueño tiene una nueva frecuencia. Sigue usando los audios cuando lo necesites.
+          </p>
+        </div>
+        <Rescate />
+        <Guia />
       </div>
     )
   }
@@ -170,9 +227,12 @@ export function NocheRitual({ nivel, concluidas, proximaNoche, feitoHoje, termin
             <PlayIcon width={22} height={22} />
             {salvando ? 'Guardando…' : 'Marcar esta noche'}
           </button>
-          {erro && <p className="mt-2 text-sm font-semibold text-brand-500">{erro}</p>}
+          {erro && <p className="mt-2 text-sm font-semibold text-brand-600">{erro}</p>}
         </section>
       )}
+
+      <Rescate />
+      <Guia />
     </div>
   )
 }

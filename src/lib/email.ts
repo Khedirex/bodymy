@@ -4,6 +4,7 @@ import { serverEnv } from '@/lib/env'
 import { welcomeHtml, type GuiaEmail } from '@/lib/email-templates'
 import { env } from '@/lib/env'
 import { CISNE_PRODUCT_SLUG, CISNE_GUIA_PDF } from '@/lib/cisne'
+import { NOCHE_PRODUCT_SLUG, NOCHE_GUIA_PDF, NOCHE_TOTAL_NOCHES } from '@/lib/noche'
 
 // Remetente de TESTE do Resend: funciona SEM verificar domínio, mas só
 // entrega para o e-mail dono da conta Resend. Usado como fallback em dev
@@ -131,18 +132,37 @@ export function dicaResend(status: number | undefined, message: string | undefin
   return null
 }
 
-// Conteúdo extra do e-mail por produto (hoje só o Reset Postura de Cisne,
-// que entrega o PDF junto com o acesso ao app).
+// Conteúdo do e-mail POR PRODUTO: o que ela encontra no app e o guia em PDF.
+//
+// Sem isto, quem comprava o Ritual Noche Perfecta recebia os bullets padrão —
+// que falam em "sugerencias de menú" — e nenhum PDF. Produto de sono vendido
+// com texto de dieta: a aluna abria o e-mail e não reconhecia a compra dela.
 function guiaDoProduto(produtoSlug: string | undefined): GuiaEmail | undefined {
-  if (produtoSlug !== CISNE_PRODUCT_SLUG) return undefined
-  return {
-    pdfUrl: `${env.appUrl}${CISNE_GUIA_PDF}`,
-    itens: [
-      'Cada día, tus <strong>4 movimientos</strong> en orden — 10 minutos, acostada en tu cama',
-      'Dibujo, paso a paso, lo correcto, qué evitar y la opción <strong>“Más fácil”</strong>',
-      'Al entrar, tócalo en <strong>Inicio → “Hoy”</strong> (o en la pestaña “Tu plan”)',
-    ],
+  if (produtoSlug === CISNE_PRODUCT_SLUG) {
+    return {
+      emoji: '🦢',
+      pdfUrl: `${env.appUrl}${CISNE_GUIA_PDF}`,
+      itens: [
+        'Cada día, tus <strong>4 movimientos</strong> en orden — 10 minutos, acostada en tu cama',
+        'Dibujo, paso a paso, lo correcto, qué evitar y la opción <strong>“Más fácil”</strong>',
+        'Al entrar, tócalo en <strong>Inicio → “Hoy”</strong> (o en la pestaña “Tu plan”)',
+      ],
+    }
   }
+
+  if (produtoSlug === NOCHE_PRODUCT_SLUG) {
+    return {
+      emoji: '🌙',
+      pdfUrl: `${env.appUrl}${NOCHE_GUIA_PDF}`,
+      itens: [
+        `<strong>${NOCHE_TOTAL_NOCHES} noches</strong>, una Vibración Nocturna de ~7 minutos cada noche`,
+        'Te acuestas, cierras los ojos y el audio hace el resto — cada noche abre la siguiente',
+        'Tu <strong>audio de rescate</strong> para cuando despiertes de madrugada, disponible siempre',
+      ],
+    }
+  }
+
+  return undefined
 }
 
 // E-mail transacional de boas-vindas com o link mágico de acesso.
@@ -159,7 +179,9 @@ export async function sendWelcomeEmail(params: {
   return enviar({
     contexto: 'boas-vindas',
     to,
-    subject: guia ? `Tu acceso a ${programaNome} ya está listo 🦢` : 'Tu acceso a BodyMy ya está listo 🤍',
+    subject: guia
+      ? `Tu acceso a ${programaNome} ya está listo ${guia.emoji ?? '🤍'}`
+      : 'Tu acceso a BodyMy ya está listo 🤍',
     html: welcomeHtml({ primeiroNome, programaNome, magicLink, guia }),
   })
 }
