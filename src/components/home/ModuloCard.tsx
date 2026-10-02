@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ProgressBar } from '@/components/ProgressBar'
 import { PlayIcon, CheckIcon, ChevronRight } from '@/components/ui/icons'
+import { temaDoModulo } from '@/lib/modulo-tema'
 import type { ModuloDaAluna } from '@/lib/modulos'
 
 // Card do módulo em DESTAQUE na Home: o que ela tem para fazer hoje.
@@ -8,11 +9,13 @@ import type { ModuloDaAluna } from '@/lib/modulos'
 export function ModuloDestaque({ item }: { item: ModuloDaAluna }) {
   const { modulo, estado } = item
   const feito = estado?.feitoHoje || estado?.terminado
+  // A cor do card é a MESMA que ela encontra dentro do módulo.
+  const tema = temaDoModulo(modulo.slug)
 
   return (
     <section className="rounded-3xl bg-white p-5 shadow-card">
       <div className="flex items-center gap-3">
-        <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl ${modulo.cor}`}>
+        <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl ${tema.avatar}`}>
           {modulo.emoji}
         </span>
         <div className="min-w-0 flex-1">
@@ -23,7 +26,12 @@ export function ModuloDestaque({ item }: { item: ModuloDaAluna }) {
 
       {estado && (
         <div className="mt-4">
-          <ProgressBar atual={estado.concluidos} total={estado.total} label="Tu avance" />
+          <ProgressBar
+            atual={estado.concluidos}
+            total={estado.total}
+            label="Tu avance"
+            gradiente={tema.barra}
+          />
         </div>
       )}
 
@@ -39,9 +47,12 @@ export function ModuloDestaque({ item }: { item: ModuloDaAluna }) {
       ) : (
         <>
           {estado?.chamadaHoje && (
-            <p className="mt-4 text-base font-semibold text-coral-600">{estado.chamadaHoje}</p>
+            <p className={`mt-4 text-base font-semibold ${tema.realce}`}>{estado.chamadaHoje}</p>
           )}
-          <Link href={modulo.href} className="btn-primary mt-3 w-full py-4 text-lg">
+          <Link
+            href={modulo.href}
+            className={`mt-3 flex w-full items-center justify-center gap-2 rounded-full py-4 text-lg font-bold ${tema.botao}`}
+          >
             <PlayIcon width={22} height={22} /> Empezar
           </Link>
         </>
@@ -57,13 +68,15 @@ export function CarrosselModulos({ itens }: { itens: ModuloDaAluna[] }) {
     <section>
       <h2 className="section-title mb-2">Tus rutinas</h2>
       <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
-        {itens.map(({ modulo, estado }) => (
+        {itens.map(({ modulo, estado }) => {
+          const t = temaDoModulo(modulo.slug)
+          return (
           <Link
             key={modulo.slug}
             href={modulo.href}
             className="flex w-60 shrink-0 items-center gap-3 rounded-3xl bg-white p-4 shadow-card"
           >
-            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-xl ${modulo.cor}`}>
+            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-xl ${t.avatar}`}>
               {modulo.emoji}
             </span>
             <span className="min-w-0 flex-1">
@@ -74,7 +87,8 @@ export function CarrosselModulos({ itens }: { itens: ModuloDaAluna[] }) {
             </span>
             <ChevronRight className="shrink-0 text-ink-700/40" width={20} height={20} />
           </Link>
-        ))}
+          )
+        })}
       </div>
     </section>
   )

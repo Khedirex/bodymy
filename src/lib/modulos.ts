@@ -40,8 +40,6 @@ export interface ModuloBodyMy {
   href: string
   /** Slugs de PRODUTO que liberam este módulo (SKUs Kiwify/Hotmart). */
   productSlugs: string[]
-  /** Classes do avatar/ícone no card. */
-  cor: string
   emoji: string
   carregarEstado: (userId: string) => Promise<EstadoModulo | null>
 }
@@ -118,7 +116,6 @@ export const MODULOS: ModuloBodyMy[] = [
     resumo: 'Movilidad + ejercicios que se ajustan a ti',
     href: '/treino',
     productSlugs: CIRCUITO_ACCESS_SLUGS,
-    cor: 'bg-coral-50 text-coral-500',
     emoji: '🤍',
     carregarEstado: estadoCircuito,
   },
@@ -128,7 +125,6 @@ export const MODULOS: ModuloBodyMy[] = [
     resumo: '10 minutos en tu cama, antes de dormir',
     href: '/cisne',
     productSlugs: [CISNE_PRODUCT_SLUG],
-    cor: 'bg-sage-100 text-sage-600',
     emoji: '🦢',
     carregarEstado: estadoCisne,
   },
@@ -138,7 +134,6 @@ export const MODULOS: ModuloBodyMy[] = [
     resumo: '7 minutos antes de dormir, 14 noches',
     href: '/noche',
     productSlugs: [NOCHE_PRODUCT_SLUG],
-    cor: 'bg-ink-900/5 text-ink-900',
     emoji: '🌙',
     carregarEstado: estadoNoche,
   },

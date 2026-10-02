@@ -9,6 +9,7 @@ import {
   repeticoesDaNoche,
   type NocheNivel,
 } from '@/lib/noche'
+import { temaDoModulo } from '@/lib/modulo-tema'
 import { ProgressBar } from '@/components/ProgressBar'
 import { PlayIcon, CheckIcon } from '@/components/ui/icons'
 
@@ -22,6 +23,9 @@ interface Props {
 
 // Uma noite por vez: escolher o nível (só na primeira), ouvir o áudio e
 // marcar a noite. Texto grande e um botão só — o público é 45-60+.
+// O mesmo tema noturno do card da Home acompanha a aluna aqui dentro.
+const TEMA = temaDoModulo('ritual-noche-perfecta')
+
 export function NocheRitual({ nivel, concluidas, proximaNoche, feitoHoje, terminado }: Props) {
   const router = useRouter()
   const [salvando, setSalvando] = useState(false)
@@ -78,7 +82,7 @@ export function NocheRitual({ nivel, concluidas, proximaNoche, feitoHoje, termin
     return (
       <div className="space-y-5">
         <header>
-          <span className="chip">Antes de empezar</span>
+          <span className={`chip ${TEMA.chip}`}>Antes de empezar</span>
           <h1 className="mt-2 text-2xl font-extrabold leading-tight text-ink-900">
             ¿Cómo duermes hoy?
           </h1>
@@ -124,14 +128,14 @@ export function NocheRitual({ nivel, concluidas, proximaNoche, feitoHoje, termin
   return (
     <div className="space-y-5">
       <header>
-        <span className="chip">
+        <span className={`chip ${TEMA.chip}`}>
           Noche {noche} de {NOCHE_TOTAL_NOCHES}
         </span>
         <h1 className="mt-2 text-2xl font-extrabold leading-tight text-ink-900">{audio.nombre}</h1>
         <p className="mt-1 text-base text-ink-700">{audio.funcion}</p>
       </header>
 
-      <ProgressBar atual={concluidas} total={NOCHE_TOTAL_NOCHES} label="Tu avance" />
+      <ProgressBar atual={concluidas} total={NOCHE_TOTAL_NOCHES} label="Tu avance" gradiente={TEMA.barra} />
 
       {feitoHoje ? (
         <div className="flex items-center gap-3 rounded-3xl bg-sage-100/60 px-5 py-4">
@@ -161,7 +165,7 @@ export function NocheRitual({ nivel, concluidas, proximaNoche, feitoHoje, termin
           <button
             onClick={marcarNoche}
             disabled={salvando}
-            className="btn-primary mt-4 w-full py-4 text-lg disabled:opacity-60"
+            className={`mt-4 flex w-full items-center justify-center gap-2 rounded-full py-4 text-lg font-bold disabled:opacity-60 ${TEMA.botao}`}
           >
             <PlayIcon width={22} height={22} />
             {salvando ? 'Guardando…' : 'Marcar esta noche'}

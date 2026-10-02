@@ -176,3 +176,25 @@ select f.slug as front, u.ordem, a.slug as oferta, u.ativo
   join public.products a on a.id = u.upsell_product_id
  where f.slug = 'ritual-noche-perfecta'
  order by u.ordem;
+
+-- ---------------------------------------------------------------------
+-- 5) Ids da Hotmart + o Combo 3 en 1 (aplicados em produção em 02/10)
+--    Com eles o webhook libera o acesso sozinho.
+-- ---------------------------------------------------------------------
+update public.products p
+   set hotmart_product_id = v.id
+  from (values
+    ('ritual-noche-perfecta','8642135'),
+    ('oracion-noches-bendecidas','8642386'),
+    ('protocolo-reset-madrugada','8642376'),
+    ('receta-natural-pre-sueno','8642381'),
+    ('ritual-mantenimiento-21-noches','8642395'),
+    ('ritual-dia-perfecto','8642393')
+  ) as v(slug, id)
+ where p.slug = v.slug and p.hotmart_product_id is distinct from v.id;
+
+insert into public.products (slug, nome, tipo, descricao, hotmart_product_id, ativo)
+select 'combo-3-en-1-noche', 'Combo 3 en 1 — Ritual Noche Perfecta', 'bundle',
+       'Oración Milagrosa + Protocolo Reset Madrugada + Receta Natural Pre-Sueño.',
+       '8642365', true
+ where not exists (select 1 from public.products where slug = 'combo-3-en-1-noche');

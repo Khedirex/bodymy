@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
 import { getModulosDaAluna } from '@/lib/modulos'
+import { temaDoModulo } from '@/lib/modulo-tema'
 import { ProgressBar } from '@/components/ProgressBar'
 import { EmptyState } from '@/components/ui/states'
 import { ChevronRight, CheckIcon, RouteIcon } from '@/components/ui/icons'
@@ -37,12 +38,14 @@ export default async function RutinasPage() {
         </div>
       ) : (
         <ul className="space-y-3">
-          {modulos.map(({ modulo, estado }) => (
+          {modulos.map(({ modulo, estado }) => {
+            const tema = temaDoModulo(modulo.slug)
+            return (
             <li key={modulo.slug}>
               <Link href={modulo.href} className="block rounded-3xl bg-white p-5 shadow-card">
                 <div className="flex items-center gap-3">
                   <span
-                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl ${modulo.cor}`}
+                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl ${tema.avatar}`}
                   >
                     {modulo.emoji}
                   </span>
@@ -61,12 +64,18 @@ export default async function RutinasPage() {
 
                 {estado && (
                   <div className="mt-4">
-                    <ProgressBar atual={estado.concluidos} total={estado.total} label="Tu avance" />
+                    <ProgressBar
+                      atual={estado.concluidos}
+                      total={estado.total}
+                      label="Tu avance"
+                      gradiente={tema.barra}
+                    />
                   </div>
                 )}
               </Link>
             </li>
-          ))}
+            )
+          })}
         </ul>
       )}
     </div>

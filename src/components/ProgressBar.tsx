@@ -3,10 +3,13 @@ export function ProgressBar({
   atual,
   total,
   label,
+  gradiente = 'from-coral-400 to-coral-500',
 }: {
   atual: number
   total: number
   label?: string
+  /** Classes do gradiente — cada módulo passa a sua (ver modulo-tema.ts). */
+  gradiente?: string
 }) {
   const pct = total > 0 ? Math.round((atual / total) * 100) : 0
   return (
@@ -27,7 +30,7 @@ export function ProgressBar({
         aria-valuemax={100}
       >
         <div
-          className="h-full rounded-full bg-gradient-to-r from-coral-400 to-coral-500 transition-all"
+          className={`h-full rounded-full bg-gradient-to-r ${gradiente} transition-all`}
           style={{ width: `${pct}%` }}
         />
       </div>
