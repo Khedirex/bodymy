@@ -1,9 +1,9 @@
 // =====================================================================
 // BodyMy — Ritual Noche Perfecta
 //
-// Reprogramación cerebral del sueño: 14 noches, 7 "Vibraciones Nocturnas"
-// de ~7 minutos. O conteúdo fica no código (versionado); o banco guarda o
-// produto, o programa e o progresso da aluna (noche_registros/noche_estado).
+// Reprogramación cerebral del sueño: 7 noches, uma "Vibración Nocturna" de
+// ~7 minutos por noite. O conteúdo fica no código (versionado); o banco
+// guarda o produto, o programa e o progresso (noche_registros/noche_estado).
 //
 // Puro (sem server-only): usado no servidor e nos componentes.
 // =====================================================================
@@ -12,10 +12,16 @@ export const NOCHE_PRODUCT_SLUG = 'ritual-noche-perfecta'
 export const NOCHE_PROGRAM_SLUG = 'ritual-noche-perfecta'
 export const NOCHE_NOME = 'Ritual Noche Perfecta'
 
-export const NOCHE_TOTAL_NOCHES = 14
-export const NOCHE_BLOCO = 7
+/** O protocolo tem 7 noites: uma Vibración por noite, VN1 a VN7. */
+export const NOCHE_TOTAL_NOCHES = 7
 
-/** Nível informado no primeiro acesso — define repetições nas noites 1–4. */
+/**
+ * Noites iniciais em que o nível "severa" repete o áudio na mesma noite.
+ * São as noites mais difíceis de quem não dorme há muito tempo.
+ */
+export const NOCHE_NOCHES_REFORCO = 3
+
+/** Nível informado no primeiro acesso — define as repetições do começo. */
 export type NocheNivel = 'leve' | 'moderada' | 'severa'
 
 export type NocheAudioId = 'vn1' | 'vn2' | 'vn3' | 'vn4' | 'vn5' | 'vn6' | 'vn7'
@@ -46,18 +52,15 @@ export const NOCHE_AUDIO_RESCATE: NocheAudioId = 'vn5'
 export const audioPorId = (id: NocheAudioId): NocheAudio =>
   NOCHE_AUDIOS.find((a) => a.id === id) ?? NOCHE_AUDIOS[0]
 
-/**
- * Qual áudio toca em cada noite. O ciclo de 7 se repete no segundo bloco:
- * noche 1 e 8 → VN1, noche 2 e 9 → VN2, e assim por diante.
- */
+/** Qual áudio toca em cada noite: noche 1 → VN1, …, noche 7 → VN7. */
 export function audioDaNoche(noche: number): NocheAudio {
-  const indice = ((Math.max(1, noche) - 1) % NOCHE_BLOCO) % NOCHE_AUDIOS.length
+  const indice = Math.min(Math.max(1, noche), NOCHE_AUDIOS.length) - 1
   return NOCHE_AUDIOS[indice]
 }
 
-/** Nas noites 1–4 o nível "severa" repete o áudio na mesma noite. */
+/** Nas primeiras noites o nível "severa" repete o áudio na mesma noite. */
 export function repeticoesDaNoche(nivel: NocheNivel | null, noche: number): 1 | 2 {
-  return nivel === 'severa' && noche <= 4 ? 2 : 1
+  return nivel === 'severa' && noche <= NOCHE_NOCHES_REFORCO ? 2 : 1
 }
 
 export const NOCHE_NIVEIS: { valor: NocheNivel; label: string; detalhe: string }[] = [

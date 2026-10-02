@@ -88,7 +88,7 @@ async function estadoCisne(userId: string): Promise<EstadoModulo | null> {
 }
 
 // ---------------------------------------------------------------------
-// Ritual Noche Perfecta (14 noites de áudio, 7 min cada)
+// Ritual Noche Perfecta (7 noites de áudio, 7 min cada)
 // ---------------------------------------------------------------------
 async function estadoNoche(userId: string): Promise<EstadoModulo | null> {
   if (!(await hasNocheAccess(userId))) return null
@@ -131,7 +131,7 @@ export const MODULOS: ModuloBodyMy[] = [
   {
     slug: 'ritual-noche-perfecta',
     nome: 'Ritual Noche Perfecta',
-    resumo: '7 minutos antes de dormir, 14 noches',
+    resumo: '7 noches, 7 minutos antes de dormir',
     href: '/noche',
     productSlugs: [NOCHE_PRODUCT_SLUG],
     emoji: '🌙',
