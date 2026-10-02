@@ -3,6 +3,7 @@ import { cache } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { captureException } from '@/lib/observability'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 // =====================================================================
 // Regra de negócio central: acesso a conteúdo é SEMPRE validado no
@@ -11,9 +12,12 @@ import { createClient } from '@/lib/supabase/server'
 // =====================================================================
 
 /**
- * Retorna true se o usuário tem um entitlement ATIVO para o produto.
- * Deve ser chamado em código de servidor com um client autenticado
- * (respeitando RLS) ou admin.
+ * Retorna true se o usuário tem acesso ATIVO ao produto — comprado direto
+ * ou incluído num bundle que ele comprou.
+ *
+ * Delega ao conjunto expandido para existir UMA definição de "tem acesso":
+ * se esta função consultasse a tabela por conta própria, um produto vendido
+ * dentro de um combo passaria no cadeado da vitrine e falharia aqui.
  */
 export async function userHasEntitlement(
   supabase: SupabaseClient,
@@ -21,26 +25,8 @@ export async function userHasEntitlement(
   productId: string,
 ): Promise<boolean> {
   if (!userId || !productId) return false
-
-  const { data, error } = await supabase
-    .from('entitlements')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('product_id', productId)
-    .eq('status', 'ativo')
-    .maybeSingle()
-
-  if (error) {
-    // Em caso de erro de leitura, negamos acesso por segurança (mas logamos).
-    captureException(new Error(`[entitlements.userHasEntitlement] ${error.message}`), {
-      code: error.code,
-      userId,
-      productId,
-    })
-    return false
-  }
-
-  return Boolean(data)
+  const ativos = await getActiveEntitlementProductIds(supabase, userId)
+  return ativos.has(productId)
 }
 
 /**
@@ -71,7 +57,21 @@ const idsAtivosDoUsuario = cache(async (userId: string): Promise<Set<string>> =>
     return new Set()
   }
 
-  return new Set((data ?? []).map((row) => row.product_id as string))
+  const comprados = new Set((data ?? []).map((row) => row.product_id as string))
+  if (comprados.size === 0) return comprados
+
+  // Um bundle dá acesso ao que ele contém. Expandir AQUI faz todas as
+  // checagens respeitarem isso de uma vez — acesso a módulo, cadeado da
+  // vitrine e esteira. Sem isso, quem comprasse o "Combo 3 en 1" continuaria
+  // vendo os três itens à venda, como se não os tivesse.
+  const admin = createAdminClient()
+  const { data: pacotes } = await admin
+    .from('product_bundles')
+    .select('included_product_id')
+    .in('bundle_product_id', Array.from(comprados))
+
+  for (const p of pacotes ?? []) comprados.add(p.included_product_id as string)
+  return comprados
 })
 
 /**
