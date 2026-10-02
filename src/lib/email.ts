@@ -42,6 +42,28 @@ async function enviar(params: {
   }
 
   const { from, testMode } = resolveFrom()
+
+  // Em produção o remetente de teste é um envio MORTO: o Resend responde 403
+  // para qualquer destinatário que não seja o dono da conta. Tentar mesmo
+  // assim foi o que transformou um RESEND_FROM mal formatado em meses de
+  // compra sem e-mail. Agora a configuração errada grita em vez de falhar
+  // parecendo um erro do Resend.
+  if (testMode && process.env.NODE_ENV === 'production') {
+    // eslint-disable-next-line no-console
+    console.error(
+      `[email:${contexto}] RESEND_FROM AUSENTE OU INVÁLIDO em produção — e-mail NÃO enviado para ${to}. ` +
+        `Defina RESEND_FROM com um e-mail de domínio verificado (ex.: "BodyMy <no-reply@bodymy.online>") ` +
+        `e REDEPLOY: variável nova só vale em deploy novo.`,
+    )
+    return {
+      ok: false,
+      skipped: false,
+      status: 500,
+      name: 'config_error',
+      message: 'RESEND_FROM ausente ou inválido em produção (remetente de teste não entrega a clientes)',
+    }
+  }
+
   // eslint-disable-next-line no-console
   console.log(
     `[email:${contexto}] enviando via Resend → from="${from}"${testMode ? ' (MODO TESTE: só entrega ao dono da conta Resend)' : ''}, to="${to}"`,

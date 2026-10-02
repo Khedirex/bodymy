@@ -9,9 +9,11 @@ function fmt(dt: string) {
 
 function emailDoPayload(p: Record<string, unknown> | null): string {
   if (!p) return '—'
+  const hotmart = (p.data as { buyer?: { email?: string } } | undefined)?.buyer?.email
   return (
     (p.customer_email as string) ??
     ((p.Customer as { email?: string })?.email) ??
+    hotmart ??
     '—'
   )
 }
@@ -46,13 +48,67 @@ export default async function AdminOverview() {
         ))}
       </div>
 
+      {/* Comprou e não recebeu o e-mail de acesso. É a lista que não existia
+          quando 53 alunas ficaram sem instrução nenhuma. */}
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-slate-700">Últimas compras (webhook Kiwify)</h2>
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">
+          Compras sin correo de acceso{' '}
+          {o.semEmailAcesso.length > 0 && (
+            <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-800">
+              {o.semEmailAcesso.length}
+            </span>
+          )}
+        </h2>
         <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
           <table className="w-full text-sm">
             <thead className="border-b border-slate-200 bg-slate-50 text-left text-slate-500">
               <tr>
                 <th className="px-3 py-2 font-medium">Cuándo</th>
+                <th className="px-3 py-2 font-medium">Alumna</th>
+                <th className="px-3 py-2 font-medium">Producto</th>
+                <th className="px-3 py-2 font-medium">Motivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {o.semEmailAcesso.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-3 py-6 text-center text-slate-400">
+                    Todas las compradoras recibieron su correo de acceso.
+                  </td>
+                </tr>
+              ) : (
+                o.semEmailAcesso.map((r) => (
+                  <tr key={`${r.alunaId}-${r.created_at}`} className="border-b border-slate-100">
+                    <td className="whitespace-nowrap px-3 py-2 text-slate-600">{fmt(r.created_at)}</td>
+                    <td className="px-3 py-2">
+                      <Link href={`/admin/alunas/${r.alunaId}`} className="font-medium text-slate-900 underline">
+                        {r.nome ?? r.email ?? r.alunaId}
+                      </Link>
+                      {r.nome && r.email ? (
+                        <span className="block text-xs text-slate-500">{r.email}</span>
+                      ) : null}
+                    </td>
+                    <td className="px-3 py-2 text-slate-600">{r.produto}</td>
+                    <td className="px-3 py-2 text-xs text-slate-500">{r.erro ?? '—'}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-1 text-xs text-slate-500">
+          Abre la alumna y usa “Reenviar correo de acceso”.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">Últimas compras (webhooks)</h2>
+        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+          <table className="w-full text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50 text-left text-slate-500">
+              <tr>
+                <th className="px-3 py-2 font-medium">Cuándo</th>
+                <th className="px-3 py-2 font-medium">Plataforma</th>
                 <th className="px-3 py-2 font-medium">Correo</th>
                 <th className="px-3 py-2 font-medium">event_id</th>
                 <th className="px-3 py-2 font-medium">Procesado</th>
@@ -61,7 +117,7 @@ export default async function AdminOverview() {
             <tbody>
               {o.ultimosWebhooks.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-3 py-6 text-center text-slate-400">
+                  <td colSpan={5} className="px-3 py-6 text-center text-slate-400">
                     Todavía no se recibió ningún webhook.
                   </td>
                 </tr>
@@ -69,6 +125,7 @@ export default async function AdminOverview() {
                 o.ultimosWebhooks.map((w) => (
                   <tr key={w.id} className="border-b border-slate-100">
                     <td className="whitespace-nowrap px-3 py-2 text-slate-600">{fmt(w.created_at)}</td>
+                    <td className="px-3 py-2 text-slate-600">{w.provider}</td>
                     <td className="px-3 py-2">{emailDoPayload(w.payload)}</td>
                     <td className="px-3 py-2 font-mono text-xs text-slate-500">{w.event_id}</td>
                     <td className="px-3 py-2">

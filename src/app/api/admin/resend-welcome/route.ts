@@ -67,6 +67,23 @@ export async function POST(request: NextRequest) {
     produtoSlug: cisne ? CISNE_PRODUCT_SLUG : undefined,
   })
 
+  // Carimba o resultado para a lista "compras sin correo de acceso" do painel
+  // refletir a realidade — senão o reenvio some da tela sem ter saído.
+  await admin
+    .from('entitlements')
+    .update(
+      envio.ok
+        ? { acesso_email_em: new Date().toISOString(), acesso_email_erro: null }
+        : {
+            acesso_email_erro: (envio.skipped
+              ? 'resend_nao_configurado'
+              : `resend_erro:${envio.status ?? '?'}:${envio.message}`
+            ).slice(0, 500),
+          },
+    )
+    .eq('user_id', alunaId)
+    .eq('status', 'ativo')
+
   await adminLog({
     adminId: guard.info.adminId,
     acao: 'reenviar_email_acesso',

@@ -26,7 +26,7 @@ export async function getAdminOverview() {
   const hoje = todayISO()
   const seteDiasAtras = new Date(Date.now() - 7 * 86400000).toISOString()
 
-  const [{ count: totalAlunas }, { count: acessosHoje }, { count: acessosSemana }, ultimos] =
+  const [{ count: totalAlunas }, { count: acessosHoje }, { count: acessosSemana }, ultimos, semEmail] =
     await Promise.all([
       admin.from('profiles').select('id', { count: 'exact', head: true }),
       admin
@@ -37,12 +37,22 @@ export async function getAdminOverview() {
         .from('entitlements')
         .select('id', { count: 'exact', head: true })
         .gte('created_at', seteDiasAtras),
+      // Sem filtro de provider: a venda hoje é Hotmart, e o painel mostrava
+      // só Kiwify — ou seja, não mostrava compra nenhuma.
       admin
         .from('webhook_events')
         .select('id, provider, event_id, processed, created_at, payload')
-        .eq('provider', 'kiwify')
         .order('created_at', { ascending: false })
         .limit(10),
+      // Comprou e NÃO recebeu o e-mail de acesso. Esta lista existe para que
+      // uma falha de envio apareça aqui em vez de virar reclamação.
+      admin
+        .from('entitlements')
+        .select('user_id, created_at, acesso_email_erro, profile:profiles(nome, email), product:products(nome)')
+        .eq('status', 'ativo')
+        .is('acesso_email_em', null)
+        .order('created_at', { ascending: false })
+        .limit(50),
     ])
 
   return {
@@ -51,11 +61,24 @@ export async function getAdminOverview() {
     acessosSemana: acessosSemana ?? 0,
     ultimosWebhooks: (ultimos.data ?? []) as Array<{
       id: string
+      provider: string
       event_id: string
       processed: boolean
       created_at: string
       payload: Record<string, unknown> | null
     }>,
+    semEmailAcesso: (semEmail.data ?? []).map((r) => {
+      const perfil = r.profile as unknown as { nome?: string; email?: string } | null
+      const produto = r.product as unknown as { nome?: string } | null
+      return {
+        alunaId: r.user_id as string,
+        nome: perfil?.nome ?? null,
+        email: perfil?.email ?? null,
+        produto: produto?.nome ?? '—',
+        erro: (r.acesso_email_erro as string) ?? null,
+        created_at: r.created_at as string,
+      }
+    }),
   }
 }
 

@@ -69,45 +69,92 @@ export async function processPurchaseEvent(
   )
   if (entErr) throw entErr
 
-  // Gera magic link de acesso e envia o e-mail de boas-vindas.
-  try {
-    const { data: linkData, error: linkErr } = await admin.auth.admin.generateLink({
-      type: 'magiclink',
+  // Gera magic link de acesso e envia o e-mail de boas-vindas. O resultado
+  // fica GRAVADO no entitlement: sem isso, uma falha de envio só aparecia no
+  // Sentry e a compradora ficava sem instrução nenhuma até reclamar.
+  const motivo = await enviarAcesso(admin, event, product)
+  await registrarEnvio(admin, userId, product.id, motivo)
+  if (motivo) {
+    captureException(new Error(`E-mail de boas-vindas não enviado: ${motivo}`), {
+      etapa: 'email_boas_vindas',
       email: event.email,
-      options: {
-        redirectTo: `${env.appUrl}/auth/callback?next=/bem-vinda`,
-      },
     })
-    if (linkErr) throw linkErr
-    const magicLink = linkData.properties?.action_link
-    if (magicLink) {
-      // Mesmo caminho de envio do login (Resend, com logs explícitos).
+  }
+
+  return { status: 'ok', detail: `acesso concedido a ${event.email}` }
+}
+
+/**
+ * Tenta entregar o e-mail de acesso. Devolve null quando entregou, ou o
+ * motivo da falha.
+ *
+ * Falha passageira (429 do Resend, 5xx) tem UMA nova tentativa: o acesso já
+ * está concedido e não há segunda chance automática depois daqui — a próxima
+ * seria um humano percebendo.
+ */
+async function enviarAcesso(
+  admin: SupabaseClient,
+  event: NormalizedKiwifyEvent,
+  product: { id: string; slug: string; nome: string },
+): Promise<string | null> {
+  for (let tentativa = 1; tentativa <= 2; tentativa++) {
+    try {
+      const { data: linkData, error: linkErr } = await admin.auth.admin.generateLink({
+        type: 'magiclink',
+        email: event.email as string,
+        options: { redirectTo: `${env.appUrl}/auth/callback?next=/bem-vinda` },
+      })
+      if (linkErr) throw linkErr
+
+      const magicLink = linkData.properties?.action_link
+      if (!magicLink) return 'magic_link_vazio'
+
       const envio = await sendWelcomeEmail({
-        to: event.email,
+        to: event.email as string,
         nome: event.nome,
         programaNome: product.nome,
         magicLink,
         produtoSlug: product.slug,
       })
-      if (!envio.ok) {
-        // E-mail não saiu, mas o acesso já foi concedido. Logamos o motivo
-        // para reenvio manual (o log detalhado sai em email.ts).
-        const motivo = envio.skipped
-          ? 'resend_nao_configurado'
-          : `resend_erro:${envio.status ?? '?'}:${envio.message}`
-        captureException(new Error(`E-mail de boas-vindas não enviado: ${motivo}`), {
-          etapa: 'email_boas_vindas',
-          email: event.email,
-        })
-      }
-    }
-  } catch (err) {
-    // Não falhamos o processamento por causa do e-mail — o acesso já foi
-    // concedido. Registramos para reenvio manual se necessário.
-    captureException(err, { etapa: 'email_boas_vindas', email: event.email })
-  }
+      if (envio.ok) return null
 
-  return { status: 'ok', detail: `acesso concedido a ${event.email}` }
+      const motivo = envio.skipped
+        ? 'resend_nao_configurado'
+        : `resend_erro:${envio.status ?? '?'}:${envio.message}`
+
+      // Configuração errada não melhora na segunda tentativa.
+      const passageiro = !envio.skipped && (envio.status === 429 || (envio.status ?? 0) >= 500)
+      if (!passageiro || tentativa === 2) return motivo
+      await new Promise((r) => setTimeout(r, 1500))
+    } catch (err) {
+      const motivo = err instanceof Error ? err.message : String(err)
+      if (tentativa === 2) return motivo
+      await new Promise((r) => setTimeout(r, 1500))
+    }
+  }
+  return 'falhou após 2 tentativas'
+}
+
+/** Carimba no entitlement se o e-mail de acesso saiu, e por que não saiu. */
+async function registrarEnvio(
+  admin: SupabaseClient,
+  userId: string,
+  productId: string,
+  motivo: string | null,
+) {
+  const { error } = await admin
+    .from('entitlements')
+    .update(
+      motivo
+        ? { acesso_email_erro: motivo.slice(0, 500) }
+        : { acesso_email_em: new Date().toISOString(), acesso_email_erro: null },
+    )
+    .eq('user_id', userId)
+    .eq('product_id', productId)
+
+  if (error) {
+    captureException(new Error(`[purchase.registrarEnvio] ${error.message}`), { userId, productId })
+  }
 }
 
 async function findOrCreateUser(
