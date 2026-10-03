@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { hasNocheAccess, getNocheEstado } from '@/lib/noche-server'
-import { audioDaNoche, repeticoesDaNoche, NOCHE_TOTAL_NOCHES } from '@/lib/noche'
+import { hasNocheAccess, getNocheEstado, getNocheCatalogo } from '@/lib/noche-server'
+import { repeticoesDaNoche } from '@/lib/noche'
 import { todayISO } from '@/lib/dates'
 import { captureException } from '@/lib/observability'
 
@@ -31,7 +31,11 @@ export async function POST(request: NextRequest) {
     }
 
     const noche = estado.proximaNoche
-    const audio = audioDaNoche(noche)
+    const catalogo = await getNocheCatalogo()
+    const audio = catalogo.sequencia.find((a) => a.noche === noche)
+    if (!audio) {
+      return NextResponse.json({ error: 'audio_no_encontrado' }, { status: 409 })
+    }
     const admin = createAdminClient()
     const { error } = await admin.from('noche_registros').upsert(
       {
@@ -55,7 +59,7 @@ export async function POST(request: NextRequest) {
       ok: true,
       noche,
       concluidas: estado.concluidas + 1,
-      terminado: estado.concluidas + 1 >= NOCHE_TOTAL_NOCHES,
+      terminado: estado.concluidas + 1 >= estado.total,
     })
   } catch (err) {
     captureException(err, { rota: 'noche_completar' })

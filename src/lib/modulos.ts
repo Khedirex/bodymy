@@ -7,9 +7,9 @@ import { getCircuitoPrograma, getTrainingConfig } from '@/lib/circuito'
 import { CIRCUITO_ACCESS_SLUGS } from '@/lib/training'
 import { CISNE_PRODUCT_SLUG, CISNE_DIAS, CISNE_TOTAL_DIAS } from '@/lib/cisne'
 import { hasCisneAccess, getCisneEstado } from '@/lib/cisne-server'
-import { NOCHE_PRODUCT_SLUG, NOCHE_TOTAL_NOCHES, audioDaNoche } from '@/lib/noche'
+import { NOCHE_PRODUCT_SLUG } from '@/lib/noche'
 import { ORACIONES_PRODUCT_SLUG, ORACIONES_UPSELL_SLUG } from '@/lib/oraciones'
-import { hasNocheAccess, getNocheEstado } from '@/lib/noche-server'
+import { hasNocheAccess, getNocheEstado, getNocheCatalogo } from '@/lib/noche-server'
 import { getOracionesCatalogo } from '@/lib/oraciones-server'
 
 // =====================================================================
@@ -90,21 +90,21 @@ async function estadoCisne(userId: string): Promise<EstadoModulo | null> {
 }
 
 // ---------------------------------------------------------------------
-// Ritual Noche Perfecta (7 noites de áudio, 7 min cada)
+// Ritual Noche Perfecta (blocos de 7 noites, catálogo no banco)
 // ---------------------------------------------------------------------
 async function estadoNoche(userId: string): Promise<EstadoModulo | null> {
   if (!(await hasNocheAccess(userId))) return null
-  const e = await getNocheEstado(userId)
-  const audio = e.proximaNoche ? audioDaNoche(e.proximaNoche) : null
+  const [e, catalogo] = await Promise.all([getNocheEstado(userId), getNocheCatalogo()])
+  const audio = catalogo.sequencia.find((a) => a.noche === e.proximaNoche) ?? null
   return {
     concluidos: e.concluidas,
-    total: NOCHE_TOTAL_NOCHES,
+    total: e.total,
     feitoHoje: e.feitoHoje,
     terminado: e.terminado,
     chamadaHoje:
       e.terminado || e.feitoHoje || !audio
         ? null
-        : `Noche ${e.proximaNoche} · ${audio.nombre}`,
+        : `Noche ${e.proximaNoche} · ${audio.titulo}`,
   }
 }
 
@@ -161,7 +161,7 @@ export const MODULOS: ModuloBodyMy[] = [
   {
     slug: 'ritual-noche-perfecta',
     nome: 'Ritual Noche Perfecta',
-    resumo: '7 noches, 7 minutos antes de dormir',
+    resumo: 'Una noche por día, con los ojos cerrados',
     href: '/noche',
     productSlugs: [NOCHE_PRODUCT_SLUG],
     emoji: '🌙',

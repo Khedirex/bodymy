@@ -9,6 +9,8 @@ interface Item {
   ordem: number
   duracao: string | null
   produto: string
+  bloco?: string | null
+  resgate?: boolean
 }
 
 // Lista do catálogo com remoção. Remover apaga do banco E do bucket: um
@@ -44,6 +46,7 @@ export function AudioLista({ itens }: { itens: Item[] }) {
           <tr>
             <th className="px-3 py-2 font-medium">#</th>
             <th className="px-3 py-2 font-medium">Título</th>
+            <th className="px-3 py-2 font-medium">Bloque</th>
             <th className="px-3 py-2 font-medium">Duración</th>
             <th className="px-3 py-2 font-medium">Desbloquea con</th>
             <th className="px-3 py-2" />
@@ -53,7 +56,15 @@ export function AudioLista({ itens }: { itens: Item[] }) {
           {itens.map((a) => (
             <tr key={a.id} className="border-b border-slate-100">
               <td className="px-3 py-2 text-slate-500">{a.ordem}</td>
-              <td className="px-3 py-2 font-medium text-slate-900">{a.titulo}</td>
+              <td className="px-3 py-2 font-medium text-slate-900">
+                {a.titulo}
+                {a.resgate && (
+                  <span className="ml-2 rounded bg-slate-900 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                    rescate
+                  </span>
+                )}
+              </td>
+              <td className="px-3 py-2 text-slate-600">{a.bloco ?? '—'}</td>
               <td className="px-3 py-2 text-slate-600">{a.duracao ?? '—'}</td>
               <td className="px-3 py-2 text-slate-600">{a.produto}</td>
               <td className="px-3 py-2 text-right">

@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
   const body = (await request.json().catch(() => ({}))) as {
     modulo?: string
     productId?: string
+    bloco?: string | null
     itens?: Array<{ titulo?: string; storagePath?: string; ordem?: number; duracaoSeg?: number | null }>
   }
 
@@ -29,6 +30,7 @@ export async function POST(request: NextRequest) {
     const admin = createAdminClient()
     const linhas = itens.map((i) => ({
       modulo,
+      bloco: body.bloco ?? null,
       product_id: productId,
       titulo: (i.titulo as string).slice(0, 200),
       ordem: i.ordem ?? 0,
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest) {
       acao: 'subir_audios',
       alvoTipo: 'produto',
       alvoId: productId,
-      detalhes: { modulo, quantos: linhas.length },
+      detalhes: { modulo, bloco: body.bloco ?? null, quantos: linhas.length },
     })
 
     return NextResponse.json({ ok: true, criados: data?.length ?? 0 })

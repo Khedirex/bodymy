@@ -4,7 +4,7 @@ import { serverEnv } from '@/lib/env'
 import { welcomeHtml, type GuiaEmail } from '@/lib/email-templates'
 import { env } from '@/lib/env'
 import { CISNE_PRODUCT_SLUG, CISNE_GUIA_PDF } from '@/lib/cisne'
-import { NOCHE_PRODUCT_SLUG, NOCHE_GUIA_PDF, NOCHE_TOTAL_NOCHES } from '@/lib/noche'
+import { NOCHE_PRODUCT_SLUG, NOCHE_GUIA_PDF } from '@/lib/noche'
 
 // Remetente de TESTE do Resend: funciona SEM verificar domínio, mas só
 // entrega para o e-mail dono da conta Resend. Usado como fallback em dev
@@ -155,7 +155,7 @@ function guiaDoProduto(produtoSlug: string | undefined): GuiaEmail | undefined {
       emoji: '🌙',
       pdfUrl: `${env.appUrl}${NOCHE_GUIA_PDF}`,
       itens: [
-        `<strong>${NOCHE_TOTAL_NOCHES} noches</strong>, una Vibración Nocturna de ~7 minutos cada noche`,
+        'Una <strong>Vibración Nocturna</strong> por noche, de unos 7 minutos',
         'Te acuestas, cierras los ojos y el audio hace el resto — cada noche abre la siguiente',
         'Tu <strong>audio de rescate</strong> para cuando despiertes de madrugada, disponible siempre',
       ],

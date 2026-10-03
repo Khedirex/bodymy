@@ -1,20 +1,27 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  NOCHE_TOTAL_NOCHES,
   NOCHE_NIVEIS,
-  NOCHE_AUDIO_RESCATE,
   NOCHE_GUIA_PDF,
-  audioDaNoche,
-  audioPorId,
+  blocoPorSlug,
   repeticoesDaNoche,
+  type NocheAudio,
+  type NocheBloco,
   type NocheNivel,
 } from '@/lib/noche'
 import { temaDoModulo } from '@/lib/modulo-tema'
 import { ProgressBar } from '@/components/ProgressBar'
-import { PlayIcon, CheckIcon } from '@/components/ui/icons'
+import { AudioRemoto } from '@/components/noche/AudioRemoto'
+import { CheckIcon } from '@/components/ui/icons'
+
+const TEMA = temaDoModulo('ritual-noche-perfecta')
+
+export interface BlocoApoio {
+  bloco: NocheBloco
+  audios: NocheAudio[]
+}
 
 interface Props {
   nivel: NocheNivel | null
@@ -22,66 +29,39 @@ interface Props {
   proximaNoche: number | null
   feitoHoje: boolean
   terminado: boolean
+  total: number
+  audioDeHoje: NocheAudio | null
+  apoio: BlocoApoio[]
+  resgate: NocheAudio | null
 }
 
-// Uma noite por vez: escolher o nível (só na primeira), ouvir o áudio e
-// marcar a noite. Texto grande e um botão só — o público é 45-60+.
-// O mesmo tema noturno do card da Home acompanha a aluna aqui dentro.
-const TEMA = temaDoModulo('ritual-noche-perfecta')
-
-// O áudio de rescate é promessa do produto ("úsalo cuando despiertes de
-// madrugada"), mas só aparecia na noite 5. Agora fica disponível TODA noite,
-// fechado por padrão para não competir com o ritual do dia.
-function Rescate() {
-  const audio = audioPorId(NOCHE_AUDIO_RESCATE)
-  return (
-    <details className="rounded-3xl bg-white p-5 shadow-card">
-      <summary className="cursor-pointer list-none text-lg font-bold text-ink-900">
-        🌑 ¿Despertaste de madrugada?
-      </summary>
-      <p className="mt-2 text-base text-ink-700">
-        No cuentes las horas que te quedan. Quédate acostada y escucha el{' '}
-        <strong>{audio.nombre}</strong> aquí mismo. Puedes usarlo todas las veces que lo
-        necesites — no cambia tu avance.
-      </p>
-      <audio src={audio.archivo} controls preload="none" className="mt-3 w-full" />
-    </details>
-  )
-}
-
-// A guia em PDF: as 7 noites, como usar e as dúvidas mais comuns.
-function Guia() {
-  return (
-    <a
-      href={NOCHE_GUIA_PDF}
-      target="_blank"
-      rel="noopener"
-      className="flex items-center gap-3 rounded-3xl bg-white p-5 shadow-card"
-    >
-      <span className="text-2xl">📄</span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-base font-bold text-ink-900">Tu guía en PDF</span>
-        <span className="block text-sm text-ink-700">
-          Las {NOCHE_TOTAL_NOCHES} noches, cómo usarlas y las dudas más comunes
-        </span>
-      </span>
-    </a>
-  )
-}
-
-export function NocheRitual({ nivel, concluidas, proximaNoche, feitoHoje, terminado }: Props) {
+// Uma noite por vez, na ordem dos blocos. Os blocos de apoio ficam abaixo,
+// fechados: ela abre quando precisar, sem atrapalhar o ritual do dia.
+// Texto grande e um botão só — o público é 45-60+.
+export function NocheRitual({
+  nivel,
+  concluidas,
+  proximaNoche,
+  feitoHoje,
+  terminado,
+  total,
+  audioDeHoje,
+  apoio,
+  resgate,
+}: Props) {
   const router = useRouter()
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [tocou, setTocou] = useState(false)
-  const audioRef = useRef<HTMLAudioElement>(null)
 
-  // Mantém a tela acesa enquanto o áudio toca (ela fecha os olhos, não toca
-  // na tela por 7 minutos).
+  // Mantém a tela acesa enquanto ela ouve (fecha os olhos e não toca no
+  // celular por 7 minutos).
   useEffect(() => {
     if (!tocou) return
     let lock: WakeLockSentinel | null = null
-    const nav = navigator as Navigator & { wakeLock?: { request: (t: 'screen') => Promise<WakeLockSentinel> } }
+    const nav = navigator as Navigator & {
+      wakeLock?: { request: (t: 'screen') => Promise<WakeLockSentinel> }
+    }
     nav.wakeLock?.request('screen').then((l) => { lock = l }).catch(() => {})
     return () => { lock?.release().catch(() => {}) }
   }, [tocou])
@@ -150,9 +130,9 @@ export function NocheRitual({ nivel, concluidas, proximaNoche, feitoHoje, termin
         <div className="rounded-3xl bg-white p-5 shadow-card">
           <p className="text-base font-bold text-ink-900">Cómo funciona</p>
           <p className="mt-1 text-base text-ink-700">
-            Son {NOCHE_TOTAL_NOCHES} noches. Cada noche, un audio de ~7 minutos: te acuestas,
-            cierras los ojos y lo dejas sonar. Quedarte dormida antes de que termine no es un
-            error — es el objetivo. Al día siguiente se abre la noche siguiente.
+            Son {total} noches, en bloques. Cada noche, un audio: te acuestas, cierras los ojos y
+            lo dejas sonar. Quedarte dormida antes de que termine no es un error — es el objetivo.
+            Al día siguiente se abre la noche siguiente.
           </p>
         </div>
         <Guia />
@@ -160,79 +140,129 @@ export function NocheRitual({ nivel, concluidas, proximaNoche, feitoHoje, termin
     )
   }
 
-  if (terminado) {
-    return (
-      <div className="space-y-4">
+  const noche = proximaNoche ?? total
+  const bloco = blocoPorSlug(audioDeHoje?.bloco ?? null)
+  const repeticoes = repeticoesDaNoche(nivel, noche)
+
+  return (
+    <div className="space-y-5">
+      {terminado ? (
         <div className="rounded-3xl bg-sage-100 p-8 text-center">
           <p className="text-5xl">🌙</p>
           <p className="mt-3 text-2xl font-extrabold text-sage-600">
-            ¡Completaste las {NOCHE_TOTAL_NOCHES} noches!
+            ¡Completaste las {total} noches!
           </p>
           <p className="mt-2 text-base text-ink-700">
             Tu sueño tiene una nueva frecuencia. Sigue usando los audios cuando lo necesites.
           </p>
         </div>
-        <Rescate />
-        <Guia />
-      </div>
-    )
-  }
-
-  const noche = proximaNoche ?? NOCHE_TOTAL_NOCHES
-  const audio = audioDaNoche(noche)
-  const repeticoes = repeticoesDaNoche(nivel, noche)
-
-  return (
-    <div className="space-y-5">
-      <header>
-        <span className={`chip ${TEMA.chip}`}>
-          Noche {noche} de {NOCHE_TOTAL_NOCHES}
-        </span>
-        <h1 className="mt-2 text-2xl font-extrabold leading-tight text-ink-900">{audio.nombre}</h1>
-        <p className="mt-1 text-base text-ink-700">{audio.funcion}</p>
-      </header>
-
-      <ProgressBar atual={concluidas} total={NOCHE_TOTAL_NOCHES} label="Tu avance" gradiente={TEMA.barra} />
-
-      {feitoHoje ? (
-        <div className="flex items-center gap-3 rounded-3xl bg-sage-100/60 px-5 py-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sage-100 text-sage-600">
-            <CheckIcon width={24} height={24} />
-          </span>
-          <p className="text-base font-semibold text-ink-900">
-            Ya hiciste la noche de hoy. La siguiente se abre mañana 🌙
-          </p>
-        </div>
       ) : (
-        <section className="rounded-3xl bg-white p-5 shadow-card">
-          <p className="text-base text-ink-700">
-            Acuéstate, cierra los ojos y deja que el audio te lleve.
-            {repeticoes === 2 && ' Esta noche se escucha dos veces.'}
-          </p>
+        <>
+          <header>
+            <span className={`chip ${TEMA.chip}`}>
+              {bloco ? `${bloco.nome} · ` : ''}Noche {noche} de {total}
+            </span>
+            <h1 className="mt-2 text-2xl font-extrabold leading-tight text-ink-900">
+              {audioDeHoje?.titulo ?? 'Tu noche'}
+            </h1>
+            <p className="mt-1 text-base text-ink-700">
+              {audioDeHoje?.descricao ?? bloco?.resumo ?? ''}
+            </p>
+          </header>
 
-          <audio
-            ref={audioRef}
-            src={audio.archivo}
-            controls
-            preload="none"
-            onPlay={() => setTocou(true)}
-            className="mt-4 w-full"
-          />
+          <ProgressBar atual={concluidas} total={total} label="Tu avance" gradiente={TEMA.barra} />
 
-          <button
-            onClick={marcarNoche}
-            disabled={salvando}
-            className={`mt-4 flex w-full items-center justify-center gap-2 rounded-full py-4 text-lg font-bold disabled:opacity-60 ${TEMA.botao}`}
-          >
-            <PlayIcon width={22} height={22} />
-            {salvando ? 'Guardando…' : 'Marcar esta noche'}
-          </button>
-          {erro && <p className="mt-2 text-sm font-semibold text-brand-600">{erro}</p>}
-        </section>
+          {feitoHoje ? (
+            <div className="flex items-center gap-3 rounded-3xl bg-sage-100/60 px-5 py-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sage-100 text-sage-600">
+                <CheckIcon width={24} height={24} />
+              </span>
+              <p className="text-base font-semibold text-ink-900">
+                Ya hiciste la noche de hoy. La siguiente se abre mañana 🌙
+              </p>
+            </div>
+          ) : (
+            <section className="rounded-3xl bg-white p-5 shadow-card" onPointerDown={() => setTocou(true)}>
+              <p className="text-base text-ink-700">
+                Acuéstate, cierra los ojos y deja que el audio te lleve.
+                {repeticoes === 2 && ' Esta noche se escucha dos veces.'}
+              </p>
+
+              {audioDeHoje ? (
+                <div className="mt-4">
+                  <AudioRemoto audio={audioDeHoje} />
+                </div>
+              ) : (
+                <p className="mt-4 text-base font-semibold text-ink-900">
+                  Estamos preparando el audio de esta noche. Vuelve en un rato 🤍
+                </p>
+              )}
+
+              <button
+                onClick={marcarNoche}
+                disabled={salvando || !audioDeHoje}
+                className={`mt-4 flex w-full items-center justify-center gap-2 rounded-full py-4 text-lg font-bold disabled:opacity-60 ${TEMA.botao}`}
+              >
+                <CheckIcon width={22} height={22} />
+                {salvando ? 'Guardando…' : 'Marcar esta noche'}
+              </button>
+              {erro && <p className="mt-2 text-sm font-semibold text-brand-600">{erro}</p>}
+            </section>
+          )}
+        </>
       )}
 
-      <Rescate />
+      {resgate && (
+        <details className="rounded-3xl bg-white p-5 shadow-card">
+          <summary className="cursor-pointer list-none text-lg font-bold text-ink-900">
+            🌑 ¿Despertaste de madrugada?
+          </summary>
+          <p className="mt-2 text-base text-ink-700">
+            No cuentes las horas que te quedan. Quédate acostada y escucha esto aquí mismo —
+            las veces que lo necesites, sin cambiar tu avance.
+          </p>
+          <div className="mt-3">
+            <AudioRemoto audio={resgate} />
+          </div>
+        </details>
+      )}
+
+      {apoio.map(({ bloco: b, audios }) => (
+        <details key={b.slug} className="rounded-3xl bg-white p-5 shadow-card">
+          <summary className="cursor-pointer list-none">
+            <span className="text-lg font-bold text-ink-900">{b.nome}</span>
+            {b.quando && <span className="block text-base text-ink-700">{b.quando}</span>}
+          </summary>
+          <p className="mt-2 text-base text-ink-700">{b.resumo}</p>
+          <ul className="mt-3 space-y-3">
+            {audios.map((a) => (
+              <li key={a.id} className="border-t border-mist-200 pt-3 first:border-0 first:pt-0">
+                <AudioRemoto audio={a} />
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))}
+
       <Guia />
     </div>
+  )
+}
+
+// A guia em PDF: os blocos, como usar e as dúvidas mais comuns.
+function Guia() {
+  return (
+    <a
+      href={NOCHE_GUIA_PDF}
+      target="_blank"
+      rel="noopener"
+      className="flex items-center gap-3 rounded-3xl bg-white p-5 shadow-card"
+    >
+      <span className="text-2xl">📄</span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-base font-bold text-ink-900">Tu guía en PDF</span>
+        <span className="block text-sm text-ink-700">Cómo usar el ritual y las dudas más comunes</span>
+      </span>
+    </a>
   )
 }

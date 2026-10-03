@@ -9,11 +9,18 @@ interface ProdutoOpcao {
   nome: string
 }
 
+interface BlocoOpcao {
+  slug: string
+  nome: string
+}
+
 interface Props {
   modulo: string
   produtos: ProdutoOpcao[]
   /** Maior "ordem" já usada neste módulo — o lote continua a partir dela. */
   ordemInicial: number
+  /** Blocos do módulo (vazio = biblioteca sem blocos, como as oraciones). */
+  blocos?: BlocoOpcao[]
 }
 
 type Estado = 'parado' | 'enviando' | 'pronto'
@@ -61,9 +68,10 @@ function tituloDoArquivo(nome: string): string {
     .trim()
 }
 
-export function AudioUploader({ modulo, produtos, ordemInicial }: Props) {
+export function AudioUploader({ modulo, produtos, ordemInicial, blocos = [] }: Props) {
   const router = useRouter()
   const [produtoId, setProdutoId] = useState(produtos[0]?.id ?? '')
+  const [bloco, setBloco] = useState(blocos[0]?.slug ?? '')
   const [arquivos, setArquivos] = useState<File[]>([])
   const [estado, setEstado] = useState<Estado>('parado')
   const [feitos, setFeitos] = useState(0)
@@ -102,6 +110,7 @@ export function AudioUploader({ modulo, produtos, ordemInicial }: Props) {
           body: JSON.stringify({
             modulo,
             productId: produtoId,
+            bloco: bloco || null,
             itens: [
               {
                 titulo: tituloDoArquivo(file.name),
@@ -145,6 +154,23 @@ export function AudioUploader({ modulo, produtos, ordemInicial }: Props) {
           </select>
         </label>
 
+        {blocos.length > 0 && (
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold text-slate-600">
+              Bloque al que pertenecen
+            </span>
+            <select
+              value={bloco}
+              onChange={(e) => setBloco(e.target.value)}
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            >
+              {blocos.map((b) => (
+                <option key={b.slug} value={b.slug}>{b.nome}</option>
+              ))}
+            </select>
+          </label>
+        )}
+
         <label className="block">
           <span className="mb-1 block text-xs font-semibold text-slate-600">
             Archivos (puedes elegir varios)
@@ -168,7 +194,12 @@ export function AudioUploader({ modulo, produtos, ordemInicial }: Props) {
       <div className="mt-3 flex items-center gap-3">
         <button
           onClick={enviar}
-          disabled={estado === 'enviando' || arquivos.length === 0 || !produtoId}
+          disabled={
+            estado === 'enviando' ||
+            arquivos.length === 0 ||
+            !produtoId ||
+            (blocos.length > 0 && !bloco)
+          }
           className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
         >
           {estado === 'enviando' ? `Subiendo ${feitos}/${arquivos.length}…` : 'Subir al catálogo'}
