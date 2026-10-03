@@ -93,3 +93,97 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'erro_ao_remover' }, { status: 500 })
   }
 }
+
+// Troca um áudio de lugar com o vizinho DO MESMO BLOCO. A ordem de upload
+// define a sequência de noites; sem isto, um arquivo que entrou fora de
+// lugar só se arrumava com SQL na mão.
+export async function PATCH(request: NextRequest) {
+  const guard = await adminApiGuard()
+  if (!guard.ok) return guard.res
+
+  const { id, direcao } = (await request.json().catch(() => ({}))) as {
+    id?: string
+    direcao?: 'sube' | 'baja'
+  }
+  if (!id || (direcao !== 'sube' && direcao !== 'baja')) {
+    return NextResponse.json({ error: 'faltan_parametros' }, { status: 400 })
+  }
+
+  try {
+    const admin = createAdminClient()
+    const { data: atual } = await admin
+      .from('audio_biblioteca')
+      .select('id, modulo, bloco, ordem')
+      .eq('id', id)
+      .maybeSingle()
+    if (!atual) return NextResponse.json({ error: 'no_encontrado' }, { status: 404 })
+
+    let q = admin
+      .from('audio_biblioteca')
+      .select('id, ordem')
+      .eq('modulo', atual.modulo as string)
+      .limit(1)
+
+    // Blocos diferentes não se misturam: trocar com o vizinho de outro bloco
+    // mudaria o áudio de bloco sem querer.
+    q = atual.bloco ? q.eq('bloco', atual.bloco as string) : q.is('bloco', null)
+
+    const { data: vizinhos } =
+      direcao === 'sube'
+        ? await q.lt('ordem', atual.ordem as number).order('ordem', { ascending: false })
+        : await q.gt('ordem', atual.ordem as number).order('ordem', { ascending: true })
+
+    const vizinho = vizinhos?.[0]
+    if (!vizinho) return NextResponse.json({ ok: true, movido: false })
+
+    await admin
+      .from('audio_biblioteca')
+      .update({ ordem: vizinho.ordem as number })
+      .eq('id', atual.id as string)
+    await admin
+      .from('audio_biblioteca')
+      .update({ ordem: atual.ordem as number })
+      .eq('id', vizinho.id as string)
+
+    return NextResponse.json({ ok: true, movido: true })
+  } catch (err) {
+    captureException(err, { rota: 'admin_audios_patch' })
+    return NextResponse.json({ error: 'erro_ao_reordenar' }, { status: 500 })
+  }
+}
+
+// Marca (ou desmarca) o áudio de resgate de madrugada. Só um por módulo:
+// a tela mostra um botão, não uma lista.
+export async function PUT(request: NextRequest) {
+  const guard = await adminApiGuard()
+  if (!guard.ok) return guard.res
+
+  const { id, resgate } = (await request.json().catch(() => ({}))) as {
+    id?: string
+    resgate?: boolean
+  }
+  if (!id) return NextResponse.json({ error: 'faltan_parametros' }, { status: 400 })
+
+  try {
+    const admin = createAdminClient()
+    const { data: alvo } = await admin
+      .from('audio_biblioteca')
+      .select('modulo')
+      .eq('id', id)
+      .maybeSingle()
+    if (!alvo) return NextResponse.json({ error: 'no_encontrado' }, { status: 404 })
+
+    if (resgate) {
+      await admin
+        .from('audio_biblioteca')
+        .update({ resgate: false })
+        .eq('modulo', alvo.modulo as string)
+    }
+    await admin.from('audio_biblioteca').update({ resgate: Boolean(resgate) }).eq('id', id)
+
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    captureException(err, { rota: 'admin_audios_put' })
+    return NextResponse.json({ error: 'erro_ao_marcar' }, { status: 500 })
+  }
+}

@@ -4,12 +4,17 @@ import { AudioUploader } from '@/components/admin/AudioUploader'
 import { AudioLista } from '@/components/admin/AudioLista'
 import { AudioOrfaos } from '@/components/admin/AudioOrfaos'
 import {
+  PlanoMontagem,
+  type PassoBloco,
+  type NoiteMontada,
+} from '@/components/admin/PlanoMontagem'
+import {
   ORACIONES_MODULO,
   ORACIONES_PRODUCT_SLUG,
   ORACIONES_UPSELL_SLUG,
   formatarDuracao,
 } from '@/lib/oraciones'
-import { NOCHE_MODULO, NOCHE_PRODUCT_SLUG, NOCHE_BLOCOS } from '@/lib/noche'
+import { NOCHE_MODULO, NOCHE_PRODUCT_SLUG, NOCHE_BLOCOS, blocosSequenciais } from '@/lib/noche'
 
 export const dynamic = 'force-dynamic'
 
@@ -84,6 +89,70 @@ export default async function AdminAudiosPage({
   const ordemInicial = lista.reduce((max, a) => Math.max(max, a.ordem), 0)
   const opcoes = (produtos ?? []).map((p) => ({ id: p.id as string, nome: p.nome as string }))
 
+  // ------------------------------------------------------------------
+  // O caminho de montagem (só faz sentido onde há blocos).
+  //
+  // A numeração das noites é calculada AQUI do mesmo jeito que o módulo da
+  // aluna calcula: ordem dos blocos sequenciais, depois a ordem dentro do
+  // bloco. Assim o que você confere na tela é literalmente o que ela recebe.
+  // ------------------------------------------------------------------
+  const temBlocos = config.blocos.length > 0
+  const porBloco = (slug: string) =>
+    (audios ?? []).filter((a) => (a.bloco as string) === slug)
+
+  const passos: PassoBloco[] = temBlocos
+    ? NOCHE_BLOCOS.map((b) => ({
+        slug: b.slug,
+        nome: b.nome,
+        alvo: b.alvo,
+        quantos: porBloco(b.slug).length,
+        sequencial: b.sequencial,
+        quando: b.quando,
+      }))
+    : []
+
+  let n = 0
+  const noites: NoiteMontada[] = temBlocos
+    ? blocosSequenciais().flatMap((b) => {
+        const doBloco = porBloco(b.slug)
+        return doBloco.map((a, i) => {
+          n += 1
+          return {
+            id: a.id as string,
+            noche: n,
+            titulo: a.titulo as string,
+            duracao: formatarDuracao((a.duracao_seg as number) ?? null),
+            bloco: b.nome,
+            resgate: Boolean(a.resgate),
+            primeiroDoBloco: i === 0,
+            ultimoDoBloco: i === doBloco.length - 1,
+          }
+        })
+      })
+    : []
+
+  const apoio = temBlocos
+    ? NOCHE_BLOCOS.filter((b) => !b.sequencial)
+        .map((b) => ({
+          bloco: b.nome,
+          audios: porBloco(b.slug).map((a, i, arr) => ({
+            id: a.id as string,
+            noche: null,
+            titulo: a.titulo as string,
+            duracao: formatarDuracao((a.duracao_seg as number) ?? null),
+            bloco: b.nome,
+            resgate: Boolean(a.resgate),
+            primeiroDoBloco: i === 0,
+            ultimoDoBloco: i === arr.length - 1,
+          })),
+        }))
+        .filter((b) => b.audios.length > 0)
+    : []
+
+  // O uploader já chega apontando para o primeiro bloco incompleto: é o
+  // próximo passo do caminho, e não dá para errar o alvo por distração.
+  const blocoSugerido = passos.find((p) => p.quantos < p.alvo)?.slug
+
   // Contagem por bloco (ou por produto, quando a biblioteca não tem blocos):
   // é como você enxerga que faltam 3 para fechar o Refuerzo.
   const contagens =
@@ -153,12 +222,17 @@ export default async function AdminAudiosPage({
           produtos={opcoes}
           ordemInicial={ordemInicial}
           blocos={config.blocos as { slug: string; nome: string }[]}
+          blocoSugerido={blocoSugerido}
         />
       )}
 
       <AudioOrfaos itens={orfaos} />
 
-      <AudioLista itens={lista} />
+      {temBlocos ? (
+        <PlanoMontagem passos={passos} noites={noites} apoio={apoio} />
+      ) : (
+        <AudioLista itens={lista} />
+      )}
     </div>
   )
 }

@@ -21,6 +21,8 @@ interface Props {
   ordemInicial: number
   /** Blocos do módulo (vazio = biblioteca sem blocos, como as oraciones). */
   blocos?: BlocoOpcao[]
+  /** Primeiro bloco incompleto — o uploader já abre apontando para ele. */
+  blocoSugerido?: string
 }
 
 type Estado = 'parado' | 'enviando' | 'pronto'
@@ -68,10 +70,16 @@ function tituloDoArquivo(nome: string): string {
     .trim()
 }
 
-export function AudioUploader({ modulo, produtos, ordemInicial, blocos = [] }: Props) {
+export function AudioUploader({
+  modulo,
+  produtos,
+  ordemInicial,
+  blocos = [],
+  blocoSugerido,
+}: Props) {
   const router = useRouter()
   const [produtoId, setProdutoId] = useState(produtos[0]?.id ?? '')
-  const [bloco, setBloco] = useState(blocos[0]?.slug ?? '')
+  const [bloco, setBloco] = useState(blocoSugerido ?? blocos[0]?.slug ?? '')
   const [arquivos, setArquivos] = useState<File[]>([])
   const [estado, setEstado] = useState<Estado>('parado')
   const [feitos, setFeitos] = useState(0)
