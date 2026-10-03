@@ -16,7 +16,7 @@ export function AudioRemoto({
   destaque?: boolean
   rota?: string
 }) {
-  const [url, setUrl] = useState<string | null>(audio.urlPublica ?? null)
+  const [url, setUrl] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState(false)
 

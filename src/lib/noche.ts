@@ -122,8 +122,6 @@ export interface NocheAudio {
   noche: number | null
   duracaoSeg: number | null
   resgate: boolean
-  /** Só o conteúdo legado em public/ usa isto; o resto vem assinado. */
-  urlPublica?: string
 }
 
 export function formatarDuracao(seg: number | null): string | null {

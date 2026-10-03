@@ -22,29 +22,6 @@ import {
 // noche_registros. Nada de conteúdo no código.
 // =====================================================================
 
-// Os 7 áudios antigos, que ainda moram em public/. Só entram em cena
-// enquanto o catálogo novo está vazio — sem isto, trocar o conteúdo deixaria
-// as compradoras de ontem com um módulo vazio no meio do ritual delas.
-// Saem daqui (e do repositório) assim que os novos subirem.
-const LEGADO: NocheAudio[] = [
-  'Apagado Mental',
-  'Liberación Corporal',
-  'Reconexión Pineal',
-  'Ondas Profundas',
-  'Ancla de Madrugada',
-  'Sueño Continuo',
-  'Sellado',
-].map((titulo, i) => ({
-  id: `legado-${i + 1}`,
-  titulo,
-  descricao: null,
-  bloco: 'modulo-1',
-  noche: i + 1,
-  duracaoSeg: null,
-  resgate: i === 4,
-  urlPublica: `/audios/noche/vn${i + 1}.mp3`,
-}))
-
 export interface BlocoComAudios {
   bloco: NocheBloco
   audios: NocheAudio[]
@@ -102,22 +79,12 @@ export const getNocheCatalogo = cache(async (): Promise<NocheCatalogo> => {
     .map((bloco) => ({ bloco, audios: todos.filter((a) => a.bloco === bloco.slug) }))
     .filter((b) => b.audios.length > 0)
 
-  if (sequencia.length === 0 && apoio.length === 0) {
-    return {
-      sequencia: LEGADO,
-      apoio: [],
-      resgate: LEGADO.find((a) => a.resgate) ?? null,
-      total: LEGADO.length,
-      vazio: true,
-    }
-  }
-
   return {
     sequencia,
     apoio,
     resgate: todos.find((a) => a.resgate) ?? null,
     total: sequencia.length,
-    vazio: false,
+    vazio: sequencia.length === 0 && apoio.length === 0,
   }
 })
 
@@ -205,12 +172,6 @@ export const getNocheEstado = cache(async (userId: string): Promise<NocheEstado>
  */
 export async function urlDoAudioNoche(userId: string, audioId: string): Promise<string | null> {
   if (!(await hasNocheAccess(userId))) return null
-
-  // Legado em public/: enquanto o conteúdo novo não sobe.
-  if (audioId.startsWith('legado-')) {
-    const n = Number(audioId.split('-')[1])
-    return n >= 1 && n <= 7 ? `/audios/noche/vn${n}.mp3` : null
-  }
 
   const admin = createAdminClient()
   const { data: audio } = await admin
