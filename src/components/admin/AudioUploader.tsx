@@ -20,20 +20,32 @@ type Estado = 'parado' | 'enviando' | 'pronto'
 
 // Lê a duração do arquivo no próprio navegador. Serve para mostrar "7:12"
 // na lista da aluna sem depender de ninguém digitar.
+//
+// COM TIMEOUT, e isso não é zelo: sem ele, um arquivo cujo 'loadedmetadata'
+// o navegador não dispara deixa a promessa pendente para sempre, o laço
+// congela e o lote inteiro fica no bucket sem entrar no catálogo. Foi
+// exatamente o que aconteceu com os 16 primeiros áudios.
 function duracaoDoArquivo(file: File): Promise<number | null> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file)
     const a = new Audio()
-    const limpar = () => URL.revokeObjectURL(url)
-    a.addEventListener('loadedmetadata', () => {
-      const s = Number.isFinite(a.duration) ? Math.round(a.duration) : null
-      limpar()
-      resolve(s)
-    })
-    a.addEventListener('error', () => {
-      limpar()
-      resolve(null)
-    })
+    let pronto = false
+
+    const terminar = (valor: number | null) => {
+      if (pronto) return
+      pronto = true
+      clearTimeout(limite)
+      URL.revokeObjectURL(url)
+      resolve(valor)
+    }
+
+    const limite = setTimeout(() => terminar(null), 8000)
+
+    a.addEventListener('loadedmetadata', () =>
+      terminar(Number.isFinite(a.duration) ? Math.round(a.duration) : null),
+    )
+    a.addEventListener('error', () => terminar(null))
+    a.preload = 'metadata'
     a.src = url
   })
 }
@@ -55,20 +67,22 @@ export function AudioUploader({ modulo, produtos, ordemInicial }: Props) {
   const [arquivos, setArquivos] = useState<File[]>([])
   const [estado, setEstado] = useState<Estado>('parado')
   const [feitos, setFeitos] = useState(0)
-  const [erro, setErro] = useState<string | null>(null)
+  const [falhas, setFalhas] = useState<string[]>([])
 
   async function enviar() {
     if (arquivos.length === 0 || !produtoId) return
     setEstado('enviando')
-    setErro(null)
+    setFalhas([])
     setFeitos(0)
 
     const supabase = createClient()
-    const registrados: Array<{ titulo: string; storagePath: string; ordem: number; duracaoSeg: number | null }> = []
 
-    try {
-      for (let i = 0; i < arquivos.length; i++) {
-        const file = arquivos[i]
+    // UM arquivo por vez, e CADA UM é registrado no catálogo logo depois de
+    // subir. Registrar só no fim do lote fazia qualquer tropeço no meio
+    // deixar tudo órfão no bucket: arquivo pago, invisível e sem título.
+    for (let i = 0; i < arquivos.length; i++) {
+      const file = arquivos[i]
+      try {
         const ext = file.name.split('.').pop()?.toLowerCase() ?? 'mp3'
 
         const res = await fetch('/api/admin/audios/upload-url', {
@@ -76,45 +90,41 @@ export function AudioUploader({ modulo, produtos, ordemInicial }: Props) {
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ modulo, ext }),
         })
-        if (!res.ok) throw new Error(`No se pudo preparar la subida de ${file.name}`)
+        if (!res.ok) throw new Error('no se pudo preparar la subida')
         const { path, token } = (await res.json()) as { path: string; token: string }
 
         const up = await supabase.storage.from('audios').uploadToSignedUrl(path, token, file)
-        if (up.error) throw new Error(`${file.name}: ${up.error.message}`)
+        if (up.error) throw new Error(up.error.message)
 
-        registrados.push({
-          titulo: tituloDoArquivo(file.name),
-          storagePath: path,
-          ordem: ordemInicial + i + 1,
-          duracaoSeg: await duracaoDoArquivo(file),
-        })
-        setFeitos(i + 1)
-      }
-
-      // Só registra no catálogo o que REALMENTE subiu: se a conexão cair no
-      // meio, o que já foi fica utilizável e você continua de onde parou.
-      const reg = await fetch('/api/admin/audios', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ modulo, productId: produtoId, itens: registrados }),
-      })
-      if (!reg.ok) throw new Error('Los archivos subieron, pero no se pudieron registrar.')
-
-      setEstado('pronto')
-      setArquivos([])
-      router.refresh()
-    } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Error al subir')
-      setEstado('parado')
-      if (registrados.length > 0) {
-        await fetch('/api/admin/audios', {
+        const reg = await fetch('/api/admin/audios', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ modulo, productId: produtoId, itens: registrados }),
-        }).catch(() => {})
-        router.refresh()
+          body: JSON.stringify({
+            modulo,
+            productId: produtoId,
+            itens: [
+              {
+                titulo: tituloDoArquivo(file.name),
+                storagePath: path,
+                ordem: ordemInicial + i + 1,
+                duracaoSeg: await duracaoDoArquivo(file),
+              },
+            ],
+          }),
+        })
+        if (!reg.ok) throw new Error('subió, pero no entró en el catálogo')
+
+        setFeitos(i + 1)
+      } catch (e) {
+        // Um arquivo ruim não derruba o lote: anota e segue para o próximo.
+        const motivo = e instanceof Error ? e.message : 'error'
+        setFalhas((f) => [...f, `${file.name}: ${motivo}`])
       }
     }
+
+    setEstado('pronto')
+    setArquivos([])
+    router.refresh()
   }
 
   return (
@@ -163,9 +173,23 @@ export function AudioUploader({ modulo, produtos, ordemInicial }: Props) {
         >
           {estado === 'enviando' ? `Subiendo ${feitos}/${arquivos.length}…` : 'Subir al catálogo'}
         </button>
-        {estado === 'pronto' && <span className="text-sm font-semibold text-emerald-700">Listo ✓</span>}
-        {erro && <span className="text-sm font-semibold text-red-700">{erro}</span>}
+        {estado === 'pronto' && falhas.length === 0 && (
+          <span className="text-sm font-semibold text-emerald-700">Listo ✓ {feitos} audio(s)</span>
+        )}
+        {estado === 'pronto' && falhas.length > 0 && (
+          <span className="text-sm font-semibold text-amber-700">
+            {feitos} subieron · {falhas.length} fallaron
+          </span>
+        )}
       </div>
+
+      {falhas.length > 0 && (
+        <ul className="mt-2 space-y-1 text-xs text-red-700">
+          {falhas.map((f) => (
+            <li key={f}>{f}</li>
+          ))}
+        </ul>
+      )}
 
       <p className="mt-3 text-xs text-slate-500">
         Los archivos van directo del navegador al bucket privado — no pasan por el servidor,

@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { AudioUploader } from '@/components/admin/AudioUploader'
 import { AudioLista } from '@/components/admin/AudioLista'
+import { AudioOrfaos } from '@/components/admin/AudioOrfaos'
 import { ORACIONES_MODULO, ORACIONES_PRODUCT_SLUG, ORACIONES_UPSELL_SLUG, formatarDuracao } from '@/lib/oraciones'
 
 export const dynamic = 'force-dynamic'
@@ -21,6 +22,24 @@ export default async function AdminAudiosPage() {
       .eq('modulo', ORACIONES_MODULO)
       .order('ordem', { ascending: true }),
   ])
+
+  // Arquivos no bucket que não estão no catálogo. Sem esta conferência, um
+  // upload que falha no registro vira peso invisível na conta do Storage.
+  const { data: noBucket } = await admin.storage
+    .from('audios')
+    .list(ORACIONES_MODULO, { limit: 1000, sortBy: { column: 'created_at', order: 'asc' } })
+
+  const noCatalogo = new Set((audios ?? []).map((a) => a.storage_path as string))
+  const orfaos = (noBucket ?? [])
+    .map((f) => ({
+      path: `${ORACIONES_MODULO}/${f.name}`,
+      tamanho: `${Math.round(((f.metadata?.size as number) ?? 0) / 1024)} kB`,
+      quando: new Date(f.created_at as string).toLocaleString('es-419', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      }),
+    }))
+    .filter((f) => !noCatalogo.has(f.path))
 
   const nomePorProduto = new Map((produtos ?? []).map((p) => [p.id as string, p.nome as string]))
   const lista = (audios ?? []).map((a) => ({
@@ -73,6 +92,8 @@ export default async function AdminAudiosPage() {
       ) : (
         <AudioUploader modulo={ORACIONES_MODULO} produtos={opcoes} ordemInicial={ordemInicial} />
       )}
+
+      <AudioOrfaos itens={orfaos} />
 
       <AudioLista itens={lista} />
     </div>
