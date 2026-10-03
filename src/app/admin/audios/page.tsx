@@ -9,7 +9,7 @@ import {
   ORACIONES_UPSELL_SLUG,
   formatarDuracao,
 } from '@/lib/oraciones'
-import { NOCHE_MODULO, NOCHE_PRODUCT_SLUG, NOCHE_BLOCOS, NOCHE_POR_BLOCO } from '@/lib/noche'
+import { NOCHE_MODULO, NOCHE_PRODUCT_SLUG, NOCHE_BLOCOS } from '@/lib/noche'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,13 +19,13 @@ const BIBLIOTECAS = {
     titulo: 'Oración Milagrosa',
     nota: 'Las primeras vienen en el bump; el resto se desbloquea con la colección completa.',
     produtos: [ORACIONES_PRODUCT_SLUG, ORACIONES_UPSELL_SLUG],
-    blocos: [] as { slug: string; nome: string }[],
+    blocos: [] as { slug: string; nome: string; alvo?: number }[],
   },
   [NOCHE_MODULO]: {
     titulo: 'Ritual Noche Perfecta',
-    nota: `Bloques de ${NOCHE_POR_BLOCO} audios. Preparación, Módulo 1 y Módulo 2 forman la secuencia noche a noche; Refuerzo y Reset Profundo quedan disponibles fuera de orden.`,
+    nota: 'Preparación (3) + Módulo 1 (7) + Módulo 2 (7) forman la secuencia: 17 noches, una por día. Refuerzo y Reset Profundo quedan disponibles fuera de orden.',
     produtos: [NOCHE_PRODUCT_SLUG],
-    blocos: NOCHE_BLOCOS.map((b) => ({ slug: b.slug, nome: b.nome })),
+    blocos: NOCHE_BLOCOS.map((b) => ({ slug: b.slug, nome: b.nome, alvo: b.alvo })),
   },
 } as const
 
@@ -91,7 +91,7 @@ export default async function AdminAudiosPage({
       ? config.blocos.map((b) => ({
           nome: b.nome,
           quantos: (audios ?? []).filter((a) => a.bloco === b.slug).length,
-          alvo: NOCHE_POR_BLOCO,
+          alvo: b.alvo ?? null,
         }))
       : opcoes.map((p) => ({
           nome: p.nome,

@@ -5,11 +5,13 @@
 // sequência (uma noite por dia); dois ficam disponíveis para quando ela
 // precisar, fora da ordem:
 //
-//   Preparación    7 · prepara a reprogramação
+//   Preparación    3 · prepara a reprogramação (os 3 primeiros dias)
 //   Módulo 1       7 · a reprogramação
 //   Módulo 2       7 · o aprofundamento
 //   Refuerzo       7 · se o sono não melhorou
 //   Reset profundo 7 · último recurso
+//
+// Os três primeiros formam a sequência: 17 noites, uma por dia.
 //
 // O conteúdo NÃO está mais no código: os áudios vivem no bucket privado e
 // o catálogo no banco (audio_biblioteca, modulo = 'noche'). Trocar um áudio
@@ -26,8 +28,12 @@ export const NOCHE_MODULO = 'noche'
 /** Guia em PDF: os blocos, como usar e as dúvidas mais comuns. */
 export const NOCHE_GUIA_PDF = '/guias/noche/ritual-noche-perfecta-guia.pdf'
 
-/** Quantos áudios cada bloco tem. Serve de alvo no painel, não de regra. */
-export const NOCHE_POR_BLOCO = 7
+/**
+ * Quantos áudios cada bloco deve ter. É ALVO de conferência no painel, não
+ * regra: o módulo funciona com o que estiver no catálogo, e o número de
+ * noites é o que existe — não o que esperamos.
+ */
+export const NOCHE_ALVO_PADRAO = 7
 
 export interface NocheBloco {
   slug: string
@@ -41,26 +47,31 @@ export interface NocheBloco {
   sequencial: boolean
   /** Quando usar — só para os blocos fora da sequência. */
   quando?: string
+  /** Quantos áudios o bloco deve ter (conferência no painel). */
+  alvo: number
 }
 
 export const NOCHE_BLOCOS: NocheBloco[] = [
   {
     slug: 'preparacion',
     nome: 'Preparación',
-    resumo: 'Prepara tu mente y tu cuerpo para la reprogramación.',
+    resumo: 'Tres noches para preparar tu mente antes de la reprogramación.',
     sequencial: true,
+    alvo: 3,
   },
   {
     slug: 'modulo-1',
     nome: 'Módulo 1',
     resumo: 'La reprogramación empieza aquí.',
     sequencial: true,
+    alvo: NOCHE_ALVO_PADRAO,
   },
   {
     slug: 'modulo-2',
     nome: 'Módulo 2',
     resumo: 'Profundiza lo que ya empezó a cambiar.',
     sequencial: true,
+    alvo: NOCHE_ALVO_PADRAO,
   },
   {
     slug: 'refuerzo',
@@ -68,6 +79,7 @@ export const NOCHE_BLOCOS: NocheBloco[] = [
     resumo: 'Siete noches más de apoyo, cuando el cambio tarda.',
     sequencial: false,
     quando: 'Si tu sueño todavía no mejoró',
+    alvo: NOCHE_ALVO_PADRAO,
   },
   {
     slug: 'reset-profundo',
@@ -75,6 +87,7 @@ export const NOCHE_BLOCOS: NocheBloco[] = [
     resumo: 'El trabajo más fuerte, para un sueño muy castigado.',
     sequencial: false,
     quando: 'Último recurso, si nada funcionó',
+    alvo: NOCHE_ALVO_PADRAO,
   },
 ]
 

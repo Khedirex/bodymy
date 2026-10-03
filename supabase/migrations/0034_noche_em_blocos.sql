@@ -3,11 +3,11 @@
 -- BodyMy — Ritual Noche Perfecta passa a viver no catálogo, em blocos.
 --
 -- Antes: 7 áudios fixos num array do código, servidos de public/ sem login.
--- Agora: 5 blocos de 7, no bucket privado, com link assinado.
+-- Agora: 5 blocos (3+7+7+7+7 = 31 áudios), no bucket privado, com link assinado.
 --
---   Preparación     7 · sequência
+--   Preparación     3 · sequência (os 3 primeiros dias)
 --   Módulo 1        7 · sequência
---   Módulo 2        7 · sequência   → 21 noites em ordem
+--   Módulo 2        7 · sequência   → 17 noites em ordem
 --   Refuerzo        7 · fora de ordem, "se o sono não melhorou"
 --   Reset Profundo  7 · fora de ordem, último recurso
 --
