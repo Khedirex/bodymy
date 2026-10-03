@@ -19,13 +19,25 @@ interface Props {
   produtoNome: string
   suporteEmail: string
   guia?: GuiaPdf
+  /** Rota do módulo comprado: ela entra JÁ no produto, não na Home. */
+  moduloHref?: string
+  /** Uma linha sobre o que ela vai encontrar lá dentro. */
+  moduloChamada?: string
 }
 
 const MAX_TENTATIVAS = 18 // ~45s (2,5s cada)
 
-export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) {
+export function ObrigadoView({
+  email,
+  produtoNome,
+  suporteEmail,
+  guia,
+  moduloHref,
+  moduloChamada,
+}: Props) {
   const [status, setStatus] = useState<Status>(email ? 'verificando' : 'sem_email')
   const [progresso, setProgresso] = useState(email ? 8 : 100)
+  const [reenvio, setReenvio] = useState<'parado' | 'enviando' | 'enviado'>('parado')
 
   // Verifica em segundo plano se o webhook já criou a conta.
   useEffect(() => {
@@ -66,7 +78,31 @@ export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) 
   }, [email])
 
   const podeEntrar = status !== 'verificando'
-  const loginHref = email ? `/login?email=${encodeURIComponent(email)}` : '/login'
+
+  // O login leva direto ao módulo comprado (?next=): depois do código, ela
+  // cai DENTRO do produto, não numa Home onde precisa procurar o que comprou.
+  const loginHref = (() => {
+    const p = new URLSearchParams()
+    if (email) p.set('email', email)
+    if (moduloHref) p.set('next', moduloHref)
+    const q = p.toString()
+    return q ? `/login?${q}` : '/login'
+  })()
+
+  async function reenviarAcesso() {
+    if (!email || reenvio === 'enviando') return
+    setReenvio('enviando')
+    try {
+      await fetch('/api/obrigado/reenviar', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+    } catch {
+      /* a resposta é sempre a mesma; não vale assustar aqui */
+    }
+    setReenvio('enviado')
+  }
 
   const botaoEntrar = (label: string) => (
     <Link
@@ -166,14 +202,34 @@ export function ObrigadoView({ email, produtoNome, suporteEmail, guia }: Props) 
         </>
       ) : (
         /* Passo 1 — Como entrar */
-        <StepCard numero={1} titulo="Entra a BodyMy">
+        <StepCard numero={1} titulo="Entra a tu plan">
+          {moduloChamada ? <p className="mb-3 text-ink-700">{moduloChamada}</p> : null}
           <p className="mb-3 text-ink-700">
             <strong>No necesitas crear contraseña</strong>. Toca el botón, escribe tu correo y te enviamos un
             código de 6 números. Solo escribes el código en el app y listo.
           </p>
-          {botaoEntrar('Entrar a BodyMy →')}
+          {botaoEntrar('Entrar a mi plan →')}
         </StepCard>
       )}
+
+      {/* Rede de segurança: o e-mail de acesso, na mão dela */}
+      {email ? (
+        <div className="mt-3 text-center">
+          {reenvio === 'enviado' ? (
+            <p className="text-sm font-semibold text-sage-600">
+              ✓ Te reenviamos el correo de acceso a {email}. Revisa también spam.
+            </p>
+          ) : (
+            <button
+              onClick={reenviarAcesso}
+              disabled={reenvio === 'enviando'}
+              className="text-sm font-bold text-brand-600 underline disabled:opacity-60"
+            >
+              {reenvio === 'enviando' ? 'Enviando…' : '¿No te llegó nada? Reenviar mi correo de acceso'}
+            </button>
+          )}
+        </div>
+      ) : null}
 
       {/* Se o e-mail demorar */}
       <StepCard numero={guia ? 3 : 2} titulo="Si el correo del código tarda">

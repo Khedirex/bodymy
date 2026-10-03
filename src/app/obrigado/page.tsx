@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
+import { MODULOS } from '@/lib/modulos'
 import { CIRCUITO_PRODUCT_SLUGS } from '@/lib/training'
 import { ObrigadoView } from './ObrigadoView'
 import { SUPORTE_EMAIL, emailDosParams } from './params'
@@ -35,5 +36,17 @@ export default async function ObrigadoPage({
     /* mantém o fallback */
   }
 
-  return <ObrigadoView email={email} produtoNome={produtoNome} suporteEmail={SUPORTE_EMAIL} />
+  // O módulo que a compra abre, lido do registro: a página de obrigado não
+  // conhece produto por nome, e um produto novo não precisa de mudança aqui.
+  const modulo = slug ? MODULOS.find((m) => m.productSlugs.includes(slug)) : undefined
+
+  return (
+    <ObrigadoView
+      email={email}
+      produtoNome={produtoNome}
+      suporteEmail={SUPORTE_EMAIL}
+      moduloHref={modulo?.href}
+      moduloChamada={modulo ? `${modulo.nome}: ${modulo.resumo}.` : undefined}
+    />
+  )
 }
