@@ -58,6 +58,21 @@ export function PlanoMontagem({
     router.refresh()
   }
 
+  // Remover: existia na lista simples e sumiu quando o módulo com blocos
+  // passou a usar esta tela. Sem isto, um arquivo a mais (um 8º no bloco de
+  // 7) só saía com SQL na mão.
+  async function remover(id: string, titulo: string) {
+    if (!confirm(`¿Eliminar "${titulo}"? El archivo también se borra del bucket.`)) return
+    setOcupado(id)
+    await fetch('/api/admin/audios', {
+      method: 'DELETE',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    setOcupado(null)
+    router.refresh()
+  }
+
   async function marcarResgate(id: string, resgate: boolean) {
     setOcupado(id)
     await fetch('/api/admin/audios', {
@@ -172,6 +187,13 @@ export function PlanoMontagem({
                   >
                     ↓
                   </button>
+                  <button
+                    onClick={() => remover(n.id, n.titulo)}
+                    disabled={ocupado === n.id}
+                    className="rounded px-2 py-1 text-xs font-semibold text-red-700 hover:underline disabled:opacity-30"
+                  >
+                    Eliminar
+                  </button>
                 </span>
               </li>
             ))}
@@ -207,6 +229,13 @@ export function PlanoMontagem({
                       }`}
                     >
                       {a.resgate ? 'rescate ✓' : 'marcar rescate'}
+                    </button>
+                    <button
+                      onClick={() => remover(a.id, a.titulo)}
+                      disabled={ocupado === a.id}
+                      className="shrink-0 rounded px-2 py-1 text-xs font-semibold text-red-700 hover:underline disabled:opacity-30"
+                    >
+                      Eliminar
                     </button>
                   </li>
                 ))}
