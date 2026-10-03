@@ -17,7 +17,12 @@ export default async function CisnePage() {
 
   const product = await getCisneProduct()
   if (!product) notFound()
-  if (!(await hasCisneAccess(profile.id))) return <SalesView product={product} />
+  // Produto fora de venda: quem tem acesso continua entrando; quem não tem
+  // não vê uma página de venda do que não vendemos mais.
+  if (!(await hasCisneAccess(profile.id))) {
+    if (!product.ativo) notFound()
+    return <SalesView product={product} />
+  }
 
   const estado = await getCisneEstado(profile.id)
   const hoje = estado.proximoDia ? CISNE_DIAS[estado.proximoDia - 1] : null

@@ -32,13 +32,18 @@ export interface CisneEstado {
 
 // Produto do módulo (lido com admin: a RLS de products só mostra o
 // "mundo" da aluna, e a página de venda precisa dele mesmo sem acesso).
+//
+// SEM filtro de `ativo`: tirar um produto de venda não pode cancelar o
+// acesso de quem já pagou. Com o filtro aqui, arquivar o Cisne fazia
+// hasCisneAccess devolver false para todo mundo e a página devolver 404 —
+// as alunas perdiam o módulo comprado. `ativo` diz "está à venda", nunca
+// "existe".
 export const getCisneProduct = cache(async (): Promise<Product | null> => {
   const admin = createAdminClient()
   const { data, error } = await admin
     .from('products')
     .select('*')
     .eq('slug', CISNE_PRODUCT_SLUG)
-    .eq('ativo', true)
     .maybeSingle()
   if (error) {
     captureException(new Error(`[cisne.getCisneProduct] ${error.message}`), { code: error.code })

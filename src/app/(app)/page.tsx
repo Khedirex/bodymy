@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
 import { getCheckinDates, getEsteira } from '@/lib/queries'
@@ -7,15 +6,15 @@ import { calcularStreak } from '@/lib/streak'
 import { todayISO, addDaysISO } from '@/lib/dates'
 import { DashGeneral, type DiaSemana } from '@/components/home/DashGeneral'
 import { CarrosselDashes, type DashModulo } from '@/components/home/CarrosselDashes'
-import { LockedProductCard } from '@/components/LockedProductCard'
+import { EsteiraCarrossel, type OfertaItem } from '@/components/home/EsteiraCarrossel'
 import { InstallBanner } from '@/components/pwa/InstallBanner'
 import { EmptyState } from '@/components/ui/states'
 import { LockIcon } from '@/components/ui/icons'
 
 export const dynamic = 'force-dynamic'
 
-// Quantos produtos da esteira mostrar no resumo da Home.
-const ESTEIRA_RESUMO = 4
+// Quantos produtos da esteira entram no carrossel da Home.
+const ESTEIRA_RESUMO = 6
 
 // Ordem do carrossel: primeiro o que ainda tem algo para hoje, depois o que
 // já está feito, e por último o que ela terminou. Assim o primeiro painel é
@@ -79,7 +78,19 @@ export default async function HomePage() {
   const dashes = [...modulos].sort((a, b) => prioridade(a) - prioridade(b)).map(paraDash)
 
   const primeiroNome = (profile.nome ?? '').split(' ')[0] || 'Hola'
-  const bloqueados = storefront.filter((s) => !s.liberado)
+
+  // O que ela ainda não tem. Chapado aqui porque o carrossel é componente de
+  // cliente e Product carrega campos que não precisam cruzar a fronteira.
+  const ofertas: OfertaItem[] = storefront
+    .filter((s) => !s.liberado)
+    .slice(0, ESTEIRA_RESUMO)
+    .map((s) => ({
+      slug: s.product.slug,
+      nome: s.product.nome,
+      descricao: s.product.descricao ?? null,
+      precoExibicao: s.product.preco_exibicao ?? null,
+      tipo: s.product.tipo,
+    }))
 
   return (
     <div className="space-y-6">
@@ -118,22 +129,8 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* O que ela ainda não tem — sempre por último. */}
-      {bloqueados.length > 0 && (
-        <section>
-          <div className="mb-2 flex items-center justify-between">
-            <h2 className="section-title">Para ti</h2>
-            <Link href="/descubra" className="text-sm font-semibold text-brand-600">
-              Ver todo
-            </Link>
-          </div>
-          <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
-            {bloqueados.slice(0, ESTEIRA_RESUMO).map((s) => (
-              <LockedProductCard key={s.product.id} product={s.product} compact />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* A esteira, logo abaixo da rotina: um card por vez, passando sozinho. */}
+      <EsteiraCarrossel itens={ofertas} />
     </div>
   )
 }
