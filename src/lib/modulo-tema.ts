@@ -47,6 +47,15 @@ export const TEMAS: Record<string, ModuloTema> = {
     barra: 'from-sun-300 to-sun-500',
   },
 
+  // Oração — noite recolhida: o roxo mais fundo com o dourado do acento.
+  'oracion-milagrosa': {
+    avatar: 'bg-brand-700 text-sun-200',
+    chip: 'bg-brand-50 text-brand-700',
+    botao: 'bg-brand-700 text-white',
+    realce: 'text-brand-700',
+    barra: 'from-brand-600 to-brand-700',
+  },
+
   // Sono — noturno. É um ritual de cama, com a luz baixa: o neutro escuro
   // com a barra puxando para o roxo.
   'ritual-noche-perfecta': {

@@ -8,7 +8,9 @@ import { CIRCUITO_ACCESS_SLUGS } from '@/lib/training'
 import { CISNE_PRODUCT_SLUG, CISNE_DIAS, CISNE_TOTAL_DIAS } from '@/lib/cisne'
 import { hasCisneAccess, getCisneEstado } from '@/lib/cisne-server'
 import { NOCHE_PRODUCT_SLUG, NOCHE_TOTAL_NOCHES, audioDaNoche } from '@/lib/noche'
+import { ORACIONES_PRODUCT_SLUG, ORACIONES_UPSELL_SLUG } from '@/lib/oraciones'
 import { hasNocheAccess, getNocheEstado } from '@/lib/noche-server'
+import { getOracionesCatalogo } from '@/lib/oraciones-server'
 
 // =====================================================================
 // REGISTRO DE MÓDULOS — a fonte única dos "mini-apps" do BodyMy.
@@ -107,6 +109,25 @@ async function estadoNoche(userId: string): Promise<EstadoModulo | null> {
 }
 
 // ---------------------------------------------------------------------
+// Oración Milagrosa (biblioteca de áudio, sem ordem obrigatória)
+//
+// Biblioteca não tem "dia X de Y": ela escolhe o que ouvir. Por isso o
+// estado traz total 0 — o card da Home mostra a chamada e o botão, sem
+// inventar uma barra de progresso que não existe.
+// ---------------------------------------------------------------------
+async function estadoOraciones(userId: string): Promise<EstadoModulo | null> {
+  const { liberados } = await getOracionesCatalogo(userId)
+  if (liberados === 0) return null
+  return {
+    concluidos: 0,
+    total: 0,
+    feitoHoje: false,
+    terminado: false,
+    chamadaHoje: `${liberados} ${liberados === 1 ? 'oración' : 'oraciones'} para esta noche`,
+  }
+}
+
+// ---------------------------------------------------------------------
 // O registro
 // ---------------------------------------------------------------------
 export const MODULOS: ModuloBodyMy[] = [
@@ -127,6 +148,15 @@ export const MODULOS: ModuloBodyMy[] = [
     productSlugs: [CISNE_PRODUCT_SLUG],
     emoji: '🦢',
     carregarEstado: estadoCisne,
+  },
+  {
+    slug: 'oracion-milagrosa',
+    nome: 'Oración Milagrosa',
+    resumo: 'Para escuchar en la cama, con los ojos cerrados',
+    href: '/oraciones',
+    productSlugs: [ORACIONES_PRODUCT_SLUG, ORACIONES_UPSELL_SLUG],
+    emoji: '🙏',
+    carregarEstado: estadoOraciones,
   },
   {
     slug: 'ritual-noche-perfecta',
