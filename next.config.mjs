@@ -23,14 +23,6 @@ const nextConfig = {
     ]
     return config
   },
-  // Ritual Noche Perfecta: app estático (Vite) gerado em public/ritual pelo
-  // script `npm run build:bodymy` de noche-perfecta/.
-  async rewrites() {
-    return [
-      { source: '/ritual', destination: '/ritual/index.html' },
-      { source: '/ritual/gracias', destination: '/ritual/gracias.html' },
-    ]
-  },
   async redirects() {
     // Slug do programa mudou (ritual-do-tapetinho → drenagem-tailandesa).
     // Redireciona links antigos já compartilhados para não quebrar.
@@ -61,6 +53,22 @@ const nextConfig = {
         source: '/oferta/ritual-do-tapetinho',
         destination: '/oferta/drenagem-tailandesa',
         permanent: true,
+      },
+      // O app estático antigo do Ritual Noche Perfecta (/ritual, feito em
+      // Vite) foi portado para dentro do Next. Links já compartilhados e
+      // ícones instalados na tela do celular caem no módulo novo em vez de
+      // num 404 — menos sw.js, que é a lápide que desinstala o PWA antigo
+      // (um service worker servido como redirect falha a atualização, e a
+      // aluna ficaria presa no app velho).
+      {
+        source: '/ritual/:path((?!sw\\.js$).*)',
+        destination: '/noche',
+        permanent: false,
+      },
+      {
+        source: '/ritual',
+        destination: '/noche',
+        permanent: false,
       },
     ]
   },
