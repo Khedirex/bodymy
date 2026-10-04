@@ -31,7 +31,11 @@ export interface BibliotecaConfig {
   emoji: string
   /** Produtos que liberam este conteúdo (o primeiro é o padrão no upload). */
   productSlugs: string[]
-  /** Como a aluna escuta: lista livre ou sequência de dias. */
+  /**
+   * Como a aluna escuta:
+   * - 'libre'     → ela escolhe o que quiser, sem ordem nem avanço;
+   * - 'secuencia' → uma noite por dia, na ordem, com progresso guardado.
+   */
   formato: 'libre' | 'secuencia'
   /** Blocos, quando o conteúdo se divide. */
   blocos?: BlocoBiblioteca[]
@@ -64,13 +68,13 @@ export const BIBLIOTECAS: BibliotecaConfig[] = [
     resumo: '21 noches para que el sueño reconquistado no se pierda',
     emoji: '🔁',
     productSlugs: ['ritual-mantenimiento-21-noches'],
-    formato: 'libre',
+    formato: 'secuencia',
     blocos: [
       { slug: 'semana-1', nome: 'Semana 1', alvo: 7 },
       { slug: 'semana-2', nome: 'Semana 2', alvo: 7 },
       { slug: 'semana-3', nome: 'Semana 3', alvo: 7 },
     ],
-    nota: '21 audios en tres semanas. Hoy se entregan como lista por semana; si quieres una noche por día con avance, como el ritual, dímelo.',
+    nota: '21 noches, una por día, en el orden de las tres semanas. El orden del upload define la secuencia — igual que en el ritual.',
   },
   {
     slug: 'receta',

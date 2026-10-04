@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getActiveEntitlementProductIds } from '@/lib/entitlements'
 import { captureException } from '@/lib/observability'
 import { bibliotecaPorSlug, type ItemBiblioteca } from '@/lib/bibliotecas'
+import { todayISO } from '@/lib/dates'
 
 // =====================================================================
 // Catálogo e acesso de QUALQUER biblioteca de áudio.
@@ -110,4 +111,67 @@ export async function urlAssinadaBiblioteca(
     return null
   }
   return data?.signedUrl ?? null
+}
+
+
+// =====================================================================
+// Bibliotecas em SEQUÊNCIA (uma noite por dia), como o Mantenimiento.
+//
+// Mesma regra do ritual: o servidor decide qual é a próxima e só libera uma
+// por dia. Sem isso, ela ouviria as 21 numa tarde e o produto perderia
+// exatamente aquilo que vende — a constância.
+// =====================================================================
+
+export interface ProgressoBiblioteca {
+  /** Os áudios na ordem, já numerados (1..total). */
+  sequencia: ItemBiblioteca[]
+  concluidas: number
+  /** Próxima a fazer, ou null quando terminou. */
+  proxima: number | null
+  feitoHoje: boolean
+  terminado: boolean
+  total: number
+}
+
+export async function getProgressoBiblioteca(
+  userId: string,
+  moduloSlug: string,
+): Promise<ProgressoBiblioteca> {
+  const config = bibliotecaPorSlug(moduloSlug)
+  const { itens } = await getCatalogoBiblioteca(userId, moduloSlug)
+
+  // A ordem dos blocos manda; dentro do bloco, a ordem do upload.
+  const ordemBloco = (slug: string | null) => {
+    const i = (config?.blocos ?? []).findIndex((b) => b.slug === slug)
+    return i === -1 ? 999 : i
+  }
+  const sequencia = [...itens]
+    .filter((i) => i.liberado)
+    .sort((a, b) => ordemBloco(a.bloco) - ordemBloco(b.bloco) || a.ordem - b.ordem)
+
+  const admin = createAdminClient()
+  const { data: feitas } = await admin
+    .from('biblioteca_progresso')
+    .select('numero, concluida_em')
+    .eq('user_id', userId)
+    .eq('modulo', moduloSlug)
+    .order('numero', { ascending: true })
+
+  const concluidas = feitas?.length ?? 0
+  const total = sequencia.length
+  const terminado = total > 0 && concluidas >= total
+
+  const hoje = todayISO()
+  const feitoHoje = (feitas ?? []).some(
+    (f) => f.concluida_em && todayISO(new Date(f.concluida_em as string)) === hoje,
+  )
+
+  return {
+    sequencia,
+    concluidas,
+    proxima: terminado || total === 0 ? null : concluidas + 1,
+    feitoHoje,
+    terminado,
+    total,
+  }
 }

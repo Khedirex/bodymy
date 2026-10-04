@@ -12,7 +12,7 @@ import { ORACIONES_PRODUCT_SLUG, ORACIONES_UPSELL_SLUG } from '@/lib/oraciones'
 import { hasNocheAccess, getNocheEstado, getNocheCatalogo } from '@/lib/noche-server'
 import { getOracionesCatalogo } from '@/lib/oraciones-server'
 import { BIBLIOTECAS } from '@/lib/bibliotecas'
-import { getCatalogoBiblioteca } from '@/lib/biblioteca-server'
+import { getCatalogoBiblioteca, getProgressoBiblioteca } from '@/lib/biblioteca-server'
 
 // =====================================================================
 // REGISTRO DE MÓDULOS — a fonte única dos "mini-apps" do BodyMy.
@@ -186,6 +186,23 @@ const MODULOS_DE_BIBLIOTECA: ModuloBodyMy[] = BIBLIOTECAS.map((b) => ({
   productSlugs: b.productSlugs,
   emoji: b.emoji,
   carregarEstado: async (userId: string) => {
+    // Em sequência o card mostra avanço de verdade ("Noche 4 de 21"),
+    // como o ritual. Em lista livre não há avanço a mostrar.
+    if (b.formato === 'secuencia') {
+      const p = await getProgressoBiblioteca(userId, b.slug)
+      if (p.total === 0) return null
+      return {
+        concluidos: p.concluidas,
+        total: p.total,
+        feitoHoje: p.feitoHoje,
+        terminado: p.terminado,
+        chamadaHoje:
+          p.terminado || p.feitoHoje || !p.proxima
+            ? null
+            : `Noche ${p.proxima} · ${p.sequencia[p.proxima - 1]?.titulo ?? ''}`,
+      }
+    }
+
     const { liberados } = await getCatalogoBiblioteca(userId, b.slug)
     // Sem áudio ainda: o card mostra o resumo e leva à tela, que explica
     // que o conteúdo está sendo preparado. É melhor do que sumir.

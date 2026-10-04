@@ -2,8 +2,9 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
 import { bibliotecaPorSlug, BIBLIOTECAS } from '@/lib/bibliotecas'
-import { hasBibliotecaAccess, getCatalogoBiblioteca } from '@/lib/biblioteca-server'
+import { hasBibliotecaAccess, getCatalogoBiblioteca, getProgressoBiblioteca } from '@/lib/biblioteca-server'
 import { BibliotecaLista } from '@/components/biblioteca/BibliotecaLista'
+import { BibliotecaSequencia } from '@/components/biblioteca/BibliotecaSequencia'
 import { FeedbackOntem } from '@/components/audio/FeedbackOntem'
 import { perguntaDeOntem } from '@/lib/feedback-server'
 import { EmptyState } from '@/components/ui/states'
@@ -44,14 +45,39 @@ export default async function BibliotecaPage({ params }: { params: { slug: strin
     )
   }
 
-  const [{ itens, bloqueados }, ontem] = await Promise.all([
-    getCatalogoBiblioteca(profile.id, config.slug),
-    perguntaDeOntem(profile.id, config.slug),
-  ])
+  const ontem = await perguntaDeOntem(profile.id, config.slug)
+  const pergunta = ontem ? (
+    <FeedbackOntem
+      modulo={config.slug}
+      data={ontem.data}
+      quantos={ontem.quantos}
+      titulo={ontem.titulo}
+    />
+  ) : null
 
+  // Sequência: uma noite por dia, com avanço. Livre: ela escolhe.
+  if (config.formato === 'secuencia') {
+    const p = await getProgressoBiblioteca(profile.id, config.slug)
+    return (
+      <div className="space-y-5">
+        {pergunta}
+        <BibliotecaSequencia
+          config={config}
+          sequencia={p.sequencia}
+          concluidas={p.concluidas}
+          proxima={p.proxima}
+          feitoHoje={p.feitoHoje}
+          terminado={p.terminado}
+          total={p.total}
+        />
+      </div>
+    )
+  }
+
+  const { itens, bloqueados } = await getCatalogoBiblioteca(profile.id, config.slug)
   return (
     <div className="space-y-5">
-      {ontem && <FeedbackOntem modulo={config.slug} data={ontem.data} quantos={ontem.quantos} titulo={ontem.titulo} />}
+      {pergunta}
       <BibliotecaLista config={config} itens={itens} bloqueados={bloqueados} />
     </div>
   )
