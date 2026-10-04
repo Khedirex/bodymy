@@ -239,6 +239,13 @@ export default async function AdminAudiosPage({
         </p>
       ) : (
         <AudioUploader
+          // key por biblioteca: trocar de aba REMONTA o formulário.
+          // Sem isto, o React reaproveita a instância e o bloco escolhido na
+          // aba anterior fica grudado — foi assim que 12 áudios do Reset
+          // Madrugada entraram marcados com "Preparación", que é do Ritual
+          // Noche. Estado de formulário não pode sobreviver à troca de
+          // contexto.
+          key={modulo}
           modulo={modulo}
           produtos={opcoes}
           ordemInicial={ordemInicial}
