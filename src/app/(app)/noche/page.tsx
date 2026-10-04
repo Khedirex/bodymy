@@ -44,7 +44,7 @@ export default async function NochePage() {
 
   return (
     <div className="space-y-5">
-      {ontem && <FeedbackOntem audioId={ontem.audioId} titulo={ontem.titulo} />}
+      {ontem && <FeedbackOntem modulo={NOCHE_MODULO} data={ontem.data} quantos={ontem.quantos} titulo={ontem.titulo} />}
       <NocheRitual
       nivel={estado.nivel}
       concluidas={estado.concluidas}

@@ -28,3 +28,24 @@ alter table public.audio_escutas enable row level security;
 
 comment on table public.audio_escutas is
   'Que áudio a aluna abriu em que dia. Serve para perguntar "como foi ontem?" no dia seguinte.';
+
+-- ---------------------------------------------------------------------
+-- O retorno é da NOITE, não da faixa.
+--
+-- Ao acordar ela não distingue um áudio do outro — distingue se dormiu.
+-- Perguntar por áudio faria quem ouviu três responder três vezes, e ninguém
+-- faz isso. audio_id vira opcional (guardado quando a noite teve um só, para
+-- saber que faixa tocava nas noites mal avaliadas) e a chave do retorno
+-- passa a ser aluna + produto + noite.
+-- ---------------------------------------------------------------------
+alter table public.audio_feedback alter column audio_id drop not null;
+alter table public.audio_feedback add column if not exists data date;
+update public.audio_feedback set data = created_at::date where data is null;
+alter table public.audio_feedback alter column data set not null;
+alter table public.audio_feedback alter column data set default current_date;
+
+create unique index if not exists audio_feedback_user_modulo_data_key
+  on public.audio_feedback (user_id, modulo, data);
+
+comment on column public.audio_feedback.audio_id is
+  'Opcional: o áudio da noite, quando havia um só. O retorno é da noite (modulo + data).';

@@ -46,16 +46,23 @@ export async function registrarEscuta(userId: string, audioId: string) {
 }
 
 export interface PerguntaDeOntem {
-  audioId: string
-  titulo: string
-  modulo: string
+  /** Data da noite avaliada (ontem). */
+  data: string
+  /** Quantos áudios ela abriu naquela noite — muda o texto da pergunta. */
+  quantos: number
+  /** Título, quando foi um áudio só. */
+  titulo: string | null
 }
 
 /**
- * O áudio de ONTEM que ela ainda não avaliou — ou null.
+ * A noite de ONTEM, se ela ouviu algo e ainda não avaliou.
  *
- * Só ontem: perguntar sobre anteontem é cobrança, e sobre hoje é cedo
- * demais (ela acabou de ouvir, a noite ainda não aconteceu).
+ * A unidade é a NOITE, não a faixa: ela não distingue um áudio do outro ao
+ * acordar — distingue se dormiu. Perguntar por áudio obrigaria a responder
+ * três vezes quem ouviu três, e ninguém faz isso.
+ *
+ * Só ontem: sobre anteontem é cobrança, e sobre hoje é cedo demais — a noite
+ * ainda não aconteceu.
  */
 export const perguntaDeOntem = cache(
   async (userId: string, modulo: string): Promise<PerguntaDeOntem | null> => {
@@ -66,30 +73,30 @@ export const perguntaDeOntem = cache(
       const admin = createAdminClient()
       const { data: escutas } = await admin
         .from('audio_escutas')
-        .select('audio_id, modulo, audio:audio_biblioteca(titulo)')
+        .select('audio_id, audio:audio_biblioteca(titulo)')
         .eq('user_id', userId)
         .eq('modulo', modulo)
         .eq('data', ontem)
-        .order('criado_em', { ascending: false })
-        .limit(5)
 
       if (!escutas || escutas.length === 0) return null
 
-      const ids = escutas.map((e) => e.audio_id as string)
       const { data: jaRespondeu } = await admin
         .from('audio_feedback')
-        .select('audio_id')
+        .select('id')
         .eq('user_id', userId)
-        .in('audio_id', ids)
+        .eq('modulo', modulo)
+        .eq('data', ontem)
+        .maybeSingle()
 
-      const respondidos = new Set((jaRespondeu ?? []).map((r) => r.audio_id as string))
-      const pendente = escutas.find((e) => !respondidos.has(e.audio_id as string))
-      if (!pendente) return null
+      if (jaRespondeu) return null
 
       return {
-        audioId: pendente.audio_id as string,
-        titulo: (pendente.audio as unknown as { titulo?: string })?.titulo ?? 'tu audio',
-        modulo: pendente.modulo as string,
+        data: ontem,
+        quantos: escutas.length,
+        titulo:
+          escutas.length === 1
+            ? ((escutas[0].audio as unknown as { titulo?: string })?.titulo ?? null)
+            : null,
       }
     } catch (err) {
       captureException(err, { etapa: 'pergunta_de_ontem', userId, modulo })

@@ -32,60 +32,62 @@ export default async function FeedbacksPage({
 
   return (
     <div className="space-y-4">
-      {/* Áudio: o retorno do fim de cada faixa */}
+      {/* A noite: o retorno do dia seguinte */}
       <section className="rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="text-sm font-bold text-slate-900">
-          Audios · lo que responden al terminar{' '}
+          Noches evaluadas{' '}
           <span className="font-normal text-slate-400">({audio.total} respuesta(s))</span>
         </h2>
+        <p className="mt-0.5 text-xs text-slate-500">
+          La pregunta aparece al día siguiente, cuando ella vuelve al módulo.
+        </p>
 
         {audio.resumo.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-400">
-            Todavía nadie respondió. La pregunta aparece sola cuando el audio termina.
-          </p>
+          <p className="mt-2 text-sm text-slate-400">Todavía nadie respondió.</p>
         ) : (
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="border-b border-slate-200 bg-slate-50 text-left text-slate-500">
-                <tr>
-                  <th className="px-3 py-2 font-medium">Audio</th>
-                  <th className="px-3 py-2 font-medium">Producto</th>
-                  <th className="px-3 py-2 font-medium">😴 Durmió</th>
-                  <th className="px-3 py-2 font-medium">🤍 Relajó</th>
-                  <th className="px-3 py-2 font-medium">😕 No ayudó</th>
-                </tr>
-              </thead>
-              <tbody>
-                {audio.resumo.map((r) => (
-                  <tr key={r.audioId} className="border-b border-slate-100">
-                    <td className="px-3 py-2 font-medium text-slate-900">{r.titulo}</td>
-                    <td className="px-3 py-2 text-slate-500">{r.modulo}</td>
-                    <td className="px-3 py-2 text-slate-700">{r.dormi}</td>
-                    <td className="px-3 py-2 text-slate-700">{r.relajo}</td>
-                    <td className={`px-3 py-2 font-semibold ${r.naoAjudou > 0 ? 'text-amber-700' : 'text-slate-400'}`}>
-                      {r.naoAjudou}
-                    </td>
+          <>
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="border-b border-slate-200 bg-slate-50 text-left text-slate-500">
+                  <tr>
+                    <th className="px-3 py-2 font-medium">Producto</th>
+                    <th className="px-3 py-2 font-medium">😴 Durmió</th>
+                    <th className="px-3 py-2 font-medium">🌙 Relajó</th>
+                    <th className="px-3 py-2 font-medium">😕 No ayudó</th>
+                    <th className="px-3 py-2 font-medium">Noches</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className="mt-2 text-xs text-slate-500">
-              Ordenado por “no ayudó”: arriba está lo que conviene cambiar primero.
-            </p>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {audio.resumo.map((r) => (
+                    <tr key={r.modulo} className="border-b border-slate-100">
+                      <td className="px-3 py-2 font-medium text-slate-900">{r.modulo}</td>
+                      <td className="px-3 py-2 text-slate-700">{r.dormi}</td>
+                      <td className="px-3 py-2 text-slate-700">{r.relajo}</td>
+                      <td className={`px-3 py-2 font-semibold ${r.naoAjudou > 0 ? 'text-amber-700' : 'text-slate-400'}`}>
+                        {r.naoAjudou}
+                      </td>
+                      <td className="px-3 py-2 text-slate-500">{r.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-        {audio.comentarios.length > 0 && (
-          <ul className="mt-4 space-y-2">
-            {audio.comentarios.slice(0, 15).map((c, i) => (
-              <li key={i} className="rounded-md border border-slate-100 bg-slate-50 p-3 text-sm">
-                <p className="text-slate-900">“{c.comentario}”</p>
-                <p className="mt-1 text-xs text-slate-500">
-                  {c.aluna ?? 'alumna'} · {c.titulo} · {fmt(c.quando)}
-                </p>
-              </li>
-            ))}
-          </ul>
+            <ul className="mt-4 space-y-2">
+              {audio.noites.slice(0, 20).map((n, i) => (
+                <li key={i} className="rounded-md border border-slate-100 bg-slate-50 p-3 text-sm">
+                  <p className="text-slate-900">
+                    <strong>{n.resposta === 'dormi' ? '😴 Durmió' : n.resposta === 'relajo' ? '🌙 Relajó' : '😕 No ayudó'}</strong>
+                    {n.comentario ? ` — “${n.comentario}”` : ''}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {n.aluna ?? 'alumna'} · {n.modulo}
+                    {n.titulo ? ` · ${n.titulo}` : ''} · noche del {n.data}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </section>
 

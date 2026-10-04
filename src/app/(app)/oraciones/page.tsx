@@ -39,7 +39,7 @@ export default async function OracionesPage() {
 
   return (
     <div className="space-y-5">
-      {ontem && <FeedbackOntem audioId={ontem.audioId} titulo={ontem.titulo} />}
+      {ontem && <FeedbackOntem modulo={ORACIONES_MODULO} data={ontem.data} quantos={ontem.quantos} titulo={ontem.titulo} />}
       <OracionesLista itens={itens} liberados={liberados} bloqueados={bloqueados} />
     </div>
   )

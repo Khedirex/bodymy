@@ -51,7 +51,7 @@ export default async function BibliotecaPage({ params }: { params: { slug: strin
 
   return (
     <div className="space-y-5">
-      {ontem && <FeedbackOntem audioId={ontem.audioId} titulo={ontem.titulo} />}
+      {ontem && <FeedbackOntem modulo={config.slug} data={ontem.data} quantos={ontem.quantos} titulo={ontem.titulo} />}
       <BibliotecaLista config={config} itens={itens} bloqueados={bloqueados} />
     </div>
   )

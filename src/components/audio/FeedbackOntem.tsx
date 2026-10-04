@@ -3,12 +3,16 @@
 import { useState } from 'react'
 
 // =====================================================================
-// "¿Cómo fue anoche?" — a pergunta do DIA SEGUINTE.
+// "¿Cómo fue anoche?" — a pergunta do DIA SEGUINTE, sobre a NOITE.
 //
 // Não pode ser no fim do áudio: o objetivo do produto é que ela durma antes
 // de terminar. Quem dorme não responde formulário, e quem responde é
 // justamente quem NÃO dormiu — o retorno viria envenenado, dizendo que nada
 // funciona. No dia seguinte ela já sabe como foi a noite.
+//
+// E a unidade é a NOITE, não a faixa: ao acordar ela não distingue um áudio
+// do outro, distingue se dormiu. Perguntar por áudio faria quem ouviu três
+// responder três vezes — ninguém faz isso.
 //
 // Cada resposta recebe uma devolutiva própria. Um "gracias" igual para as
 // três seria o mesmo que não ler.
@@ -41,7 +45,18 @@ const OPCOES = [
   },
 ] as const
 
-export function FeedbackOntem({ audioId, titulo }: { audioId: string; titulo: string }) {
+interface Props {
+  /** Biblioteca a que a noite pertence (noche, oraciones, madrugada…). */
+  modulo: string
+  /** Data da noite avaliada (ISO). */
+  data: string
+  /** Quantos áudios ela abriu naquela noite. */
+  quantos: number
+  /** Título, quando foi um áudio só. */
+  titulo: string | null
+}
+
+export function FeedbackOntem({ modulo, data, quantos, titulo }: Props) {
   const [resposta, setResposta] = useState<(typeof OPCOES)[number] | null>(null)
   const [fechado, setFechado] = useState(false)
 
@@ -51,7 +66,7 @@ export function FeedbackOntem({ audioId, titulo }: { audioId: string; titulo: st
       await fetch('/api/audios/feedback', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ audioId, resposta: o.valor }),
+        body: JSON.stringify({ modulo, data, resposta: o.valor }),
       })
     } catch {
       /* retorno é bônus: falhar aqui não pode atrapalhar o dia dela */
@@ -79,7 +94,16 @@ export function FeedbackOntem({ audioId, titulo }: { audioId: string; titulo: st
     <section className="rounded-3xl bg-white p-5 shadow-card">
       <p className="text-lg font-extrabold leading-tight text-ink-900">¿Cómo fue anoche?</p>
       <p className="mt-1 text-base text-ink-700">
-        Escuchaste <strong>{titulo}</strong>. Cuéntanos en un toque.
+        {titulo ? (
+          <>
+            Anoche escuchaste <strong>{titulo}</strong>.{' '}
+          </>
+        ) : quantos > 1 ? (
+          <>
+            Anoche escuchaste <strong>{quantos} audios</strong>.{' '}
+          </>
+        ) : null}
+        Cuéntanos en un toque cómo dormiste.
       </p>
       <div className="mt-3 flex gap-2">
         {OPCOES.map((o) => (
