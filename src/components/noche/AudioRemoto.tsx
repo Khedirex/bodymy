@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { PlayIcon } from '@/components/ui/icons'
+import { FeedbackAudio } from '@/components/audio/FeedbackAudio'
 import { formatarDuracao, type NocheAudio } from '@/lib/noche'
 
 // Player de um áudio do ritual. A URL é pedida só quando ela toca: o link é
@@ -19,6 +20,7 @@ export function AudioRemoto({
   const [url, setUrl] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState(false)
+  const [terminou, setTerminou] = useState(false)
 
   async function abrir() {
     if (url || carregando) return
@@ -45,7 +47,15 @@ export function AudioRemoto({
   if (url) {
     return (
       <div className={destaque ? '' : 'mt-2'}>
-        <audio src={url} controls autoPlay={!destaque} preload="none" className="w-full" />
+        <audio
+          src={url}
+          controls
+          autoPlay={!destaque}
+          preload="none"
+          onEnded={() => setTerminou(true)}
+          className="w-full"
+        />
+        {terminou && <FeedbackAudio audioId={audio.id} />}
       </div>
     )
   }

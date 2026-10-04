@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { listFeedbacks } from '@/lib/admin-queries'
+import { listFeedbacks, getFeedbackDeAudios } from '@/lib/admin-queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,8 +28,67 @@ export default async function FeedbacksPage({
     page: Number(searchParams.page ?? '1'),
   })
 
+  const audio = await getFeedbackDeAudios()
+
   return (
     <div className="space-y-4">
+      {/* Áudio: o retorno do fim de cada faixa */}
+      <section className="rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="text-sm font-bold text-slate-900">
+          Audios · lo que responden al terminar{' '}
+          <span className="font-normal text-slate-400">({audio.total} respuesta(s))</span>
+        </h2>
+
+        {audio.resumo.length === 0 ? (
+          <p className="mt-2 text-sm text-slate-400">
+            Todavía nadie respondió. La pregunta aparece sola cuando el audio termina.
+          </p>
+        ) : (
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b border-slate-200 bg-slate-50 text-left text-slate-500">
+                <tr>
+                  <th className="px-3 py-2 font-medium">Audio</th>
+                  <th className="px-3 py-2 font-medium">Producto</th>
+                  <th className="px-3 py-2 font-medium">😴 Durmió</th>
+                  <th className="px-3 py-2 font-medium">🤍 Relajó</th>
+                  <th className="px-3 py-2 font-medium">😕 No ayudó</th>
+                </tr>
+              </thead>
+              <tbody>
+                {audio.resumo.map((r) => (
+                  <tr key={r.audioId} className="border-b border-slate-100">
+                    <td className="px-3 py-2 font-medium text-slate-900">{r.titulo}</td>
+                    <td className="px-3 py-2 text-slate-500">{r.modulo}</td>
+                    <td className="px-3 py-2 text-slate-700">{r.dormi}</td>
+                    <td className="px-3 py-2 text-slate-700">{r.relajo}</td>
+                    <td className={`px-3 py-2 font-semibold ${r.naoAjudou > 0 ? 'text-amber-700' : 'text-slate-400'}`}>
+                      {r.naoAjudou}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-2 text-xs text-slate-500">
+              Ordenado por “no ayudó”: arriba está lo que conviene cambiar primero.
+            </p>
+          </div>
+        )}
+
+        {audio.comentarios.length > 0 && (
+          <ul className="mt-4 space-y-2">
+            {audio.comentarios.slice(0, 15).map((c, i) => (
+              <li key={i} className="rounded-md border border-slate-100 bg-slate-50 p-3 text-sm">
+                <p className="text-slate-900">“{c.comentario}”</p>
+                <p className="mt-1 text-xs text-slate-500">
+                  {c.aluna ?? 'alumna'} · {c.titulo} · {fmt(c.quando)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       <div>
         <h1 className="text-xl font-bold text-slate-900">Comentarios de las alumnas</h1>
         <p className="mt-1 text-sm text-slate-500">

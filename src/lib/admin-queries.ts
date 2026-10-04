@@ -575,3 +575,82 @@ export async function listFeedbacks(opts: {
 
   return { rows: out, total: count ?? 0, page, perPage }
 }
+
+// ---------------------------------------------------------------------
+// Retorno do fim do áudio (audio_feedback).
+//
+// Devolve o resumo por áudio — quantas dormiram, quantas relaxaram, quantas
+// disseram que não ajudou — e os comentários escritos. É o que diz quais
+// áudios funcionam num produto que ela usa de olhos fechados.
+// ---------------------------------------------------------------------
+export interface ResumoAudio {
+  audioId: string
+  titulo: string
+  modulo: string
+  dormi: number
+  relajo: number
+  naoAjudou: number
+  total: number
+}
+
+export interface ComentarioAudio {
+  titulo: string
+  modulo: string
+  resposta: string
+  comentario: string
+  quando: string
+  aluna: string | null
+}
+
+export async function getFeedbackDeAudios(): Promise<{
+  resumo: ResumoAudio[]
+  comentarios: ComentarioAudio[]
+  total: number
+}> {
+  const admin = createAdminClient()
+
+  const { data, error } = await admin
+    .from('audio_feedback')
+    .select('audio_id, modulo, resposta, comentario, created_at, audio:audio_biblioteca(titulo), perfil:profiles(nome, email)')
+    .order('created_at', { ascending: false })
+    .limit(500)
+
+  if (error || !data) return { resumo: [], comentarios: [], total: 0 }
+
+  const porAudio = new Map<string, ResumoAudio>()
+  const comentarios: ComentarioAudio[] = []
+
+  for (const r of data) {
+    const titulo = (r.audio as unknown as { titulo?: string })?.titulo ?? '—'
+    const id = r.audio_id as string
+    const atual =
+      porAudio.get(id) ??
+      { audioId: id, titulo, modulo: r.modulo as string, dormi: 0, relajo: 0, naoAjudou: 0, total: 0 }
+
+    if (r.resposta === 'dormi') atual.dormi += 1
+    else if (r.resposta === 'relajo') atual.relajo += 1
+    else atual.naoAjudou += 1
+    atual.total += 1
+    porAudio.set(id, atual)
+
+    const texto = (r.comentario as string) ?? ''
+    if (texto.trim()) {
+      const p = r.perfil as unknown as { nome?: string; email?: string } | null
+      comentarios.push({
+        titulo,
+        modulo: r.modulo as string,
+        resposta: r.resposta as string,
+        comentario: texto,
+        quando: r.created_at as string,
+        aluna: p?.nome ?? p?.email ?? null,
+      })
+    }
+  }
+
+  // Os que mais incomodaram primeiro: é o que você quer trocar.
+  const resumo = Array.from(porAudio.values()).sort(
+    (a, b) => b.naoAjudou - a.naoAjudou || b.total - a.total,
+  )
+
+  return { resumo, comentarios, total: data.length }
+}

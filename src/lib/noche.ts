@@ -5,9 +5,12 @@
 // sequência (uma noite por dia); dois ficam disponíveis para quando ela
 // precisar, fora da ordem:
 //
-//   Preparación    3 · prepara a reprogramação (os 3 primeiros dias)
-//   Módulo 1       7 · a reprogramação
-//   Módulo 2       7 · o aprofundamento
+//   Preparación      3 · prepara a reprogramação (os 3 primeiros dias)
+//   La Reprogramación 7 · a reprogramação
+//   Sueño Profundo    7 · o aprofundamento
+//
+// Os nomes acima são os que a ALUNA lê. Os slugs no banco continuam
+// preparacion / modulo-1 / modulo-2: rótulo é texto de produto, não chave.
 //   Refuerzo       7 · se o sono não melhorou
 //   Reset profundo 7 · último recurso
 //
@@ -55,28 +58,28 @@ export const NOCHE_BLOCOS: NocheBloco[] = [
   {
     slug: 'preparacion',
     nome: 'Preparación',
-    resumo: 'Tres noches para preparar tu mente antes de la reprogramación.',
+    resumo: 'Tres noches para preparar tu mente antes de empezar.',
     sequencial: true,
     alvo: 3,
   },
   {
     slug: 'modulo-1',
-    nome: 'Módulo 1',
-    resumo: 'La reprogramación empieza aquí.',
+    nome: 'La Reprogramación',
+    resumo: 'Siete noches en las que tu sueño empieza a cambiar.',
     sequencial: true,
     alvo: NOCHE_ALVO_PADRAO,
   },
   {
     slug: 'modulo-2',
-    nome: 'Módulo 2',
-    resumo: 'Profundiza lo que ya empezó a cambiar.',
+    nome: 'Sueño Profundo',
+    resumo: 'Siete noches para que el cambio se asiente.',
     sequencial: true,
     alvo: NOCHE_ALVO_PADRAO,
   },
   {
     slug: 'refuerzo',
     nome: 'Refuerzo',
-    resumo: 'Siete noches más de apoyo, cuando el cambio tarda.',
+    resumo: 'Siete audios de apoyo, para cuando el cambio tarda.',
     sequencial: false,
     quando: 'Si tu sueño todavía no mejoró',
     alvo: NOCHE_ALVO_PADRAO,

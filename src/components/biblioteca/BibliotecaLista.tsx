@@ -6,6 +6,7 @@ import { formatarDuracao } from '@/lib/oraciones'
 import type { BibliotecaConfig, ItemBiblioteca } from '@/lib/bibliotecas'
 import { temaDoModulo } from '@/lib/modulo-tema'
 import { PlayIcon, LockIcon } from '@/components/ui/icons'
+import { FeedbackAudio } from '@/components/audio/FeedbackAudio'
 
 interface Props {
   config: BibliotecaConfig
@@ -22,6 +23,7 @@ export function BibliotecaLista({ config, itens, bloqueados }: Props) {
   const [url, setUrl] = useState<string | null>(null)
   const [carregando, setCarregando] = useState<string | null>(null)
   const [erro, setErro] = useState<string | null>(null)
+  const [terminou, setTerminou] = useState<string | null>(null)
 
   async function tocar(id: string) {
     if (tocando === id) {
@@ -30,6 +32,7 @@ export function BibliotecaLista({ config, itens, bloqueados }: Props) {
       return
     }
     setErro(null)
+    setTerminou(null)
     setCarregando(id)
     try {
       const res = await fetch('/api/biblioteca/url', {
@@ -135,7 +138,17 @@ export function BibliotecaLista({ config, itens, bloqueados }: Props) {
                       </span>
                     </button>
                     {ativa && url && (
-                      <audio src={url} controls autoPlay preload="none" className="mt-3 w-full" />
+                      <>
+                        <audio
+                          src={url}
+                          controls
+                          autoPlay
+                          preload="none"
+                          onEnded={() => setTerminou(o.id)}
+                          className="mt-3 w-full"
+                        />
+                        {terminou === o.id && <FeedbackAudio audioId={o.id} />}
+                      </>
                     )}
                   </li>
                 )
