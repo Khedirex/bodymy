@@ -7,6 +7,7 @@ import type { BibliotecaConfig, ItemBiblioteca } from '@/lib/bibliotecas'
 import { temaDoModulo } from '@/lib/modulo-tema'
 import { ProgressBar } from '@/components/ProgressBar'
 import { CheckIcon, LockIcon } from '@/components/ui/icons'
+import { GuiaBiblioteca } from '@/components/biblioteca/GuiaBiblioteca'
 
 interface Props {
   config: BibliotecaConfig
@@ -148,6 +149,8 @@ export function BibliotecaSequencia({
           <p className="text-base font-semibold text-ink-900">Estamos preparando tus audios 🤍</p>
         </div>
       )}
+
+      <GuiaBiblioteca config={config} />
 
       {/* O caminho: o que já passou e o que vem */}
       {sequencia.length > 0 && (

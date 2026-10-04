@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { MODULOS } from '@/lib/modulos'
+import { BIBLIOTECAS } from '@/lib/bibliotecas'
 import { CIRCUITO_PRODUCT_SLUGS } from '@/lib/training'
 import { ObrigadoView } from './ObrigadoView'
 import { SUPORTE_EMAIL, emailDosParams } from './params'
@@ -40,11 +41,26 @@ export default async function ObrigadoPage({
   // conhece produto por nome, e um produto novo não precisa de mudança aqui.
   const modulo = slug ? MODULOS.find((m) => m.productSlugs.includes(slug)) : undefined
 
+  // Produto com guia em PDF: ela baixa na hora, sem esperar o login. É a
+  // primeira entrega concreta da compra.
+  const biblioteca = slug
+    ? BIBLIOTECAS.find((b) => b.guiaPdf && b.productSlugs.includes(slug))
+    : undefined
+  const guia = biblioteca?.guiaPdf
+    ? {
+        url: biblioteca.guiaPdf,
+        arquivo: biblioteca.guiaPdf.split('/').pop() ?? 'guia.pdf',
+        titulo: biblioteca.guiaTitulo ?? 'Tu guía en PDF',
+        ondeNoApp: `Los audios están en el app, en "${biblioteca.nome}".`,
+      }
+    : undefined
+
   return (
     <ObrigadoView
       email={email}
       produtoNome={produtoNome}
       suporteEmail={SUPORTE_EMAIL}
+      guia={guia}
       moduloHref={modulo?.href}
       moduloChamada={modulo ? `${modulo.nome}: ${modulo.resumo}.` : undefined}
     />

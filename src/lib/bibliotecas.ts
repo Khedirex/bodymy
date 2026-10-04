@@ -41,6 +41,10 @@ export interface BibliotecaConfig {
   blocos?: BlocoBiblioteca[]
   /** Nota de orientação no painel. */
   nota: string
+  /** Guia em PDF do produto, quando existe (vai no módulo e no e-mail). */
+  guiaPdf?: string
+  /** Como chamar o PDF na tela e no e-mail. */
+  guiaTitulo?: string
 }
 
 export const BIBLIOTECAS: BibliotecaConfig[] = [
@@ -51,7 +55,9 @@ export const BIBLIOTECAS: BibliotecaConfig[] = [
     emoji: '🌑',
     productSlugs: ['protocolo-reset-madrugada'],
     formato: 'libre',
-    nota: 'Audios de emergencia. Ella elige el que necesita, en el momento — sin orden ni avance.',
+    guiaPdf: '/guias/madrugada/protocolo-reset-madrugada.pdf',
+    guiaTitulo: 'El protocolo en PDF',
+    nota: 'Audios de emergencia. Ella elige el que necesita, en el momento — sin orden ni avance. El PDF del protocolo va junto, en el módulo y en el correo de acceso.',
   },
   {
     slug: 'dia-perfecto',

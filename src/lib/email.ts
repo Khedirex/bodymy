@@ -5,6 +5,7 @@ import { welcomeHtml, type GuiaEmail } from '@/lib/email-templates'
 import { env } from '@/lib/env'
 import { CISNE_PRODUCT_SLUG, CISNE_GUIA_PDF } from '@/lib/cisne'
 import { NOCHE_PRODUCT_SLUG, NOCHE_GUIA_PDF } from '@/lib/noche'
+import { BIBLIOTECAS } from '@/lib/bibliotecas'
 
 // Remetente de TESTE do Resend: funciona SEM verificar domínio, mas só
 // entrega para o e-mail dono da conta Resend. Usado como fallback em dev
@@ -158,6 +159,23 @@ function guiaDoProduto(produtoSlug: string | undefined): GuiaEmail | undefined {
         'Una <strong>Vibración Nocturna</strong> por noche, de unos 7 minutos',
         'Te acuestas, cierras los ojos y el audio hace el resto — cada noche abre la siguiente',
         'Tu <strong>audio de rescate</strong> para cuando despiertes de madrugada, disponible siempre',
+      ],
+    }
+  }
+
+  // Bibliotecas de áudio que entregam PDF (ex.: Reset Madrugada). Lido do
+  // registro: produto novo com guia não precisa de mais um `if` aqui.
+  const biblioteca = BIBLIOTECAS.find(
+    (b) => b.guiaPdf && produtoSlug && b.productSlugs.includes(produtoSlug),
+  )
+  if (biblioteca?.guiaPdf) {
+    return {
+      emoji: biblioteca.emoji,
+      pdfUrl: `${env.appUrl}${biblioteca.guiaPdf}`,
+      itens: [
+        `<strong>${biblioteca.nome}</strong>: ${biblioteca.resumo}`,
+        'Los audios están en la app, listos para cuando los necesites',
+        'El protocolo completo, en PDF, para leer o imprimir',
       ],
     }
   }

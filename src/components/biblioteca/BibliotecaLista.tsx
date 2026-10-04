@@ -6,6 +6,7 @@ import { formatarDuracao } from '@/lib/oraciones'
 import type { BibliotecaConfig, ItemBiblioteca } from '@/lib/bibliotecas'
 import { temaDoModulo } from '@/lib/modulo-tema'
 import { PlayIcon, LockIcon } from '@/components/ui/icons'
+import { GuiaBiblioteca } from '@/components/biblioteca/GuiaBiblioteca'
 
 interface Props {
   config: BibliotecaConfig
@@ -144,6 +145,8 @@ export function BibliotecaLista({ config, itens, bloqueados }: Props) {
           </section>
         ))
       )}
+
+      <GuiaBiblioteca config={config} />
 
       {bloqueados > 0 && (
         <p className="text-center text-sm text-ink-700">
