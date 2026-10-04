@@ -23,6 +23,7 @@ const ITEMS = [
       p.startsWith('/cisne') ||
       p.startsWith('/noche') ||
       p.startsWith('/oraciones') ||
+      p.startsWith('/biblioteca') ||
       p.startsWith('/entenda') ||
       p.startsWith('/dieta'),
   },

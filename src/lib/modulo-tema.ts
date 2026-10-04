@@ -67,4 +67,37 @@ export const TEMAS: Record<string, ModuloTema> = {
   },
 }
 
+// Bibliotecas de áudio (src/lib/bibliotecas.ts).
+TEMAS['madrugada'] = {
+  avatar: 'bg-ink-900 text-mist-50',
+  chip: 'bg-ink-900/10 text-ink-900',
+  botao: 'bg-ink-900 text-mist-50',
+  realce: 'text-ink-900',
+  barra: 'from-ink-700 to-ink-900',
+}
+
+TEMAS['dia-perfecto'] = {
+  avatar: 'bg-sun-100 text-sun-700',
+  chip: 'bg-sun-100 text-sun-700',
+  botao: 'bg-sun-300 text-ink-900',
+  realce: 'text-sun-700',
+  barra: 'from-sun-300 to-sun-500',
+}
+
+TEMAS['mantenimiento'] = {
+  avatar: 'bg-brand-50 text-brand-600',
+  chip: 'bg-brand-50 text-brand-700',
+  botao: 'bg-brand-500 text-white',
+  realce: 'text-brand-600',
+  barra: 'from-brand-400 to-brand-600',
+}
+
+TEMAS['receta'] = {
+  avatar: 'bg-sage-100 text-sage-600',
+  chip: 'bg-sage-100 text-sage-600',
+  botao: 'bg-sage-600 text-white',
+  realce: 'text-sage-600',
+  barra: 'from-sage-300 to-sage-600',
+}
+
 export const temaDoModulo = (slug: string): ModuloTema => TEMAS[slug] ?? PADRAO

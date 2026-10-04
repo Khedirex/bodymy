@@ -15,26 +15,47 @@ import {
   formatarDuracao,
 } from '@/lib/oraciones'
 import { NOCHE_MODULO, NOCHE_PRODUCT_SLUG, NOCHE_BLOCOS, blocosSequenciais } from '@/lib/noche'
+import { BIBLIOTECAS as LIBS } from '@/lib/bibliotecas'
 
 export const dynamic = 'force-dynamic'
 
+interface ConfigPainel {
+  titulo: string
+  nota: string
+  produtos: string[]
+  blocos: { slug: string; nome: string; alvo?: number }[]
+}
+
 // Cada biblioteca do app: quais produtos liberam e em que blocos ela divide.
-const BIBLIOTECAS = {
-  [ORACIONES_MODULO]: {
-    titulo: 'Oración Milagrosa',
-    nota: 'Las primeras vienen en el bump; el resto se desbloquea con la colección completa.',
-    produtos: [ORACIONES_PRODUCT_SLUG, ORACIONES_UPSELL_SLUG],
-    blocos: [] as { slug: string; nome: string; alvo?: number }[],
-  },
+// Os dois primeiros têm tela própria para a aluna; o resto vem do registro
+// de bibliotecas, então um produto de áudio novo aparece aqui sozinho.
+const PAINEL: Record<string, ConfigPainel> = {
   [NOCHE_MODULO]: {
     titulo: 'Ritual Noche Perfecta',
     nota: 'Preparación (3) + Módulo 1 (7) + Módulo 2 (7) forman la secuencia: 17 noches, una por día. Refuerzo y Reset Profundo quedan disponibles fuera de orden.',
     produtos: [NOCHE_PRODUCT_SLUG],
     blocos: NOCHE_BLOCOS.map((b) => ({ slug: b.slug, nome: b.nome, alvo: b.alvo })),
   },
-} as const
+  [ORACIONES_MODULO]: {
+    titulo: 'Oración Milagrosa',
+    nota: 'Las primeras vienen en el bump; el resto se desbloquea con la colección completa.',
+    produtos: [ORACIONES_PRODUCT_SLUG, ORACIONES_UPSELL_SLUG],
+    blocos: [],
+  },
+  ...Object.fromEntries(
+    LIBS.map((b) => [
+      b.slug,
+      {
+        titulo: b.nome,
+        nota: b.nota,
+        produtos: b.productSlugs,
+        blocos: (b.blocos ?? []).map((x) => ({ slug: x.slug, nome: x.nome, alvo: x.alvo })),
+      } as ConfigPainel,
+    ]),
+  ),
+}
 
-type ModuloSlug = keyof typeof BIBLIOTECAS
+type ModuloSlug = string
 
 export default async function AdminAudiosPage({
   searchParams,
@@ -42,8 +63,8 @@ export default async function AdminAudiosPage({
   searchParams: { m?: string }
 }) {
   const modulo: ModuloSlug =
-    searchParams.m === NOCHE_MODULO ? NOCHE_MODULO : ORACIONES_MODULO
-  const config = BIBLIOTECAS[modulo]
+    searchParams.m && PAINEL[searchParams.m] ? searchParams.m : NOCHE_MODULO
+  const config = PAINEL[modulo]
 
   const admin = createAdminClient()
   const [{ data: produtos }, { data: audios }] = await Promise.all([
@@ -96,7 +117,7 @@ export default async function AdminAudiosPage({
   // aluna calcula: ordem dos blocos sequenciais, depois a ordem dentro do
   // bloco. Assim o que você confere na tela é literalmente o que ela recebe.
   // ------------------------------------------------------------------
-  const temBlocos = config.blocos.length > 0
+  const temBlocos = modulo === NOCHE_MODULO && config.blocos.length > 0
   const porBloco = (slug: string) =>
     (audios ?? []).filter((a) => (a.bloco as string) === slug)
 
@@ -178,8 +199,8 @@ export default async function AdminAudiosPage({
         </p>
       </div>
 
-      <nav className="flex gap-2">
-        {(Object.keys(BIBLIOTECAS) as ModuloSlug[]).map((m) => (
+      <nav className="flex flex-wrap gap-2">
+        {Object.keys(PAINEL).map((m) => (
           <Link
             key={m}
             href={`/admin/audios?m=${m}`}
@@ -189,7 +210,7 @@ export default async function AdminAudiosPage({
                 : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
             }`}
           >
-            {BIBLIOTECAS[m].titulo}
+            {PAINEL[m].titulo}
           </Link>
         ))}
       </nav>

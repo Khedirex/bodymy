@@ -11,6 +11,8 @@ import { NOCHE_PRODUCT_SLUG } from '@/lib/noche'
 import { ORACIONES_PRODUCT_SLUG, ORACIONES_UPSELL_SLUG } from '@/lib/oraciones'
 import { hasNocheAccess, getNocheEstado, getNocheCatalogo } from '@/lib/noche-server'
 import { getOracionesCatalogo } from '@/lib/oraciones-server'
+import { BIBLIOTECAS } from '@/lib/bibliotecas'
+import { getCatalogoBiblioteca } from '@/lib/biblioteca-server'
 
 // =====================================================================
 // REGISTRO DE MÓDULOS — a fonte única dos "mini-apps" do BodyMy.
@@ -168,6 +170,37 @@ export const MODULOS: ModuloBodyMy[] = [
     carregarEstado: estadoNoche,
   },
 ]
+
+// ---------------------------------------------------------------------
+// Bibliotecas de áudio → módulos, sem escrever um por um.
+//
+// Cada linha de src/lib/bibliotecas.ts vira um mini-app em /biblioteca/<slug>.
+// Produto de áudio novo não precisa de rota nem de entrada aqui: entra na
+// configuração e aparece sozinho na Home, em "Mis rutinas" e no painel.
+// ---------------------------------------------------------------------
+const MODULOS_DE_BIBLIOTECA: ModuloBodyMy[] = BIBLIOTECAS.map((b) => ({
+  slug: b.slug,
+  nome: b.nome,
+  resumo: b.resumo,
+  href: `/biblioteca/${b.slug}`,
+  productSlugs: b.productSlugs,
+  emoji: b.emoji,
+  carregarEstado: async (userId: string) => {
+    const { liberados } = await getCatalogoBiblioteca(userId, b.slug)
+    // Sem áudio ainda: o card mostra o resumo e leva à tela, que explica
+    // que o conteúdo está sendo preparado. É melhor do que sumir.
+    if (liberados === 0) return null
+    return {
+      concluidos: 0,
+      total: 0,
+      feitoHoje: false,
+      terminado: false,
+      chamadaHoje: `${liberados} ${liberados === 1 ? 'audio disponible' : 'audios disponibles'}`,
+    }
+  },
+}))
+
+MODULOS.push(...MODULOS_DE_BIBLIOTECA)
 
 export interface ModuloDaAluna {
   modulo: ModuloBodyMy
