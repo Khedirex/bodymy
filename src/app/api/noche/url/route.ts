@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { registrarEscuta } from '@/lib/feedback-server'
 import { urlDoAudioNoche } from '@/lib/noche-server'
 
 export const runtime = 'nodejs'
@@ -17,5 +18,8 @@ export async function POST(request: NextRequest) {
 
   const url = await urlDoAudioNoche(user.id, id)
   if (!url) return NextResponse.json({ error: 'sin_acceso' }, { status: 403 })
+
+  // Ela abriu o áudio: fica registrado para a pergunta de amanhã.
+  await registrarEscuta(user.id, id)
   return NextResponse.json({ url })
 }

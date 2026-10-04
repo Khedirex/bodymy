@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
 import { hasNocheAccess, getNocheEstado, getNocheCatalogo } from '@/lib/noche-server'
 import { NocheRitual } from '@/components/noche/NocheRitual'
+import { FeedbackOntem } from '@/components/audio/FeedbackOntem'
+import { perguntaDeOntem } from '@/lib/feedback-server'
+import { NOCHE_MODULO } from '@/lib/noche'
 import { EmptyState } from '@/components/ui/states'
 import { LockIcon } from '@/components/ui/icons'
 
@@ -30,16 +33,19 @@ export default async function NochePage() {
     )
   }
 
-  const [estado, catalogo] = await Promise.all([
+  const [estado, catalogo, ontem] = await Promise.all([
     getNocheEstado(profile.id),
     getNocheCatalogo(),
+    perguntaDeOntem(profile.id, NOCHE_MODULO),
   ])
 
   const audioDeHoje =
     catalogo.sequencia.find((a) => a.noche === estado.proximaNoche) ?? null
 
   return (
-    <NocheRitual
+    <div className="space-y-5">
+      {ontem && <FeedbackOntem audioId={ontem.audioId} titulo={ontem.titulo} />}
+      <NocheRitual
       nivel={estado.nivel}
       concluidas={estado.concluidas}
       proximaNoche={estado.proximaNoche}
@@ -49,6 +55,7 @@ export default async function NochePage() {
       audioDeHoje={audioDeHoje}
       apoio={catalogo.apoio}
       resgate={catalogo.resgate}
-    />
+      />
+    </div>
   )
 }

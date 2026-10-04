@@ -4,6 +4,8 @@ import { getProfile } from '@/lib/session'
 import { bibliotecaPorSlug, BIBLIOTECAS } from '@/lib/bibliotecas'
 import { hasBibliotecaAccess, getCatalogoBiblioteca } from '@/lib/biblioteca-server'
 import { BibliotecaLista } from '@/components/biblioteca/BibliotecaLista'
+import { FeedbackOntem } from '@/components/audio/FeedbackOntem'
+import { perguntaDeOntem } from '@/lib/feedback-server'
 import { EmptyState } from '@/components/ui/states'
 import { LockIcon } from '@/components/ui/icons'
 
@@ -42,6 +44,15 @@ export default async function BibliotecaPage({ params }: { params: { slug: strin
     )
   }
 
-  const { itens, bloqueados } = await getCatalogoBiblioteca(profile.id, config.slug)
-  return <BibliotecaLista config={config} itens={itens} bloqueados={bloqueados} />
+  const [{ itens, bloqueados }, ontem] = await Promise.all([
+    getCatalogoBiblioteca(profile.id, config.slug),
+    perguntaDeOntem(profile.id, config.slug),
+  ])
+
+  return (
+    <div className="space-y-5">
+      {ontem && <FeedbackOntem audioId={ontem.audioId} titulo={ontem.titulo} />}
+      <BibliotecaLista config={config} itens={itens} bloqueados={bloqueados} />
+    </div>
+  )
 }

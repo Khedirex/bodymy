@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation'
 import { getProfile } from '@/lib/session'
 import { hasOracionesAccess, getOracionesCatalogo } from '@/lib/oraciones-server'
 import { OracionesLista } from '@/components/oraciones/OracionesLista'
+import { FeedbackOntem } from '@/components/audio/FeedbackOntem'
+import { perguntaDeOntem } from '@/lib/feedback-server'
+import { ORACIONES_MODULO } from '@/lib/oraciones'
 import { EmptyState } from '@/components/ui/states'
 import { LockIcon } from '@/components/ui/icons'
 
@@ -29,7 +32,15 @@ export default async function OracionesPage() {
     )
   }
 
-  const { itens, liberados, bloqueados } = await getOracionesCatalogo(profile.id)
+  const [{ itens, liberados, bloqueados }, ontem] = await Promise.all([
+    getOracionesCatalogo(profile.id),
+    perguntaDeOntem(profile.id, ORACIONES_MODULO),
+  ])
 
-  return <OracionesLista itens={itens} liberados={liberados} bloqueados={bloqueados} />
+  return (
+    <div className="space-y-5">
+      {ontem && <FeedbackOntem audioId={ontem.audioId} titulo={ontem.titulo} />}
+      <OracionesLista itens={itens} liberados={liberados} bloqueados={bloqueados} />
+    </div>
+  )
 }
